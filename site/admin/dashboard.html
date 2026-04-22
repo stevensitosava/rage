@@ -1,0 +1,540 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Dashboard — Raffy Gelato Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+<!-- ── HEADER ─────────────────────────────────────────────── -->
+<header class="admin-header">
+  <div class="admin-logo">🍦 Raffy Admin</div>
+  <div class="admin-user">
+    <span id="admin-email"></span>
+    <button class="btn btn-outline btn-sm" id="logout-btn">Uitloggen</button>
+  </div>
+</header>
+
+<!-- ── MAIN CONTENT ───────────────────────────────────────── -->
+<div class="admin-content">
+
+  <!-- Tabs -->
+  <nav class="admin-tabs" role="tablist">
+    <button class="admin-tab active" data-tab="flavors"  role="tab">Smaken</button>
+    <button class="admin-tab"        data-tab="index"    role="tab">Index Pagina</button>
+    <button class="admin-tab"        data-tab="about"    role="tab">Over Ons</button>
+    <button class="admin-tab"        data-tab="contact"  role="tab">Contact</button>
+  </nav>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: SMAKEN (FLAVORS)
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel active" id="panel-flavors">
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h2 class="admin-card-title">Smaken Beheren</h2>
+        <button class="btn btn-primary btn-sm" id="add-flavor-btn">+ Smaak Toevoegen</button>
+      </div>
+
+      <div id="flavors-status"></div>
+
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th style="width:80px;">Volgorde</th>
+              <th style="width:50px;">Emoji</th>
+              <th>Naam</th>
+              <th>Categorie</th>
+              <th>Prijs</th>
+              <th>Zichtbaar</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="flavors-table-body">
+            <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: INDEX PAGINA
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel" id="panel-index">
+    <form id="index-form">
+
+      <!-- Story Strip -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Ons Verhaal (Story Strip)</h2>
+        </div>
+        <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1rem;">
+          De sectie "Ons Verhaal" op de homepage. Het heldengedeelte wordt nooit bewerkt.
+        </p>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Label (boven de titel)</label>
+            <input type="text" name="storyLabel" placeholder="Ons Verhaal" />
+          </div>
+          <div class="form-group">
+            <label>Titel (H2 — gebruik &lt;br /&gt; voor regelbreuk)</label>
+            <input type="text" name="storyTitle" placeholder="Al Meer Dan 25 Jaar&lt;br /&gt;op de Oude Markt" />
+          </div>
+        </div>
+
+        <div class="form-group">
+          <label>Alinea 1</label>
+          <textarea name="storyText1" rows="3" placeholder="Eerste alinea tekst…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Alinea 2</label>
+          <textarea name="storyText2" rows="3" placeholder="Tweede alinea tekst…"></textarea>
+        </div>
+
+        <div class="form-group">
+          <label>Afbeelding</label>
+          <div class="img-upload-area">
+            <input type="file" id="index-story-img-input" accept="image/*" />
+            <img id="index-story-img-preview" class="img-preview" style="display:none;" alt="" />
+            <p style="color:var(--text-light);font-size:0.85rem;">Klik om een afbeelding te kiezen</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Pillars -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Waarom Raffy? (Pillar Cards)</h2>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <!-- Pillar 1 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">PILLAR 1</p>
+            <div class="form-group"><label>Emoji</label><input type="text" name="pillar1Icon" placeholder="🌿" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="pillar1Title" placeholder="Echte Ingrediënten" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="pillar1Desc" rows="3"></textarea></div>
+          </div>
+          <!-- Pillar 2 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">PILLAR 2</p>
+            <div class="form-group"><label>Emoji</label><input type="text" name="pillar2Icon" placeholder="🍦" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="pillar2Title" placeholder="Dagelijks Vers" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="pillar2Desc" rows="3"></textarea></div>
+          </div>
+          <!-- Pillar 3 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">PILLAR 3</p>
+            <div class="form-group"><label>Emoji</label><input type="text" name="pillar3Icon" placeholder="🏛️" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="pillar3Title" placeholder="Italiaanse Traditie" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="pillar3Desc" rows="3"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Seasonal Cards -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Seizoensspecialiteiten (tot 8 kaarten)</h2>
+        </div>
+
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(240px,1fr));gap:1rem;">
+          <!-- Cards 1–8 -->
+          <!-- Card 1 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 1</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal1Season" placeholder="Lente / Zomer / Herfst / Winter" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal1Name" placeholder="Kers &amp; Munt" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal1Desc" placeholder="Korte omschrijving…" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal1-img-input" accept="image/*" />
+                <img id="seasonal1-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 2 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 2</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal2Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal2Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal2Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal2-img-input" accept="image/*" />
+                <img id="seasonal2-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 3 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 3</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal3Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal3Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal3Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal3-img-input" accept="image/*" />
+                <img id="seasonal3-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 4 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 4</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal4Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal4Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal4Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal4-img-input" accept="image/*" />
+                <img id="seasonal4-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 5 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 5</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal5Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal5Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal5Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal5-img-input" accept="image/*" />
+                <img id="seasonal5-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 6 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 6</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal6Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal6Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal6Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal6-img-input" accept="image/*" />
+                <img id="seasonal6-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 7 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 7</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal7Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal7Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal7Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal7-img-input" accept="image/*" />
+                <img id="seasonal7-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Card 8 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--text-light);margin-bottom:0.75rem;">KAART 8</p>
+            <div class="form-group"><label>Seizoen</label><input type="text" name="seasonal8Season" /></div>
+            <div class="form-group"><label>Naam</label><input type="text" name="seasonal8Name" /></div>
+            <div class="form-group"><label>Beschrijving</label><input type="text" name="seasonal8Desc" /></div>
+            <div class="form-group"><label>Afbeelding</label>
+              <div class="img-upload-area" style="padding:0.75rem;">
+                <input type="file" id="seasonal8-img-input" accept="image/*" />
+                <img id="seasonal8-img-preview" class="img-preview" style="display:none;max-height:70px;" alt="" />
+                <p style="color:var(--text-light);font-size:0.78rem;">Kies afbeelding</p>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <div id="index-status"></div>
+      <div style="text-align:right;">
+        <button type="submit" class="btn btn-primary save-btn" style="padding:0.65rem 1.75rem;">Opslaan</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: OVER ONS
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel" id="panel-about">
+    <form id="about-form">
+
+      <!-- Story Section -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Verhaal Sectie</h2>
+        </div>
+
+        <div class="form-row">
+          <div class="form-group">
+            <label>Label</label>
+            <input type="text" name="storyLabel" placeholder="Waar Het Allemaal Begon" />
+          </div>
+          <div class="form-group">
+            <label>Titel (gebruik &lt;br /&gt; voor regelbreuk)</label>
+            <input type="text" name="storyTitle" placeholder="Een Familiereceptuur.&lt;br /&gt;Een Grote Droom." />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Alinea 1</label>
+          <textarea name="storyParagraph1" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Alinea 2</label>
+          <textarea name="storyParagraph2" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Alinea 3</label>
+          <textarea name="storyParagraph3" rows="3"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Afbeelding (oprichter / product)</label>
+          <div class="img-upload-area">
+            <input type="file" id="about-img-input" accept="image/*" />
+            <img id="about-img-preview" class="img-preview" style="display:none;" alt="" />
+            <p style="color:var(--text-light);font-size:0.85rem;">Klik om een afbeelding te kiezen</p>
+          </div>
+        </div>
+      </div>
+
+      <!-- Process Steps -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Bereidingsproces (3 Stappen)</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <!-- Step 1 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--primary);margin-bottom:0.75rem;">01</p>
+            <div class="form-group"><label>Titel</label><input type="text" name="step1Title" placeholder="Selecteren" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="step1Desc" rows="4"></textarea></div>
+          </div>
+          <!-- Step 2 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--primary);margin-bottom:0.75rem;">02</p>
+            <div class="form-group"><label>Titel</label><input type="text" name="step2Title" placeholder="Bereiden" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="step2Desc" rows="4"></textarea></div>
+          </div>
+          <!-- Step 3 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <p style="font-weight:700;font-size:0.8rem;color:var(--primary);margin-bottom:0.75rem;">03</p>
+            <div class="form-group"><label>Titel</label><input type="text" name="step3Title" placeholder="Serveren" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="step3Desc" rows="4"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Values -->
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Onze Waarden (3 Kaarten)</h2>
+        </div>
+        <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:1rem;">
+          <!-- Value 1 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <div class="form-group"><label>Emoji</label><input type="text" name="val1Icon" placeholder="🌱" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="val1Title" placeholder="Seizoensgebonden" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="val1Desc" rows="4"></textarea></div>
+          </div>
+          <!-- Value 2 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <div class="form-group"><label>Emoji</label><input type="text" name="val2Icon" placeholder="🤝" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="val2Title" placeholder="Authentiek" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="val2Desc" rows="4"></textarea></div>
+          </div>
+          <!-- Value 3 -->
+          <div style="border:1px solid var(--border);border-radius:var(--radius);padding:1rem;">
+            <div class="form-group"><label>Emoji</label><input type="text" name="val3Icon" placeholder="🏘️" style="width:80px;" /></div>
+            <div class="form-group"><label>Titel</label><input type="text" name="val3Title" placeholder="Gemeenschap" /></div>
+            <div class="form-group"><label>Beschrijving</label><textarea name="val3Desc" rows="4"></textarea></div>
+          </div>
+        </div>
+      </div>
+
+      <div id="about-status"></div>
+      <div style="text-align:right;">
+        <button type="submit" class="btn btn-primary save-btn" style="padding:0.65rem 1.75rem;">Opslaan</button>
+      </div>
+    </form>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: CONTACT
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel" id="panel-contact">
+    <form id="contact-form-admin">
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Adres &amp; Kaart</h2>
+        </div>
+        <div class="form-group">
+          <label>Adres (gebruik Enter voor regelbreuk)</label>
+          <textarea name="address" rows="3" placeholder="Oude Markt 1&#10;5038 TJ Tilburg"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Google Maps URL (voor "Routebeschrijving →")</label>
+          <input type="text" name="addressUrl" placeholder="https://maps.google.com/?q=…" />
+        </div>
+        <div class="form-group">
+          <label>Google Maps Embed URL (voor de kaart op de pagina)</label>
+          <input type="text" name="mapEmbedUrl" placeholder="https://www.google.com/maps/embed?pb=…" />
+          <p class="form-hint">Ga naar Google Maps → Delen → Kaart insluiten → kopieer de src-URL</p>
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Openingstijden</h2>
+        </div>
+        <div class="form-group">
+          <label>Maandag – Vrijdag</label>
+          <input type="text" name="hoursWeekdays" placeholder="Maandag – Vrijdag: 12:00 – 21:00" />
+        </div>
+        <div class="form-group">
+          <label>Zaterdag</label>
+          <input type="text" name="hoursSaturday" placeholder="Zaterdag: 11:00 – 22:00" />
+        </div>
+        <div class="form-group">
+          <label>Zondag</label>
+          <input type="text" name="hoursSunday" placeholder="Zondag: 11:00 – 21:00" />
+        </div>
+      </div>
+
+      <div class="admin-card">
+        <div class="admin-card-header">
+          <h2 class="admin-card-title">Contactgegevens</h2>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Telefoonnummer (tel:-link, bijv. +31882050505)</label>
+            <input type="text" name="phone" placeholder="+31882050505" />
+          </div>
+          <div class="form-group">
+            <label>Telefoonnummer (weergave, bijv. +31 88 205 0505)</label>
+            <input type="text" name="phoneDisplay" placeholder="+31 88 205 0505" />
+          </div>
+        </div>
+        <div class="form-group">
+          <label>E-mailadres</label>
+          <input type="email" name="email" placeholder="info@raffygelato.nl" />
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Instagram gebruikersnaam (zonder @)</label>
+            <input type="text" name="instagram" placeholder="raffytilburg" />
+          </div>
+          <div class="form-group">
+            <label>Instagram URL</label>
+            <input type="text" name="instagramUrl" placeholder="https://www.instagram.com/raffytilburg" />
+          </div>
+        </div>
+      </div>
+
+      <div id="contact-status"></div>
+      <div style="text-align:right;">
+        <button type="submit" class="btn btn-primary save-btn" style="padding:0.65rem 1.75rem;">Opslaan</button>
+      </div>
+    </form>
+  </div>
+
+</div><!-- end .admin-content -->
+
+<!-- ══════════════════════════════════════════════════════════
+     FLAVOR MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="admin-modal-backdrop" id="modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="modal-title">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h3 class="admin-modal-title" id="modal-title">Smaak Toevoegen</h3>
+      <button class="admin-modal-close" id="modal-close" aria-label="Sluiten">&times;</button>
+    </div>
+    <div class="admin-modal-body">
+      <form id="flavor-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Naam <span style="color:var(--danger)">*</span></label>
+            <input type="text" name="name" required placeholder="Donkere Chocolade &amp; Zeezout" />
+          </div>
+          <div class="form-group">
+            <label>Prijs <span style="color:var(--danger)">*</span></label>
+            <input type="text" name="price" required placeholder="€ 3,50" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Emoji</label>
+            <input type="text" name="emoji" placeholder="🍫" style="width:80px;" />
+          </div>
+          <div class="form-group">
+            <label>Categorie</label>
+            <select name="category">
+              <option value="gelato">Gelato</option>
+              <option value="sorbet">Sorbet</option>
+              <option value="wafel">Wafels</option>
+              <option value="crepe">Crêpes</option>
+            </select>
+          </div>
+        </div>
+        <div class="form-group">
+          <label>Beschrijving</label>
+          <textarea name="description" rows="3" placeholder="Belgische pure chocolade met Siciliaans zeezout…"></textarea>
+        </div>
+        <div class="form-group">
+          <label>Afbeelding (optioneel)</label>
+          <div class="img-upload-area">
+            <input type="file" id="modal-img-input" accept="image/*" />
+            <img id="modal-img-preview" class="img-preview" style="display:none;" alt="" />
+            <p style="color:var(--text-light);font-size:0.82rem;">Klik om een afbeelding te kiezen</p>
+          </div>
+        </div>
+        <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
+          <label class="toggle" title="Zichtbaar op de website">
+            <input type="checkbox" name="visible" checked />
+            <span class="toggle-track"></span>
+          </label>
+          <span style="font-size:0.85rem;">Zichtbaar op de website</span>
+        </div>
+      </form>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn btn-outline" id="modal-cancel">Annuleren</button>
+      <button class="btn btn-primary" id="modal-save" type="button" onclick="document.getElementById('flavor-form').requestSubmit()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script src="js/admin.js"></script>
+</body>
+</html>

@@ -1,0 +1,91 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Admin Login — Raffy Gelato</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="css/admin.css" />
+</head>
+<body>
+
+<div class="login-page">
+  <div class="login-card">
+    <div class="login-logo">🍦</div>
+    <h1 class="login-title">Raffy Gelato Admin</h1>
+    <p class="login-sub">Log in om het menu en de inhoud te beheren</p>
+
+    <div class="login-error" id="login-error" role="alert"></div>
+
+    <form id="login-form" novalidate>
+      <div class="form-group">
+        <label for="email">E-mailadres</label>
+        <input type="email" id="email" name="email"
+               placeholder="admin@raffygelato.nl"
+               autocomplete="email" required />
+      </div>
+      <div class="form-group">
+        <label for="password">Wachtwoord</label>
+        <input type="password" id="password" name="password"
+               placeholder="••••••••"
+               autocomplete="current-password" required />
+      </div>
+      <button type="submit" class="btn btn-primary" id="login-btn"
+              style="width:100%;justify-content:center;padding:0.7rem;font-size:0.95rem;margin-top:0.5rem;">
+        Inloggen
+      </button>
+    </form>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="../js/firebase-config.js"></script>
+<script>
+  // Redirect to dashboard if already logged in
+  auth.onAuthStateChanged(user => {
+    if (user) location.href = 'dashboard.html';
+  });
+
+  const form      = document.getElementById('login-form');
+  const btn       = document.getElementById('login-btn');
+  const errorEl   = document.getElementById('login-error');
+
+  function showError(msg) {
+    errorEl.textContent = msg;
+    errorEl.classList.add('visible');
+  }
+
+  form.addEventListener('submit', async e => {
+    e.preventDefault();
+    errorEl.classList.remove('visible');
+    const email    = form.email.value.trim();
+    const password = form.password.value;
+
+    btn.disabled    = true;
+    btn.textContent = 'Laden…';
+
+    try {
+      await auth.signInWithEmailAndPassword(email, password);
+      location.href = 'dashboard.html';
+    } catch (err) {
+      const msgs = {
+        'auth/user-not-found':       'Geen account gevonden voor dit e-mailadres.',
+        'auth/wrong-password':        'Onjuist wachtwoord. Probeer opnieuw.',
+        'auth/invalid-email':         'Ongeldig e-mailadres.',
+        'auth/too-many-requests':     'Te veel pogingen. Probeer later opnieuw.',
+        'auth/invalid-credential':    'Onjuiste inloggegevens.',
+      };
+      showError(msgs[err.code] || 'Inloggen mislukt. Controleer je gegevens.');
+    } finally {
+      btn.disabled    = false;
+      btn.textContent = 'Inloggen';
+    }
+  });
+</script>
+</body>
+</html>

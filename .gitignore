@@ -1,0 +1,16 @@
+# Environment — NEVER commit real credentials
+.env
+.env.example
+
+# Generated Firebase config (rebuilt from .env by `npm run build`)
+site/js/firebase-config.js
+
+# Node
+node_modules/
+
+# OS
+.DS_Store
+Thumbs.db
+
+3D-Animator-Creator
+Image-Generator

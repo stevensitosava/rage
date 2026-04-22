@@ -1,0 +1,20 @@
+{
+  "name": "raffy-gelato",
+  "version": "1.0.0",
+  "description": "A premium 5-page website for Raffy Gelato, a small-batch artisan gelato shop.",
+  "main": "index.js",
+  "scripts": {
+    "build":          "node scripts/generate-firebase-config.js",
+    "extract-frames": "node extract-frames.js",
+    "test":           "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "type": "commonjs",
+  "dependencies": {
+    "ffmpeg-static": "^5.3.0",
+    "ffprobe-static": "^3.1.0",
+    "fluent-ffmpeg": "^2.1.3"
+  }
+}

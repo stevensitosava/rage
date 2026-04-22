@@ -1,0 +1,428 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <title>Raffy Gelato — IJshoorn Animatie</title>
+  <style>
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body { background: #0d1014; display: flex; flex-direction: column; align-items: center; justify-content: center; min-height: 100vh; font-family: sans-serif; color: #fdf5f7; }
+    canvas { display: block; border-radius: 12px; box-shadow: 0 0 80px rgba(163,33,95,0.35); }
+    #ui { margin-top: 20px; display: flex; gap: 12px; align-items: center; flex-wrap: wrap; justify-content: center; }
+    button {
+      padding: 10px 24px; border: 2px solid #a3215f; border-radius: 40px;
+      background: transparent; color: #fdf5f7; font-size: 14px; font-weight: 600;
+      cursor: pointer; letter-spacing: 0.05em; transition: all 0.2s;
+    }
+    button:hover { background: #a3215f; }
+    button.recording { background: #a3215f; border-color: #a3215f; animation: pulse 1s infinite; }
+    @keyframes pulse { 0%,100% { opacity:1; } 50% { opacity:0.6; } }
+    #status { font-size: 13px; color: #db9ba1; min-width: 160px; text-align: center; }
+    #progress-wrap { width: 300px; height: 4px; background: rgba(255,255,255,0.1); border-radius: 2px; overflow: hidden; display: none; }
+    #progress-bar { height: 100%; background: linear-gradient(90deg, #a3215f, #e7bb97); width: 0%; transition: width 0.1s; }
+  </style>
+</head>
+<body>
+<canvas id="c" width="1080" height="1080"></canvas>
+<div id="ui">
+  <button id="btnPlay">▶ Afspelen</button>
+  <button id="btnRecord">⏺ Opnemen</button>
+  <div id="progress-wrap"><div id="progress-bar"></div></div>
+  <div id="status">Klaar om af te spelen</div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/three.js/r134/three.min.js"></script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/gsap/3.12.5/gsap.min.js"></script>
+<script>
+(function () {
+  /* ── SCENE SETUP ────────────────────────────────────────────────── */
+  const W = 1080, H = 1080;
+  const canvas = document.getElementById('c');
+  const renderer = new THREE.WebGLRenderer({ canvas, antialias: true, alpha: false });
+  renderer.setSize(W, H);
+  renderer.setPixelRatio(1);
+  renderer.shadowMap.enabled = true;
+  renderer.shadowMap.type = THREE.PCFSoftShadowMap;
+  renderer.toneMapping = THREE.ACESFilmicToneMapping;
+  renderer.toneMappingExposure = 1.1;
+
+  const scene = new THREE.Scene();
+  scene.background = new THREE.Color(0x0d1014);
+
+  const camera = new THREE.PerspectiveCamera(42, 1, 0.1, 200);
+  camera.position.set(0, 5, 20);
+  camera.lookAt(0, 4, 0);
+
+  /* ── LIGHTING ───────────────────────────────────────────────────── */
+  // Key light (warm)
+  const keyLight = new THREE.DirectionalLight(0xffe8cc, 2.8);
+  keyLight.position.set(6, 14, 10);
+  keyLight.castShadow = true;
+  keyLight.shadow.mapSize.set(1024, 1024);
+  scene.add(keyLight);
+
+  // Fill light (cool blue)
+  const fillLight = new THREE.DirectionalLight(0xaac8ff, 1.0);
+  fillLight.position.set(-8, 6, -5);
+  scene.add(fillLight);
+
+  // Rim light (gold accent)
+  const rimLight = new THREE.PointLight(0xe7bb97, 3.0, 40);
+  rimLight.position.set(-5, 12, -8);
+  scene.add(rimLight);
+
+  // Ambient
+  scene.add(new THREE.AmbientLight(0x1a0a10, 1.5));
+
+  // Ground catch-shadow plane
+  const shadowPlane = new THREE.Mesh(
+    new THREE.PlaneGeometry(30, 30),
+    new THREE.ShadowMaterial({ opacity: 0.35 })
+  );
+  shadowPlane.rotation.x = -Math.PI / 2;
+  shadowPlane.position.y = -3.5;
+  shadowPlane.receiveShadow = true;
+  scene.add(shadowPlane);
+
+  /* ── WAFFLE TEXTURE ─────────────────────────────────────────────── */
+  function makeWaffleTexture() {
+    const c = document.createElement('canvas');
+    c.width = 256; c.height = 512;
+    const ctx = c.getContext('2d');
+    ctx.fillStyle = '#c8762a';
+    ctx.fillRect(0, 0, 256, 512);
+    ctx.strokeStyle = '#8B4F12';
+    ctx.lineWidth = 3;
+    const sz = 24;
+    for (let y = 0; y < 512; y += sz) {
+      for (let x = 0; x < 256; x += sz) {
+        ctx.strokeRect(x, y, sz, sz);
+        // Diagonal cross
+        ctx.beginPath(); ctx.moveTo(x, y); ctx.lineTo(x + sz, y + sz); ctx.stroke();
+        ctx.beginPath(); ctx.moveTo(x + sz, y); ctx.lineTo(x, y + sz); ctx.stroke();
+      }
+    }
+    // Darken edges
+    const grad = ctx.createRadialGradient(128, 256, 60, 128, 256, 180);
+    grad.addColorStop(0, 'rgba(0,0,0,0)');
+    grad.addColorStop(1, 'rgba(0,0,0,0.35)');
+    ctx.fillStyle = grad;
+    ctx.fillRect(0, 0, 256, 512);
+    return new THREE.CanvasTexture(c);
+  }
+
+  /* ── CONE ───────────────────────────────────────────────────────── */
+  const coneGeo = new THREE.CylinderGeometry(1.3, 0.08, 4.2, 32, 12, true);
+  const coneMat = new THREE.MeshStandardMaterial({
+    map: makeWaffleTexture(),
+    side: THREE.DoubleSide,
+    roughness: 0.85,
+    metalness: 0.0,
+  });
+  const cone = new THREE.Mesh(coneGeo, coneMat);
+  cone.position.y = -1.5;
+  cone.castShadow = true;
+  cone.receiveShadow = true;
+  scene.add(cone);
+
+  // Cone rim (torus)
+  const rimGeo = new THREE.TorusGeometry(1.3, 0.09, 16, 48);
+  const rimMat = new THREE.MeshStandardMaterial({ color: 0xb86820, roughness: 0.7 });
+  const coneRim = new THREE.Mesh(rimGeo, rimMat);
+  coneRim.position.y = 0.62;
+  coneRim.castShadow = true;
+  scene.add(coneRim);
+
+  // Group cone + rim for unified transforms
+  const coneGroup = new THREE.Group();
+  coneGroup.add(cone);
+  coneGroup.add(coneRim);
+  coneGroup.position.y = -12; // start off-screen (drops in)
+  scene.add(coneGroup);
+
+  /* ── SCOOP FACTORY ──────────────────────────────────────────────── */
+  const SCOOP_COLORS = [
+    0xdb9ba1, // blush rose
+    0xa3215f, // deep rose
+    0xe7bb97, // gold cream
+    0x692730, // burgundy
+    0xfdf5f7, // cream white
+    0x8c2152, // dark berry
+    0x742248, // plum
+  ];
+
+  const SCOOP_Y = [0.95, 2.65, 4.30, 5.85, 7.25, 8.52, 9.85]; // rest positions
+  const SCOOP_SCALE = [1.0, 0.95, 0.90, 0.86, 0.82, 0.78, 0.74]; // shrink toward top
+
+  function makeScoopTexture(hex) {
+    const c = document.createElement('canvas'); c.width = 128; c.height = 128;
+    const ctx = c.getContext('2d');
+    const g = ctx.createRadialGradient(52, 44, 8, 64, 64, 72);
+    const light = '#' + new THREE.Color(hex).multiplyScalar(1.5).getHexString();
+    const base  = '#' + new THREE.Color(hex).getHexString();
+    const dark  = '#' + new THREE.Color(hex).multiplyScalar(0.55).getHexString();
+    g.addColorStop(0, light);
+    g.addColorStop(0.45, base);
+    g.addColorStop(1, dark);
+    ctx.fillStyle = g;
+    ctx.beginPath(); ctx.arc(64, 64, 64, 0, Math.PI * 2); ctx.fill();
+    return new THREE.CanvasTexture(c);
+  }
+
+  const scoopMeshes = [];
+  for (let i = 0; i < 7; i++) {
+    const geo = new THREE.SphereGeometry(0.98 * SCOOP_SCALE[i], 32, 32);
+    const mat = new THREE.MeshStandardMaterial({
+      map: makeScoopTexture(SCOOP_COLORS[i]),
+      roughness: 0.55,
+      metalness: 0.05,
+    });
+    const mesh = new THREE.Mesh(geo, mat);
+    mesh.castShadow = true;
+    mesh.receiveShadow = true;
+    // Start buried far below
+    mesh.position.set(0, -30, 0);
+    mesh.scale.set(0, 0, 0);
+    scene.add(mesh);
+    scoopMeshes.push(mesh);
+  }
+
+  /* ── SPRINKLES ──────────────────────────────────────────────────── */
+  const SPRINKLE_COLS = [0xa3215f, 0xe7bb97, 0xfdf5f7, 0x692730, 0xdb9ba1];
+  const sprinkleGroup = new THREE.Group();
+  scene.add(sprinkleGroup);
+
+  function spawnSprinkles() {
+    sprinkleGroup.clear();
+    for (let i = 0; i < 120; i++) {
+      const geo = new THREE.CapsuleGeometry(0.045, 0.18, 4, 8);
+      const mat = new THREE.MeshStandardMaterial({
+        color: SPRINKLE_COLS[i % SPRINKLE_COLS.length],
+        roughness: 0.5,
+      });
+      const m = new THREE.Mesh(geo, mat);
+      // Scatter around top scoops
+      const angle = Math.random() * Math.PI * 2;
+      const r = 0.5 + Math.random() * 2.8;
+      const yBase = 3 + Math.random() * 8;
+      m.position.set(Math.cos(angle) * r, yBase, Math.sin(angle) * r);
+      m.rotation.set(Math.random() * Math.PI, Math.random() * Math.PI, Math.random() * Math.PI);
+      m.scale.set(0, 0, 0);
+      sprinkleGroup.add(m);
+    }
+  }
+  spawnSprinkles();
+
+  /* ── PARTICLE BURST ─────────────────────────────────────────────── */
+  let burstParticles = null;
+  function createBurst(y, color) {
+    if (burstParticles) { scene.remove(burstParticles); burstParticles.geometry.dispose(); }
+    const count = 180;
+    const positions = new Float32Array(count * 3);
+    const colors = new Float32Array(count * 3);
+    const velocities = [];
+    const c3 = new THREE.Color(color);
+    for (let i = 0; i < count; i++) {
+      positions[i * 3]     = 0;
+      positions[i * 3 + 1] = y;
+      positions[i * 3 + 2] = 0;
+      colors[i * 3]     = c3.r; colors[i * 3 + 1] = c3.g; colors[i * 3 + 2] = c3.b;
+      const theta = Math.random() * Math.PI * 2;
+      const phi   = Math.random() * Math.PI;
+      const spd   = 0.05 + Math.random() * 0.22;
+      velocities.push(
+        Math.sin(phi) * Math.cos(theta) * spd,
+        Math.abs(Math.cos(phi)) * spd * 1.4,
+        Math.sin(phi) * Math.sin(theta) * spd
+      );
+    }
+    const geo = new THREE.BufferGeometry();
+    geo.setAttribute('position', new THREE.BufferAttribute(positions, 3));
+    geo.setAttribute('color',    new THREE.BufferAttribute(colors, 3));
+    const mat = new THREE.PointsMaterial({ size: 0.18, vertexColors: true, transparent: true, opacity: 1 });
+    burstParticles = new THREE.Points(geo, mat);
+    burstParticles.userData.vel = velocities;
+    burstParticles.userData.age = 0;
+    scene.add(burstParticles);
+  }
+
+  /* ── ANIMATION TIMELINE ─────────────────────────────────────────── */
+  let animating = false;
+  let animationProgress = 0; // 0–1 for progress bar
+
+  function resetScene() {
+    coneGroup.position.y = -12;
+    coneGroup.rotation.y = 0;
+    scoopMeshes.forEach(m => { m.position.set(0, -30, 0); m.scale.set(0, 0, 0); });
+    sprinkleGroup.children.forEach(m => m.scale.set(0, 0, 0));
+    if (burstParticles) { scene.remove(burstParticles); burstParticles = null; }
+    animationProgress = 0;
+  }
+
+  function playAnimation(onComplete) {
+    if (animating) return;
+    animating = true;
+    resetScene();
+
+    const tl = gsap.timeline({
+      onUpdate: () => { animationProgress = tl.progress(); },
+      onComplete: () => { animating = false; onComplete && onComplete(); },
+    });
+
+    // 1. Cone drops in from top
+    tl.to(coneGroup.position, {
+      y: 0,
+      duration: 0.9,
+      ease: 'bounce.out',
+    }, 0.3);
+
+    // 2. Scoops launch in one by one with explosion
+    SCOOP_Y.forEach((restY, i) => {
+      const delay = 1.4 + i * 0.42;
+      const scoop = scoopMeshes[i];
+      const launchY = restY + 14 + Math.random() * 4; // overshoots high
+
+      // Launch from below
+      tl.set(scoop.position, { y: -3 }, delay);
+      tl.set(scoop.scale, { x: SCOOP_SCALE[i], y: SCOOP_SCALE[i], z: SCOOP_SCALE[i] }, delay);
+      // Rocket up past rest point
+      tl.to(scoop.position, {
+        y: launchY,
+        duration: 0.32,
+        ease: 'power3.out',
+      }, delay);
+      // Come back down and bounce to rest
+      tl.to(scoop.position, {
+        y: restY,
+        duration: 0.55,
+        ease: 'bounce.out',
+      }, delay + 0.32);
+
+      // Squash on landing
+      tl.to(scoop.scale, {
+        x: SCOOP_SCALE[i] * 1.25,
+        y: SCOOP_SCALE[i] * 0.72,
+        z: SCOOP_SCALE[i] * 1.25,
+        duration: 0.12,
+        ease: 'power2.out',
+      }, delay + 0.32 + 0.55 - 0.05);
+      tl.to(scoop.scale, {
+        x: SCOOP_SCALE[i],
+        y: SCOOP_SCALE[i],
+        z: SCOOP_SCALE[i],
+        duration: 0.22,
+        ease: 'elastic.out(1.2, 0.4)',
+      }, delay + 0.32 + 0.55 + 0.07);
+
+      // Particle burst at landing
+      tl.call(() => createBurst(restY, SCOOP_COLORS[i]), null, delay + 0.32 + 0.55 - 0.05);
+    });
+
+    // 3. Sprinkle cascade
+    const sprinkleStart = 1.4 + 7 * 0.42 + 0.3;
+    sprinkleGroup.children.forEach((m, i) => {
+      tl.to(m.scale, {
+        x: 1, y: 1, z: 1,
+        duration: 0.25,
+        ease: 'back.out(2)',
+      }, sprinkleStart + i * 0.018);
+    });
+
+    // 4. Slow camera zoom-out + final pose rotation
+    tl.to(camera.position, {
+      y: 6,
+      z: 17,
+      duration: 2.5,
+      ease: 'power2.inOut',
+    }, sprinkleStart - 0.5);
+  }
+
+  /* ── RENDER LOOP ────────────────────────────────────────────────── */
+  let frameId = null;
+
+  function updateParticles() {
+    if (!burstParticles) return;
+    burstParticles.userData.age += 0.02;
+    const pos = burstParticles.geometry.attributes.position.array;
+    const vel = burstParticles.userData.vel;
+    for (let i = 0; i < pos.length / 3; i++) {
+      pos[i * 3]     += vel[i * 3];
+      pos[i * 3 + 1] += vel[i * 3 + 1];
+      pos[i * 3 + 2] += vel[i * 3 + 2];
+      vel[i * 3 + 1] -= 0.006; // gravity
+    }
+    burstParticles.geometry.attributes.position.needsUpdate = true;
+    burstParticles.material.opacity = Math.max(0, 1 - burstParticles.userData.age * 1.4);
+  }
+
+  function render() {
+    frameId = requestAnimationFrame(render);
+    coneGroup.rotation.y += 0.006;
+    updateParticles();
+    renderer.render(scene, camera);
+
+    const bar = document.getElementById('progress-bar');
+    if (animating) bar.style.width = (animationProgress * 100).toFixed(1) + '%';
+  }
+  render();
+
+  /* ── UI ─────────────────────────────────────────────────────────── */
+  const btnPlay   = document.getElementById('btnPlay');
+  const btnRecord = document.getElementById('btnRecord');
+  const statusEl  = document.getElementById('status');
+  const progWrap  = document.getElementById('progress-wrap');
+
+  btnPlay.addEventListener('click', () => {
+    if (animating) return;
+    progWrap.style.display = 'block';
+    statusEl.textContent = 'Animatie speelt...';
+    playAnimation(() => { statusEl.textContent = 'Klaar ✓'; });
+  });
+
+  /* ── MEDIARECORDER ──────────────────────────────────────────────── */
+  btnRecord.addEventListener('click', () => {
+    if (animating) return;
+
+    const stream = canvas.captureStream(60);
+    const rec = new MediaRecorder(stream, { mimeType: 'video/webm; codecs=vp9', videoBitsPerSecond: 12_000_000 });
+    const chunks = [];
+    rec.ondataavailable = e => chunks.push(e.data);
+    rec.onstop = () => {
+      const blob = new Blob(chunks, { type: 'video/webm' });
+      const a = document.createElement('a');
+      a.href = URL.createObjectURL(blob);
+      a.download = 'raffy-gelato-cone-animatie.webm';
+      a.click();
+      statusEl.textContent = 'Opname opgeslagen ✓';
+      btnRecord.classList.remove('recording');
+      btnRecord.textContent = '⏺ Opnemen';
+    };
+
+    rec.start();
+    btnRecord.classList.add('recording');
+    btnRecord.textContent = '● Opname bezig...';
+    progWrap.style.display = 'block';
+    statusEl.textContent = 'Opname gestart...';
+
+    playAnimation(() => {
+      setTimeout(() => {
+        rec.stop();
+        statusEl.textContent = 'Animatie klaar — opslaan...';
+      }, 800);
+    });
+  });
+
+  /* ── REDUCED MOTION ─────────────────────────────────────────────── */
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
+    // Show final state static
+    coneGroup.position.y = 0;
+    SCOOP_Y.forEach((y, i) => {
+      scoopMeshes[i].position.set(0, y, 0);
+      scoopMeshes[i].scale.setScalar(SCOOP_SCALE[i]);
+    });
+    sprinkleGroup.children.forEach(m => m.scale.setScalar(1));
+    gsap.globalTimeline.pause();
+  }
+})();
+</script>
+</body>
+</html>
