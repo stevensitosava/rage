@@ -222,8 +222,9 @@ function applyFlavorFilters() {
     return true;
   });
 
-  if (priceVal === 'asc')  result = [...result].sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
-  if (priceVal === 'desc') result = [...result].sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
+  const toNum = v => parseFloat(String(v || '0').replace(/[€\s]/g, '').replace(',', '.')) || 0;
+  if (priceVal === 'asc')  result = [...result].sort((a, b) => toNum(a.price) - toNum(b.price));
+  if (priceVal === 'desc') result = [...result].sort((a, b) => toNum(b.price) - toNum(a.price));
 
   renderFlavorsTable(result);
 }
