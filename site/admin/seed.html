@@ -1,0 +1,233 @@
+<!DOCTYPE html>
+<html lang="nl">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Seed Database — Raffy Gelato Admin</title>
+  <meta name="robots" content="noindex, nofollow" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/admin/css/admin.css" />
+  <style>
+    .seed-page { max-width: 680px; margin: 3rem auto; padding: 0 1.5rem; }
+    .seed-card { background: var(--surface); border: 1px solid var(--border); border-radius: var(--radius-lg); padding: 2rem; }
+    .seed-title { font-size: 1.4rem; font-weight: 700; margin-bottom: 0.5rem; }
+    .seed-warning { background: #fff3cd; border: 1px solid #ffc107; border-radius: var(--radius); padding: 1rem; font-size: 0.85rem; margin: 1.25rem 0; color: #856404; }
+    .log { background: var(--bg); border: 1px solid var(--border); border-radius: var(--radius); padding: 1rem; margin-top: 1.25rem; font-family: monospace; font-size: 0.82rem; max-height: 320px; overflow-y: auto; }
+    .log-line { padding: 0.15rem 0; border-bottom: 1px solid var(--border); }
+    .log-line.ok  { color: #2e7d32; }
+    .log-line.err { color: var(--danger); }
+    .log-line.inf { color: var(--text-light); }
+    .progress { height: 6px; background: var(--border); border-radius: 999px; overflow: hidden; margin: 1rem 0; }
+    .progress-bar { height: 100%; background: var(--primary); width: 0; transition: width 0.3s; }
+  </style>
+</head>
+<body>
+
+<header class="admin-header">
+  <div class="admin-logo">🍦 Raffy Admin</div>
+  <div class="admin-user">
+    <span id="admin-email"></span>
+    <a href="/admin/dashboard.html" class="btn btn-outline btn-sm">← Dashboard</a>
+  </div>
+</header>
+
+<div class="seed-page">
+  <div class="seed-card">
+    <div class="seed-title">Database Seeden met Bestaande Inhoud</div>
+    <p style="color:var(--text-light);font-size:0.9rem;">
+      Dit schrijft alle huidige website-inhoud naar Firestore:
+      18 smaken, de Over-Ons pagina, Contact-info en de Index-pagina.
+    </p>
+
+    <div class="seed-warning">
+      <strong>Let op:</strong> Als er al documenten bestaan worden ze overschreven.
+      Gebruik dit alleen als de database nog leeg is of je een reset wilt uitvoeren.
+    </div>
+
+    <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
+
+    <button class="btn btn-primary" id="seed-btn" onclick="runSeed()" style="width:100%;justify-content:center;padding:0.7rem;">
+      Database Seeden
+    </button>
+
+    <div class="log" id="log" style="display:none;"></div>
+  </div>
+</div>
+
+<!-- Firebase SDK -->
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+<script src="/js/firebase-config.js"></script>
+<script>
+/* ── Auth guard ─────────────────────────────────────────── */
+auth.onAuthStateChanged(user => {
+  if (!user) { location.href = '/admin/index.html'; return; }
+  document.getElementById('admin-email').textContent = user.email;
+});
+
+/* ── Logging helpers ────────────────────────────────────── */
+const logEl = document.getElementById('log');
+const bar   = document.getElementById('progress-bar');
+let total = 0, done = 0;
+
+function log(msg, type = 'inf') {
+  logEl.style.display = 'block';
+  const line = document.createElement('div');
+  line.className = 'log-line ' + type;
+  line.textContent = msg;
+  logEl.appendChild(line);
+  logEl.scrollTop = logEl.scrollHeight;
+}
+
+function tick() {
+  done++;
+  bar.style.width = Math.round((done / total) * 100) + '%';
+}
+
+/* ══════════════════════════════════════════════════════════
+   SEED DATA
+   ══════════════════════════════════════════════════════════ */
+
+const FLAVORS = [
+  /* ── Gelato ─────────────────────────────────────────── */
+  { order:1,  category:'gelato', emoji:'🍓', name:'Aardbei & Rood Fruit',    price:'€ 3,50', description:'Verse aardbeien en rood fruit — een klassieke, frisse zomersmaak.', visible:true },
+  { order:2,  category:'gelato', emoji:'🍫', name:'Chocolade & Hazelnoot',   price:'€ 3,50', description:'Belgische pure chocolade met geroosterde Piemontese hazelnoten.', visible:true },
+  { order:3,  category:'gelato', emoji:'🌿', name:'Pistache',                price:'€ 3,50', description:'Siciliaanse pistachenoten, langzaam gemalen. Onze absolute bestseller.', visible:true },
+  { order:4,  category:'gelato', emoji:'🍦', name:'Stracciatella',           price:'€ 3,50', description:'Romige Italiaanse vanille met dunne, knapperige chocoladevlokken.', visible:true },
+  { order:5,  category:'gelato', emoji:'☕', name:'Tiramisu',                price:'€ 3,75', description:'Mascarpone, espresso en een vleugje amaretto — dessert in een bolletje.', visible:true },
+  { order:6,  category:'gelato', emoji:'🌸', name:'Vanille',                 price:'€ 3,00', description:'Madagaskar vanillestokjes, puur en romig. De klassieke basis.', visible:true },
+  { order:7,  category:'gelato', emoji:'🧂', name:'Caramel & Zeezout',       price:'€ 3,75', description:'Fluweelzachte karamel met een tikje Atlantisch zeezout. Onweerstaanbaar.', visible:true },
+  { order:8,  category:'gelato', emoji:'🍒', name:'Kers & Munt',             price:'€ 3,50', description:'Zoete kersen, verse munt, een vleugje vanille. Seizoensspecialiteit.', visible:true },
+  { order:9,  category:'gelato', emoji:'🎃', name:'Speculaas & Peer',        price:'€ 3,75', description:'Gekruide speculaas, sappige Conference peer, luchtige slagroom.', visible:true },
+  { order:10, category:'gelato', emoji:'💜', name:'Lavendel & Honing',       price:'€ 3,75', description:'Provençaalse lavendel met wildebloemen honing — verfijnd en bloemig.', visible:true },
+  /* ── Sorbet ──────────────────────────────────────────── */
+  { order:11, category:'sorbet', emoji:'🍋', name:'Citroen Sorbet',          price:'€ 3,00', description:'Fris, licht en tintelend. Puur citroensap, zonder zuivel.', visible:true },
+  { order:12, category:'sorbet', emoji:'🥭', name:'Mango Sorbet',            price:'€ 3,00', description:'Tropische Alphonso mango, 100% zuivelvrij en veganistisch.', visible:true },
+  { order:13, category:'sorbet', emoji:'🍉', name:'Watermeloen Sorbet',      price:'€ 3,00', description:'IJskoude watermeloen met limoen en verse munt. Zomers verfrissend.', visible:true },
+  { order:14, category:'sorbet', emoji:'🫐', name:'Bosvruchten Sorbet',      price:'€ 3,00', description:'Bramen, aalbessen en bosbessen — intense kleur, intense smaak.', visible:true },
+  /* ── Wafels ──────────────────────────────────────────── */
+  { order:15, category:'wafel',  emoji:'🧇', name:'Klassieke Wafel',         price:'€ 4,50', description:'Knapperige Belgische wafel met slagroom en poedersuiker.', visible:true },
+  { order:16, category:'wafel',  emoji:'🧇', name:'Wafel met Gelato',        price:'€ 5,50', description:'Knapperige wafel met 2 bolletjes gelato naar keuze.', visible:true },
+  /* ── Crêpes ──────────────────────────────────────────── */
+  { order:17, category:'crepe',  emoji:'🥞', name:'Crêpe Naturel',           price:'€ 4,00', description:'Flinterdunne crêpe met boter, suiker en een scheutje citroensap.', visible:true },
+  { order:18, category:'crepe',  emoji:'🥞', name:'Crêpe met Nutella',       price:'€ 4,50', description:'Crêpe gevuld met Nutella en verse aardbeien.', visible:true },
+];
+
+const ABOUT = {
+  storyLabel:      'Waar Het Allemaal Begon',
+  storyTitle:      'Een Familiereceptuur.<br />Een Kleine Winkel.<br />Een Grote Droom.',
+  storyParagraph1: 'Raffy Gelato is dé plek in hartje Tilburg waar je jezelf trakteert op zoete verwennerij. Stap binnen en proef de authentieke smaken van Italië en Griekenland: van romig Italiaans ijs tot knapperige wafels en flinterdunne crêpes met verrassende toppings.',
+  storyParagraph2: 'Sinds 1997 staan wij op de Oude Markt met dezelfde passie waarmee we begonnen. Elke dag vers bereid, met ingrediënten die we vertrouwen en smaken die we trots uitspreken. Geen shortcuts. Geen compromissen. Alleen het allerbeste voor jou.',
+  storyParagraph3: 'De ontspannen sfeer en centrale locatie maken Raffy Gelato de ideale plek voor een snelle pauze tijdens het shoppen of een gezellig moment met vrienden en familie. Laat je verleiden door zoete smaken in het centrum van Tilburg!',
+  imageUrl: '',
+  processSteps: [
+    { title: 'Selecteren', description: 'We selecteren elk ingrediënt met zorg. Lokale producten waar mogelijk, authentieke Italiaanse basisingrediënten waar nodig. Als we niet kunnen vertellen waar het vandaan komt, gaat het er niet in.' },
+    { title: 'Bereiden',   description: 'Elke batch wordt in kleine hoeveelheden bereid — nooit meer dan we die dag nodig hebben. We temperen chocolade met de hand, laten kruiden een nacht trekken en roosteren fruit tot karamelisatie. Geen voorgemaakte mixen.' },
+    { title: 'Serveren',   description: 'Gelato moet vers worden geserveerd, op de juiste temperatuur, door iemand die het verhaal achter elke smaak kent. Dat is wat je krijgt als je bij ons binnenloopt. Niet alleen ijs. Een moment om van te genieten.' },
+  ],
+  values: [
+    { icon: '🌱', title: 'Seizoensgebonden', description: 'We volgen de seizoenen, niet een bedrijfskalender. Als aardbeien in juni op hun hoogtepunt zijn, gebruiken we ze. Daarna niet meer. Dat is wat "seizoensgebonden" werkelijk betekent.' },
+    { icon: '🤝', title: 'Authentiek',       description: 'Authentiek betekent eerlijk. Echte melk, echt fruit, echte suiker. Geen stabilisatoren, geen emulgatoren, geen kunstmatige smaakstoffen. Als je het niet kunt uitspreken, zit het niet in ons gelato.' },
+    { icon: '🏘️', title: 'Gemeenschap',     description: 'We zijn meer dan een ijswinkel. We zijn al meer dan 25 jaar een onderdeel van hartje Tilburg. De Oude Markt is ons thuis, en de mensen van Tilburg zijn onze familie.' },
+  ],
+};
+
+const CONTACT = {
+  address:        'Oude Markt 1\n5038 TJ Tilburg',
+  addressUrl:     'https://maps.google.com/?q=Oude+Markt+1,+5038+TJ+Tilburg',
+  mapEmbedUrl:    'https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2461.9!2d5.0916!3d51.5594!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x47c6bfc2b18a44d5%3A0x0!2sOude%20Markt%201%2C%205038%20TJ%20Tilburg!5e0!3m2!1snl!2snl!4v1000000000000',
+  hoursWeekdays:  'Maandag – Vrijdag: 12:00 – 21:00',
+  hoursSaturday:  'Zaterdag: 11:00 – 22:00',
+  hoursSunday:    'Zondag: 11:00 – 21:00',
+  phone:          '+31882050505',
+  phoneDisplay:   '+31 88 205 0505',
+  email:          'info@raffygelato.nl',
+  instagram:      'raffytilburg',
+  instagramUrl:   'https://www.instagram.com/raffytilburg',
+};
+
+const INDEX_PAGE = {
+  storyLabel:    'Ons Verhaal',
+  storyTitle:    'Al Meer Dan 25 Jaar<br />op de Oude Markt',
+  storyText1:    'Raffy Gelato opende in 1997 met één droom: authentiek Italiaans en Grieks gelato naar het hart van Tilburg brengen. Stap voor stap, bolletje voor bolletje, groeide onze winkel uit tot dé geliefde verwenplek van Tilburg.',
+  storyText2:    'Op de Oude Markt vind je ons elke dag klaar met verse smaken, knapperige wafels en flinterdunne crêpes. Of je even pauzeert tijdens het shoppen of gezellig neerstrijkt met vrienden — bij Raffy ben je altijd welkom.',
+  storyImageUrl: '',
+  pillars: [
+    { icon: '🌿', title: 'Echte Ingrediënten',  description: 'Geen kunstmatige smaakstoffen of kleurstoffen. Elk ingrediënt heeft een naam en een verhaal.' },
+    { icon: '🍦', title: 'Dagelijks Vers',       description: 'Elke ochtend bereiden we verse smaken. Als het op is, maken we morgen opnieuw. Geen compromis.' },
+    { icon: '🏛️', title: 'Italiaanse Traditie', description: 'Al meer dan 25 jaar maken we gelato op de authentieke Italiaanse manier — langzaam, met liefde en vakmanschap.' },
+  ],
+  seasonal: [
+    { season: 'Lente',  name: 'Kers & Munt',          description: 'Zoete kersen, verse munt, een vleugje vanille',          imageUrl: '' },
+    { season: 'Zomer',  name: 'Wilde Bosvruchten',     description: 'Bramen, aalbessen, bosbessen en een wafelmand',           imageUrl: '' },
+    { season: 'Zomer',  name: 'Tropische Selectie',    description: 'Mango, passievrucht, lavendel en pistache',               imageUrl: '' },
+    { season: 'Lente',  name: 'Aardbei & Kers',        description: 'Verse aardbeien, kersen, lichte room',                   imageUrl: '' },
+    { season: 'Zomer',  name: 'Watermeloen Sorbet',    description: 'IJskoude watermeloen, limoen, verse munt',                imageUrl: '' },
+    { season: 'Herfst', name: 'Pompoen & Kaneel',      description: 'Romige pompoen, warme kruiden, karamel',                  imageUrl: '' },
+    { season: 'Winter', name: 'Speculaas & Peer',      description: 'Gekruide speculaas, sappige peer, slagroom',              imageUrl: '' },
+    { season: 'Lente',  name: 'Lavendel & Honing',     description: 'Provençaalse lavendel, wildebloemen honing',              imageUrl: '' },
+  ],
+};
+
+/* ══════════════════════════════════════════════════════════
+   RUN SEED
+   ══════════════════════════════════════════════════════════ */
+async function runSeed() {
+  const btn = document.getElementById('seed-btn');
+  btn.disabled = true;
+  btn.textContent = 'Bezig…';
+  bar.style.width = '0%';
+
+  // total operations: 18 flavors + about + contact + index
+  total = FLAVORS.length + 3;
+  done  = 0;
+
+  try {
+    /* ── 1. Flavors (batch write) ─────────────────────── */
+    log('Smaken schrijven…', 'inf');
+    const batch = db.batch();
+    FLAVORS.forEach(f => {
+      const ref = db.collection('flavors').doc();
+      batch.set(ref, { ...f, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    });
+    await batch.commit();
+    FLAVORS.forEach(f => {
+      log(`✓ ${f.emoji} ${f.name}`, 'ok');
+      tick();
+    });
+
+    /* ── 2. About ─────────────────────────────────────── */
+    log('Over-Ons pagina schrijven…', 'inf');
+    await db.collection('about').doc('main').set(ABOUT);
+    log('✓ about/main', 'ok');
+    tick();
+
+    /* ── 3. Contact ───────────────────────────────────── */
+    log('Contact-info schrijven…', 'inf');
+    await db.collection('contact').doc('main').set(CONTACT);
+    log('✓ contact/main', 'ok');
+    tick();
+
+    /* ── 4. Index page ────────────────────────────────── */
+    log('Index-pagina schrijven…', 'inf');
+    await db.collection('pages').doc('index').set(INDEX_PAGE);
+    log('✓ pages/index', 'ok');
+    tick();
+
+    log('', 'inf');
+    log('✅ Seed voltooid! De database is gevuld.', 'ok');
+    btn.textContent = 'Klaar ✓';
+    btn.style.background = '#2e7d32';
+
+  } catch (err) {
+    log('❌ Fout: ' + err.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Opnieuw Proberen';
+    console.error(err);
+  }
+}
+</script>
+</body>
+</html>
