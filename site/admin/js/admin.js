@@ -2,6 +2,25 @@
 // Depends on: firebase-config.js (sets up db, storage, auth globals)
 
 /* ============================================================
+   CLOUDINARY — unsigned upload (cloud name is intentionally public)
+   ============================================================ */
+const CLOUDINARY_CLOUD  = 'dkggavx4l';
+const CLOUDINARY_PRESET = 'raffy_gelato'; // unsigned preset
+
+async function uploadToCloudinary(file) {
+  const form = new FormData();
+  form.append('file', file);
+  form.append('upload_preset', CLOUDINARY_PRESET);
+  const res  = await fetch(`https://api.cloudinary.com/v1_1/${CLOUDINARY_CLOUD}/image/upload`, {
+    method: 'POST',
+    body: form,
+  });
+  if (!res.ok) throw new Error('Cloudinary upload mislukt (' + res.status + ')');
+  const data = await res.json();
+  return data.secure_url;
+}
+
+/* ============================================================
    STATE
    ============================================================ */
 let currentUser    = null;
@@ -224,12 +243,8 @@ async function saveFlavorFromModal(e) {
   try {
     let imageUrl = editingFlavor?.imageUrl || '';
 
-    // Upload new image if selected
     if (pendingImgFile) {
-      const path = `flavors/${Date.now()}_${pendingImgFile.name}`;
-      const ref  = storage.ref(path);
-      const snap = await ref.put(pendingImgFile);
-      imageUrl   = await snap.ref.getDownloadURL();
+      imageUrl = await uploadToCloudinary(pendingImgFile);
     }
 
     const data = {
@@ -347,9 +362,7 @@ document.addEventListener('DOMContentLoaded', () => {
       if (existingDoc.exists) imageUrl = existingDoc.data().imageUrl || '';
 
       if (pendingImgFile && pendingImgCtx === 'about') {
-        const ref  = storage.ref(`about/${Date.now()}_${pendingImgFile.name}`);
-        const snap = await ref.put(pendingImgFile);
-        imageUrl   = await snap.ref.getDownloadURL();
+        imageUrl = await uploadToCloudinary(pendingImgFile);
         pendingImgFile = null;
       }
 
@@ -536,9 +549,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       // Upload story image if pending
       if (pendingImgFile && pendingImgCtx === 'index-story') {
-        const ref  = storage.ref(`pages/index-story-${Date.now()}_${pendingImgFile.name}`);
-        const snap = await ref.put(pendingImgFile);
-        storyImageUrl = await snap.ref.getDownloadURL();
+        storyImageUrl = await uploadToCloudinary(pendingImgFile);
       }
 
       // Build seasonal array (upload images where pending)
@@ -548,9 +559,7 @@ document.addEventListener('DOMContentLoaded', () => {
         if (!seasonEl || !seasonEl.value.trim()) continue;
         let imageUrl = (existingSeasonal[i-1] || {}).imageUrl || '';
         if (pendingImgFile && pendingImgCtx === `index-seasonal-${i}`) {
-          const ref  = storage.ref(`pages/seasonal${i}-${Date.now()}_${pendingImgFile.name}`);
-          const snap = await ref.put(pendingImgFile);
-          imageUrl   = await snap.ref.getDownloadURL();
+          imageUrl = await uploadToCloudinary(pendingImgFile);
         }
         seasonal.push({
           season:      f.elements[`seasonal${i}Season`]?.value.trim() || '',
