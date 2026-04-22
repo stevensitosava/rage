@@ -23,11 +23,10 @@ async function uploadToCloudinary(file) {
 /* ============================================================
    STATE
    ============================================================ */
-let currentUser    = null;
-let allFlavors     = [];
-let editingFlavor  = null; // null = new, object = existing
-let pendingImgFile = null; // image selected but not yet uploaded
-let pendingImgCtx  = '';   // "flavor" | "about" | "index-story" | "index-seasonal-N"
+let currentUser   = null;
+let allFlavors    = [];
+let editingFlavor = null;
+const pendingImgs = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
 
 /* ============================================================
    BOOT — auth guard
@@ -193,7 +192,7 @@ function openFlavorModal(id) {
   const form     = document.getElementById('flavor-form');
 
   form.reset();
-  pendingImgFile = null;
+  delete pendingImgs['flavor'];
   document.getElementById('modal-img-preview').style.display = 'none';
 
   if (id) {
@@ -230,7 +229,7 @@ function openFlavorModal(id) {
 function closeFlavorModal() {
   document.getElementById('modal-backdrop').classList.remove('open');
   editingFlavor = null;
-  pendingImgFile = null;
+  delete pendingImgs['flavor'];
 }
 
 async function saveFlavorFromModal(e) {
@@ -243,8 +242,8 @@ async function saveFlavorFromModal(e) {
   try {
     let imageUrl = editingFlavor?.imageUrl || '';
 
-    if (pendingImgFile) {
-      imageUrl = await uploadToCloudinary(pendingImgFile);
+    if (pendingImgs['flavor']) {
+      imageUrl = await uploadToCloudinary(pendingImgs['flavor']);
     }
 
     const data = {
@@ -282,7 +281,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('modal-img-input').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
-    pendingImgFile = file;
+    pendingImgs['flavor'] = file;
     const prev = document.getElementById('modal-img-preview');
     prev.src   = URL.createObjectURL(file);
     prev.style.display = 'block';
@@ -343,8 +342,7 @@ document.addEventListener('DOMContentLoaded', () => {
   document.getElementById('about-img-input').addEventListener('change', e => {
     const file = e.target.files[0];
     if (!file) return;
-    pendingImgFile = file;
-    pendingImgCtx  = 'about';
+    pendingImgs['about'] = file;
     const prev = document.getElementById('about-img-preview');
     prev.src   = URL.createObjectURL(file);
     prev.style.display = 'block';
@@ -361,9 +359,9 @@ document.addEventListener('DOMContentLoaded', () => {
       const existingDoc = await db.collection('about').doc('main').get();
       if (existingDoc.exists) imageUrl = existingDoc.data().imageUrl || '';
 
-      if (pendingImgFile && pendingImgCtx === 'about') {
-        imageUrl = await uploadToCloudinary(pendingImgFile);
-        pendingImgFile = null;
+      if (pendingImgs['about']) {
+        imageUrl = await uploadToCloudinary(pendingImgs['about']);
+        delete pendingImgs['about'];
       }
 
       const f = e.target;
@@ -502,8 +500,7 @@ document.addEventListener('DOMContentLoaded', () => {
     storyImgInput.addEventListener('change', e => {
       const file = e.target.files[0];
       if (!file) return;
-      pendingImgFile = file;
-      pendingImgCtx  = 'index-story';
+      pendingImgs['index-story'] = file;
       const prev = document.getElementById('index-story-img-preview');
       prev.src   = URL.createObjectURL(file);
       prev.style.display = 'block';
@@ -519,8 +516,7 @@ document.addEventListener('DOMContentLoaded', () => {
       return ev => {
         const file = ev.target.files[0];
         if (!file) return;
-        pendingImgFile = file;
-        pendingImgCtx  = `index-seasonal-${idx}`;
+        pendingImgs[`index-seasonal-${idx}`] = file;
         const prev = document.getElementById(`seasonal${idx}-img-preview`);
         if (prev) { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
       };
@@ -548,8 +544,8 @@ document.addEventListener('DOMContentLoaded', () => {
       const existingSeasonal = existingData.seasonal || [];
 
       // Upload story image if pending
-      if (pendingImgFile && pendingImgCtx === 'index-story') {
-        storyImageUrl = await uploadToCloudinary(pendingImgFile);
+      if (pendingImgs['index-story']) {
+        storyImageUrl = await uploadToCloudinary(pendingImgs['index-story']);
       }
 
       // Build seasonal array (upload images where pending)
@@ -558,8 +554,8 @@ document.addEventListener('DOMContentLoaded', () => {
         const seasonEl = f.elements[`seasonal${i}Season`];
         if (!seasonEl || !seasonEl.value.trim()) continue;
         let imageUrl = (existingSeasonal[i-1] || {}).imageUrl || '';
-        if (pendingImgFile && pendingImgCtx === `index-seasonal-${i}`) {
-          imageUrl = await uploadToCloudinary(pendingImgFile);
+        if (pendingImgs[`index-seasonal-${i}`]) {
+          imageUrl = await uploadToCloudinary(pendingImgs[`index-seasonal-${i}`]);
         }
         seasonal.push({
           season:      f.elements[`seasonal${i}Season`]?.value.trim() || '',
@@ -584,7 +580,7 @@ document.addEventListener('DOMContentLoaded', () => {
       };
 
       await db.collection('pages').doc('index').set(data, { merge: true });
-      pendingImgFile = null;
+      Object.keys(pendingImgs).filter(k => k.startsWith('index-')).forEach(k => delete pendingImgs[k]);
       showStatus('index-status', 'Index pagina opgeslagen.');
     } catch (err) {
       showStatus('index-status', 'Fout: ' + err.message, 'error');
