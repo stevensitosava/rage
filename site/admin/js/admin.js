@@ -15,7 +15,7 @@ let pendingImgCtx  = '';   // "flavor" | "about" | "index-story" | "index-season
    ============================================================ */
 auth.onAuthStateChanged(user => {
   if (!user) {
-    location.href = 'index.html';
+    location.href = '/admin/index.html';
     return;
   }
   currentUser = user;
@@ -24,7 +24,7 @@ auth.onAuthStateChanged(user => {
 });
 
 document.getElementById('logout-btn').addEventListener('click', () => {
-  auth.signOut().then(() => { location.href = 'index.html'; });
+  auth.signOut().then(() => { location.href = '/admin/index.html'; });
 });
 
 /* ============================================================

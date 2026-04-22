@@ -8,7 +8,7 @@
   <link rel="preconnect" href="https://fonts.googleapis.com" />
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link href="https://fonts.googleapis.com/css2?family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
-  <link rel="stylesheet" href="css/admin.css" />
+  <link rel="stylesheet" href="/admin/css/admin.css" />
 </head>
 <body>
 
@@ -44,11 +44,11 @@
 <!-- Firebase SDK -->
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
 <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
-<script src="../js/firebase-config.js"></script>
+<script src="/js/firebase-config.js"></script>
 <script>
   // Redirect to dashboard if already logged in
   auth.onAuthStateChanged(user => {
-    if (user) location.href = 'dashboard.html';
+    if (user) location.href = '/admin/dashboard.html';
   });
 
   const form      = document.getElementById('login-form');
@@ -71,7 +71,7 @@
 
     try {
       await auth.signInWithEmailAndPassword(email, password);
-      location.href = 'dashboard.html';
+      location.href = '/admin/dashboard.html';
     } catch (err) {
       const msgs = {
         'auth/user-not-found':       'Geen account gevonden voor dit e-mailadres.',
