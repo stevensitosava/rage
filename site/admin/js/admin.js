@@ -204,16 +204,30 @@ async function saveFlavorsOrder() {
 }
 
 /* ── Search / filter ──────────────────────────────────────── */
-function filterFlavors(query) {
-  const q = query.trim().toLowerCase();
-  if (!q) { renderFlavorsTable(allFlavors); return; }
-  const filtered = allFlavors.filter(f =>
-    (f.name        || '').toLowerCase().includes(q) ||
-    (f.description || '').toLowerCase().includes(q) ||
-    (f.category    || '').toLowerCase().includes(q)
-  );
-  renderFlavorsTable(filtered);
+function applyFlavorFilters() {
+  const q        = (document.getElementById('flavor-search')?.value  || '').trim().toLowerCase();
+  const catVal   =  document.getElementById('filter-category')?.value || '';
+  const priceVal =  document.getElementById('filter-price')?.value   || '';
+  const visVal   =  document.getElementById('filter-visible')?.value || '';
+
+  let result = allFlavors.filter(f => {
+    if (q && !(
+      (f.name        || '').toLowerCase().includes(q) ||
+      (f.description || '').toLowerCase().includes(q) ||
+      (f.category    || '').toLowerCase().includes(q)
+    )) return false;
+    if (catVal && (f.category || '') !== catVal) return false;
+    if (visVal === '1' && !f.visible)  return false;
+    if (visVal === '0' &&  f.visible)  return false;
+    return true;
+  });
+
+  if (priceVal === 'asc')  result = [...result].sort((a, b) => (parseFloat(a.price) || 0) - (parseFloat(b.price) || 0));
+  if (priceVal === 'desc') result = [...result].sort((a, b) => (parseFloat(b.price) || 0) - (parseFloat(a.price) || 0));
+
+  renderFlavorsTable(result);
 }
+function filterFlavors() { applyFlavorFilters(); }
 
 function confirmDeleteFlavor(id, name) {
   if (!confirm(`Smaak "${name}" definitief verwijderen?`)) return;
@@ -698,6 +712,7 @@ window.toggleVisibility    = toggleVisibility;
 window.openFlavorModal     = openFlavorModal;
 window.confirmDeleteFlavor = confirmDeleteFlavor;
 window.filterFlavors       = filterFlavors;
+window.applyFlavorFilters  = applyFlavorFilters;
 window.dragStart           = dragStart;
 window.dragOver            = dragOver;
 window.dragLeave           = dragLeave;

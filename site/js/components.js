@@ -5,13 +5,13 @@
   const NAV_HTML = `
   <nav class="nav" role="navigation" aria-label="Hoofdnavigatie">
     <div class="container nav-inner">
-      <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
+      <a href="/" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
         <img src="assets/logo.png" alt="Raffy Gelato" />
       </a>
       <ul class="nav-links" role="list">
-        <li><a href="menu.html"    class="nav-link">Menu</a></li>
-        <li><a href="about.html"   class="nav-link">Over ons</a></li>
-        <li><a href="contact.html" class="nav-link">Vind ons</a></li>
+        <li><a href="menu"    class="nav-link">Menu</a></li>
+        <li><a href="about"   class="nav-link">Over ons</a></li>
+        <li><a href="contact" class="nav-link">Vind ons</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-menu">
         <img src="assets/helado-empty.png" alt="" class="nav-toggle-icon nav-toggle-empty" aria-hidden="true" />
@@ -22,9 +22,9 @@
   <div class="mobile-menu" id="mobile-menu" role="dialog" aria-modal="true" aria-label="Mobiele navigatie">
     <button class="mobile-close" aria-label="Menu sluiten">&times;</button>
     <ul role="list">
-      <li><a href="menu.html"    class="nav-link">Menu</a></li>
-      <li><a href="about.html"   class="nav-link">Over ons</a></li>
-      <li><a href="contact.html" class="nav-link">Vind ons</a></li>
+      <li><a href="menu"    class="nav-link">Menu</a></li>
+      <li><a href="about"   class="nav-link">Over ons</a></li>
+      <li><a href="contact" class="nav-link">Vind ons</a></li>
     </ul>
   </div>`;
 
@@ -33,7 +33,7 @@
     <div class="container">
       <div class="footer-grid">
         <div class="footer-brand">
-          <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
+          <a href="/" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
             <img src="assets/logo.png" alt="Raffy Gelato" />
           </a>
           <p class="footer-tagline">Authentiek Italiaans en Grieks gelato, wafels en crêpes — al meer dan 25 jaar op de Oude Markt in Tilburg.</p>
@@ -46,10 +46,10 @@
         <div class="footer-col">
           <h4>Navigatie</h4>
           <nav class="footer-links" aria-label="Footer navigatie">
-            <a href="index.html">Home</a>
-            <a href="menu.html">Ons Menu</a>
-            <a href="about.html">Over ons</a>
-            <a href="contact.html">Vind ons</a>
+            <a href="/">Home</a>
+            <a href="menu">Ons Menu</a>
+            <a href="about">Over ons</a>
+            <a href="contact">Vind ons</a>
           </nav>
         </div>
         <div class="footer-col">
@@ -65,7 +65,7 @@
           <nav class="footer-links" aria-label="Contactgegevens">
             <a href="tel:+31882050505">+31 88 205 0505</a>
             <a href="mailto:info@raffygelato.nl">info@raffygelato.nl</a>
-            <a href="contact.html">Oude Markt 1<br />5038 TJ Tilburg</a>
+            <a href="contact">Oude Markt 1<br />5038 TJ Tilburg</a>
           </nav>
         </div>
       </div>

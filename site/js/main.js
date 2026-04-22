@@ -648,8 +648,7 @@ function _syncNavLinks(url) {
   const path = new URL(url).pathname;
   document.querySelectorAll('.nav-link').forEach(a => {
     const href = a.getAttribute('href') || '';
-    const isActive = path.endsWith(href) ||
-      ((path === '/' || path.endsWith('/')) && href === 'index.html');
+    const isActive = href === '/' ? path === '/' : path.endsWith(href);
     a.classList.toggle('active', isActive);
   });
 }
@@ -657,7 +656,7 @@ function _syncNavLinks(url) {
 function _reinitPage() {
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const p = location.pathname;
-    if (p === '/' || p.endsWith('index.html') || p.endsWith('/raffy-gelato/') || p === '') {
+    if (p === '/' || p === '') {
       initVideoScroll();
     }
     initAnimations();

@@ -44,10 +44,30 @@
 
       <div id="flavors-status"></div>
 
-      <div style="margin-bottom:1rem;">
+      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem;margin-bottom:1rem;align-items:center;">
         <input type="search" id="flavor-search" placeholder="Zoek op naam, beschrijving of categorie…"
-               style="width:100%;padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);"
-               oninput="filterFlavors(this.value)" />
+               style="padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);"
+               oninput="applyFlavorFilters()" />
+        <select id="filter-category" onchange="applyFlavorFilters()"
+                style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
+          <option value="">Alle categorieën</option>
+          <option value="gelato">Gelato</option>
+          <option value="sorbet">Sorbet</option>
+          <option value="wafel">Wafels</option>
+          <option value="crepe">Crêpes</option>
+        </select>
+        <select id="filter-price" onchange="applyFlavorFilters()"
+                style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
+          <option value="">Prijs (standaard)</option>
+          <option value="asc">Prijs ↑</option>
+          <option value="desc">Prijs ↓</option>
+        </select>
+        <select id="filter-visible" onchange="applyFlavorFilters()"
+                style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
+          <option value="">Alle zichtbaarheid</option>
+          <option value="1">Zichtbaar</option>
+          <option value="0">Verborgen</option>
+        </select>
       </div>
 
       <div class="admin-table-wrap">
