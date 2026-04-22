@@ -535,6 +535,18 @@ async function loadIndexContent() {
         if (prev) { prev.src = s.imageUrl; prev.style.display = 'block'; }
       }
     });
+
+    (data.favSmaken || []).forEach((s, i) => {
+      const tagEl  = f.elements[`favSmaken${i+1}Tag`];
+      const nameEl = f.elements[`favSmaken${i+1}Name`];
+      if (tagEl)  tagEl.value  = s.tag  || '';
+      if (nameEl) nameEl.value = s.name || '';
+
+      if (s.imageUrl) {
+        const prev = document.getElementById(`favSmaken${i+1}-img-preview`);
+        if (prev) { prev.src = s.imageUrl; prev.style.display = 'block'; }
+      }
+    });
   } catch (err) {
     console.error('[Admin] Index laden mislukt:', err);
   }
@@ -567,6 +579,19 @@ document.addEventListener('DOMContentLoaded', () => {
         const prev = document.getElementById(`seasonal${idx}-img-preview`);
         if (prev) { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
       };
+    })(i));
+  }
+
+  // FavSmaken image previews (up to 8)
+  for (let i = 1; i <= 8; i++) {
+    const input = document.getElementById(`favSmaken${i}-img-input`);
+    if (!input) continue;
+    input.addEventListener('change', (idx => ev => {
+      const file = ev.target.files[0];
+      if (!file) return;
+      pendingImgs[`index-favsmaken-${idx}`] = file;
+      const prev = document.getElementById(`favSmaken${idx}-img-preview`);
+      if (prev) { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
     })(i));
   }
 
@@ -612,6 +637,23 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
+      // Build favSmaken array (upload images where pending)
+      const existingFavSmaken = existingData.favSmaken || [];
+      const favSmaken = [];
+      for (let i = 1; i <= 8; i++) {
+        const nameEl = f.elements[`favSmaken${i}Name`];
+        if (!nameEl || !nameEl.value.trim()) continue;
+        let imageUrl = (existingFavSmaken[i-1] || {}).imageUrl || '';
+        if (pendingImgs[`index-favsmaken-${i}`]) {
+          imageUrl = await uploadToCloudinary(pendingImgs[`index-favsmaken-${i}`]);
+        }
+        favSmaken.push({
+          tag:      f.elements[`favSmaken${i}Tag`]?.value.trim()  || '',
+          name:     nameEl.value.trim(),
+          imageUrl,
+        });
+      }
+
       const data = {
         storyLabel:    f.elements['storyLabel'].value.trim(),
         storyTitle:    f.elements['storyTitle'].value.trim(),
@@ -624,6 +666,7 @@ document.addEventListener('DOMContentLoaded', () => {
           description: f.elements[`pillar${n}Desc`]?.value.trim()  || '',
         })),
         seasonal,
+        favSmaken,
       };
 
       await db.collection('pages').doc('index').set(data, { merge: true });

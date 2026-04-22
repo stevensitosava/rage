@@ -4,7 +4,7 @@
 // Depends on: firebase-data.js
 
 function initFirebasePage() {
-  if (typeof db === 'undefined') return; // Firebase not yet configured
+  if (typeof db === 'undefined') return;
   const p = location.pathname;
   if      (p.endsWith('menu.html')    || p.endsWith('/menu'))    loadMenuPage();
   else if (p.endsWith('about.html')   || p.endsWith('/about'))   loadAboutPage();
@@ -13,57 +13,187 @@ function initFirebasePage() {
 }
 
 /* ============================================================
-   MENU PAGE — replaces static .menu-grid with Firestore items
+   MENU PAGE — image cards, search, filter, pagination
    ============================================================ */
+function _pageSize() {
+  const w = window.innerWidth;
+  if (w < 540) return 3;  // 1-col grid  → 3 rows
+  if (w < 900) return 6;  // 2-col grid  → 3 rows
+  return 9;               // 3-col grid  → 3 rows
+}
+
+let _allMenuFlavors = [];
+let _menuPage       = 0;
+let _activeFilter   = 'all';
+let _menuSearch     = '';
+
 async function loadMenuPage() {
   const grid = document.querySelector('.menu-grid');
   if (!grid) return;
 
+  // Reset state on each page visit
+  _menuPage     = 0;
+  _activeFilter = 'all';
+  _menuSearch   = '';
+
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>';
 
-  try {
-    const flavors = await getFlavors();
+  // Reset active filter tab
+  document.querySelectorAll('.filter-tab').forEach(t => {
+    t.classList.toggle('active', t.dataset.filter === 'all');
+  });
 
-    if (!flavors.length) {
+  // Clear search input
+  const searchInput = document.querySelector('.menu-search-input');
+  if (searchInput) searchInput.value = '';
+
+  try {
+    _allMenuFlavors = await getFlavors();
+
+    if (!_allMenuFlavors.length) {
       grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
       return;
     }
 
-    grid.innerHTML = flavors.map(_buildMenuItemHTML).join('');
-
-    // Re-init filter tabs now that items are in the DOM
-    if (typeof initFilterTabs === 'function') initFilterTabs();
-
-    // Apply GSAP entrance animation to dynamically rendered items
-    if (typeof gsap !== 'undefined') {
-      gsap.fromTo('.menu-item',
-        { opacity: 0, y: 30 },
-        {
-          opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'power2.out',
-          scrollTrigger: {
-            trigger: '.menu-grid',
-            start: 'top 88%',
-            toggleActions: 'play none none reverse'
-          }
-        }
-      );
-      if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+    // Search input — debounced for performance
+    if (searchInput) {
+      let _debounce;
+      searchInput.oninput = e => {
+        clearTimeout(_debounce);
+        _debounce = setTimeout(() => {
+          _menuSearch = e.target.value.trim().toLowerCase();
+          _menuPage   = 0;
+          _renderMenuPage();
+        }, 220);
+      };
     }
+
+    // Filter tabs — use onclick to override any existing listeners
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.onclick = () => {
+        document.querySelectorAll('.filter-tab').forEach(t => {
+          t.classList.remove('active');
+          t.setAttribute('aria-selected', 'false');
+        });
+        tab.classList.add('active');
+        tab.setAttribute('aria-selected', 'true');
+        _activeFilter = tab.dataset.filter || 'all';
+        _menuPage     = 0;
+        _renderMenuPage();
+      };
+    });
+
+    _renderMenuPage();
+
   } catch (err) {
     console.error('[Raffy] Menu laden mislukt:', err);
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
   }
 }
 
+function _getFilteredFlavors() {
+  return _allMenuFlavors.filter(f => {
+    const matchCat = _activeFilter === 'all' || f.category === _activeFilter;
+    if (!_menuSearch) return matchCat;
+    const q = _menuSearch;
+    const matchSearch =
+      (f.name        || '').toLowerCase().includes(q) ||
+      (f.description || '').toLowerCase().includes(q) ||
+      (f.category    || '').toLowerCase().includes(q);
+    return matchCat && matchSearch;
+  });
+}
+
+function _renderMenuPage() {
+  const grid = document.querySelector('.menu-grid');
+  if (!grid) return;
+
+  const filtered   = _getFilteredFlavors();
+  const total      = filtered.length;
+  const totalPages = Math.max(1, Math.ceil(total / _pageSize()));
+
+  // Clamp page index to valid range
+  _menuPage = Math.max(0, Math.min(_menuPage, totalPages - 1));
+
+  if (!total) {
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem 1rem;color:var(--color-text-light);">Geen smaken gevonden voor deze zoekopdracht.</p>';
+    _updatePagination(1, 1);
+    return;
+  }
+
+  const start = _menuPage * _pageSize();
+  const shown = filtered.slice(start, start + _pageSize());
+
+  grid.innerHTML = shown.map(_buildMenuItemHTML).join('');
+
+  if (typeof gsap !== 'undefined') {
+    gsap.fromTo('.menu-item',
+      { opacity: 0, y: 24 },
+      {
+        opacity: 1, y: 0, duration: 0.4, stagger: 0.05, ease: 'power2.out',
+        scrollTrigger: { trigger: '.menu-grid', start: 'top 88%', toggleActions: 'play none none reverse' }
+      }
+    );
+    if (typeof ScrollTrigger !== 'undefined') ScrollTrigger.refresh();
+  }
+
+  _updatePagination(_menuPage + 1, totalPages);
+}
+
+function _updatePagination(currentPage, totalPages) {
+  const bar = document.getElementById('menu-pagination');
+  if (!bar) return;
+
+  // Hide entirely when everything fits on one page
+  if (totalPages <= 1) {
+    bar.innerHTML = '';
+    return;
+  }
+
+  bar.innerHTML = `
+    <button class="menu-pg-btn menu-pg-prev" aria-label="Vorige pagina"${currentPage <= 1 ? ' disabled' : ''}>
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="15 18 9 12 15 6"/></svg>
+      Vorige
+    </button>
+    <span class="menu-pg-info" aria-live="polite" aria-atomic="true">
+      <strong>${currentPage}</strong> van ${totalPages}
+    </span>
+    <button class="menu-pg-btn menu-pg-next" aria-label="Volgende pagina"${currentPage >= totalPages ? ' disabled' : ''}>
+      Volgende
+      <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="9 18 15 12 9 6"/></svg>
+    </button>`;
+
+  bar.querySelector('.menu-pg-prev').onclick = () => {
+    if (_menuPage > 0) {
+      _menuPage--;
+      _renderMenuPage();
+      document.querySelector('.menu-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+
+  bar.querySelector('.menu-pg-next').onclick = () => {
+    if (currentPage < totalPages) {
+      _menuPage++;
+      _renderMenuPage();
+      document.querySelector('.menu-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }
+  };
+}
+
 function _buildMenuItemHTML(flavor) {
-  const emoji    = flavor.emoji       || '🍦';
   const name     = _esc(flavor.name        || '');
   const price    = _esc(flavor.price       || '');
   const desc     = _esc(flavor.description || '');
   const category = _esc(flavor.category   || 'gelato');
+  const emoji    = flavor.emoji || '🍦';
+
+  const mediaHtml = flavor.imageUrl
+    ? `<div class="menu-item-img"><img src="${_esc(flavor.imageUrl)}" alt="${name}" loading="lazy" /></div>`
+    : `<div class="menu-item-emoji" aria-hidden="true">${emoji}</div>`;
+
   return `
     <article class="menu-item" data-category="${category}" role="listitem">
-      <div class="menu-item-emoji" aria-hidden="true">${emoji}</div>
+      ${mediaHtml}
       <div class="menu-item-info">
         <div class="menu-item-header">
           <span class="menu-item-name">${name}</span>
@@ -83,15 +213,13 @@ async function loadAboutPage() {
 
   try {
     const data = await getAbout();
-    if (!data) return; // Use static HTML as fallback
+    if (!data) return;
 
-    // Founder image
     if (data.imageUrl) {
       const img = storySection.querySelector('.about-founder-img img');
       if (img) img.src = data.imageUrl;
     }
 
-    // Story text
     const textEl = storySection.querySelector('.about-text');
     if (textEl) {
       const label = textEl.querySelector('.section-label');
@@ -104,7 +232,6 @@ async function loadAboutPage() {
       if (paras[2] && data.storyParagraph3) paras[2].textContent = data.storyParagraph3;
     }
 
-    // Process steps
     if (data.processSteps && data.processSteps.length) {
       const steps = document.querySelectorAll('.process-step');
       data.processSteps.forEach((step, i) => {
@@ -116,7 +243,6 @@ async function loadAboutPage() {
       });
     }
 
-    // Values
     if (data.values && data.values.length) {
       const cards = document.querySelectorAll('.value-card');
       data.values.forEach((val, i) => {
@@ -143,11 +269,10 @@ async function loadContactPage() {
 
   try {
     const data = await getContact();
-    if (!data) return; // Use static HTML as fallback
+    if (!data) return;
 
     const cards = contactSection.querySelectorAll('.contact-info-card');
 
-    // [0] Address
     if (data.address && cards[0]) {
       const p = cards[0].querySelector('p');
       if (p) {
@@ -157,7 +282,6 @@ async function loadContactPage() {
       }
     }
 
-    // [1] Opening hours
     if (data.hoursWeekdays && cards[1]) {
       const p = cards[1].querySelector('p');
       if (p) {
@@ -165,7 +289,6 @@ async function loadContactPage() {
       }
     }
 
-    // [2] Phone
     if (data.phone && cards[2]) {
       const p = cards[2].querySelector('p');
       if (p) {
@@ -173,7 +296,6 @@ async function loadContactPage() {
       }
     }
 
-    // [3] Email
     if (data.email && cards[3]) {
       const p = cards[3].querySelector('p');
       if (p) {
@@ -181,7 +303,6 @@ async function loadContactPage() {
       }
     }
 
-    // [4] Instagram
     if (data.instagram && cards[4]) {
       const p = cards[4].querySelector('p');
       if (p) {
@@ -190,7 +311,6 @@ async function loadContactPage() {
       }
     }
 
-    // Google Maps embed
     if (data.mapEmbedUrl) {
       const iframe = contactSection.querySelector('iframe');
       if (iframe) iframe.src = data.mapEmbedUrl;
@@ -203,14 +323,12 @@ async function loadContactPage() {
 
 /* ============================================================
    INDEX PAGE — updates story strip, pillars, seasonal section
-   Hero section is intentionally excluded per project rules.
    ============================================================ */
 async function loadIndexPage() {
   try {
     const data = await getIndexContent();
-    if (!data) return; // Use static HTML as fallback
+    if (!data) return;
 
-    // Story strip
     const storySection = document.querySelector('.story-strip');
     if (storySection) {
       const img   = storySection.querySelector('.story-image img');
@@ -224,7 +342,6 @@ async function loadIndexPage() {
       if (paras[1] && data.storyText2) paras[1].textContent = data.storyText2;
     }
 
-    // Pillars ("Waarom Raffy?")
     if (data.pillars && data.pillars.length) {
       const cards = document.querySelectorAll('.pillar-card');
       data.pillars.forEach((pillar, i) => {
@@ -238,7 +355,6 @@ async function loadIndexPage() {
       });
     }
 
-    // Seasonal cards
     if (data.seasonal && data.seasonal.length) {
       const seasonalSection = document.querySelector('.seasonal');
       const scroll = seasonalSection ? seasonalSection.querySelector('.seasonal-scroll') : null;
@@ -255,6 +371,25 @@ async function loadIndexPage() {
               <p>${_esc(s.description || '')}</p>
             </div>
           </article>`).join('');
+      }
+    }
+
+    if (data.favSmaken && data.favSmaken.length) {
+      const track = document.querySelector('.fls-track');
+      if (track) {
+        const itemHTML = data.favSmaken.map(s => `
+          <div class="fls-item">
+            <img src="${_esc(s.imageUrl || '')}" alt="" loading="lazy">
+            <div class="fls-item-overlay">
+              <span class="fls-item-tag">${_esc(s.tag || '')}</span>
+              <p class="fls-item-name">${_esc(s.name || '')}</p>
+            </div>
+          </div>`).join('');
+        track.innerHTML = itemHTML + itemHTML;
+      }
+      const srList = document.querySelector('.sr-only[aria-label="Onze favoriete smaken"]');
+      if (srList) {
+        srList.innerHTML = data.favSmaken.map(s => `<li>${_esc(s.name || '')}</li>`).join('');
       }
     }
 

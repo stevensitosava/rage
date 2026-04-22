@@ -17,6 +17,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
+    ScrollTrigger.config({ limitCallbacks: true, ignoreMobileResize: true });
     initVideoScroll();
     initAnimations();
     initFlavors();
@@ -141,7 +142,6 @@ function initVideoScroll() {
   const heroContent = section.querySelector('.hs-hero-content');
   const scrollCue   = section.querySelector('.hs-scroll-cue');
   const blackout    = section.querySelector('.vs-blackout');
-  const fill        = section.querySelector('.vs-progress-fill');
 
   if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
     loadingEl && loadingEl.classList.add('hidden');
@@ -174,12 +174,13 @@ function initVideoScroll() {
   const images      = new Array(FRAME_COUNT);
   let loaded        = 0;
 
-  function drawFrame(index) {
+  function drawFrame(index, zoomProgress) {
     currentIndex = Math.max(0, Math.min(Math.round(index), FRAME_COUNT - 1));
     const img = images[currentIndex];
     if (!img || !img.complete || !img.naturalWidth) return;
     const iw = img.naturalWidth, ih = img.naturalHeight;
-    const scale = Math.max(W / iw, H / ih);
+    const zoom  = 1 + (zoomProgress || 0) * 0.28;
+    const scale = Math.max(W / iw, H / ih) * zoom;
     const sw = iw * scale, sh = ih * scale;
     ctx.clearRect(0, 0, W, H);
     ctx.drawImage(img, (W - sw) / 2, (H - sh) / 2, sw, sh);
@@ -282,18 +283,12 @@ function initVideoScroll() {
     if (scrollCue) loadTl.fromTo(scrollCue,
       { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.9);
 
-    // ── Frame scrub 1:1 with scroll progress ──
+    // ── Frame scrub 1:1 with scroll progress; zoom applied in canvas draw ──
     ScrollTrigger.create({
       trigger: section,
       start: 'top top',
       end: 'bottom bottom',
-      onUpdate(self) { drawFrame(self.progress * LAST); },
-    });
-
-    // ── Canvas zooms in over full scroll ──
-    gsap.fromTo(canvas, { scale: 1 }, {
-      scale: 1.28, ease: 'none',
-      scrollTrigger: { trigger: section, start: 'top top', end: 'bottom bottom', scrub: true },
+      onUpdate(self) { drawFrame(self.progress * LAST, self.progress); },
     });
 
     // ── Scroll timeline: sub + ctas reveal, then everything fades ──
@@ -334,25 +329,25 @@ function initAnimations() {
     gsap.fromTo(el,
       { opacity: 0, y: 40 },
       { opacity: 1, y: 0, duration: 0.8, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none restart reverse' } });
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
   });
   gsap.utils.toArray('.fade-in').forEach(el => {
     gsap.fromTo(el,
       { opacity: 0 },
       { opacity: 1, duration: 0.8, ease: 'power2.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none restart reverse' } });
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
   });
   gsap.utils.toArray('.slide-left').forEach(el => {
     gsap.fromTo(el,
       { opacity: 0, x: mobile ? 0 : -44, y: mobile ? 28 : 0 },
       { opacity: 1, x: 0, y: 0, duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' } });
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
   });
   gsap.utils.toArray('.slide-right').forEach(el => {
     gsap.fromTo(el,
       { opacity: 0, x: mobile ? 0 : 44, y: mobile ? 28 : 0 },
       { opacity: 1, x: 0, y: 0, duration: 0.9, ease: 'power3.out',
-        scrollTrigger: { trigger: el, start: 'top 88%', toggleActions: 'play none none reverse' } });
+        scrollTrigger: { trigger: el, start: 'top 88%', once: true } });
   });
 
   /* ── Story strip ───────────────────────────────────────────────────── */
