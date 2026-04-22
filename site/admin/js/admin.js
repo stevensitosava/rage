@@ -23,10 +23,13 @@ async function uploadToCloudinary(file) {
 /* ============================================================
    STATE
    ============================================================ */
-let currentUser   = null;
-let allFlavors    = [];
-let editingFlavor = null;
-const pendingImgs = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
+let currentUser        = null;
+let allFlavors         = [];
+let editingFlavor      = null;
+const pendingImgs      = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
+const FLAVORS_PER_PAGE = 10;
+let flavorPage         = 1;
+let lastFlavorsRendered = [];
 
 /* ============================================================
    BOOT — auth guard
@@ -94,6 +97,7 @@ async function loadFlavors() {
   try {
     const snap = await db.collection('flavors').orderBy('order', 'asc').get();
     allFlavors  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    flavorPage  = 1;
     renderFlavorsTable(allFlavors);
   } catch (err) {
     body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--danger);">Fout bij laden: ${err.message}</td></tr>`;
@@ -101,13 +105,20 @@ async function loadFlavors() {
 }
 
 function renderFlavorsTable(flavors) {
-  const body = document.getElementById('flavors-table-body');
-  if (!flavors.length) {
+  lastFlavorsRendered = flavors;
+  const body  = document.getElementById('flavors-table-body');
+  const total = flavors.length;
+
+  if (!total) {
     body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-light);">Nog geen smaken toegevoegd.</td></tr>';
+    renderFlavorPagination(0);
     return;
   }
 
-  body.innerHTML = flavors.map(f => {
+  const start = (flavorPage - 1) * FLAVORS_PER_PAGE;
+  const page  = flavors.slice(start, start + FLAVORS_PER_PAGE);
+
+  body.innerHTML = page.map(f => {
     const badge = `<span class="badge badge-${f.category || 'gelato'}">${f.category || 'gelato'}</span>`;
     return `
     <tr data-id="${f.id}" draggable="true"
@@ -136,6 +147,40 @@ function renderFlavorsTable(flavors) {
       </td>
     </tr>`;
   }).join('');
+
+  renderFlavorPagination(total);
+}
+
+function renderFlavorPagination(total) {
+  const container = document.getElementById('flavors-pagination');
+  if (!container) return;
+  const pageCount = Math.ceil(total / FLAVORS_PER_PAGE);
+  if (pageCount <= 1) { container.innerHTML = ''; return; }
+
+  const btnStyle = (active) =>
+    `style="padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.8rem;font-family:var(--font);cursor:pointer;background:${active ? 'var(--primary)' : 'var(--surface)'};color:${active ? '#fff' : 'var(--text)'};font-weight:${active ? '700' : '400'};"`;
+
+  const start = (flavorPage - 1) * FLAVORS_PER_PAGE + 1;
+  const end   = Math.min(flavorPage * FLAVORS_PER_PAGE, total);
+
+  let pages = '';
+  for (let i = 1; i <= pageCount; i++) {
+    pages += `<button ${btnStyle(i === flavorPage)} onclick="goToFlavorPage(${i})">${i}</button>`;
+  }
+
+  container.innerHTML = `
+    <span style="font-size:0.8rem;color:var(--text-light);">${start}–${end} van ${total} smaken</span>
+    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
+      <button ${btnStyle(false)} onclick="goToFlavorPage(${flavorPage - 1})" ${flavorPage === 1 ? 'disabled' : ''}>‹</button>
+      ${pages}
+      <button ${btnStyle(false)} onclick="goToFlavorPage(${flavorPage + 1})" ${flavorPage === pageCount ? 'disabled' : ''}>›</button>
+    </div>`;
+}
+
+function goToFlavorPage(page) {
+  const pageCount = Math.ceil(lastFlavorsRendered.length / FLAVORS_PER_PAGE);
+  flavorPage = Math.max(1, Math.min(page, pageCount));
+  renderFlavorsTable(lastFlavorsRendered);
 }
 
 async function toggleVisibility(id, visible) {
@@ -205,6 +250,7 @@ async function saveFlavorsOrder() {
 
 /* ── Search / filter ──────────────────────────────────────── */
 function applyFlavorFilters() {
+  flavorPage = 1;
   const q        = (document.getElementById('flavor-search')?.value  || '').trim().toLowerCase();
   const catVal   =  document.getElementById('filter-category')?.value || '';
   const priceVal =  document.getElementById('filter-price')?.value   || '';
@@ -714,6 +760,7 @@ window.openFlavorModal     = openFlavorModal;
 window.confirmDeleteFlavor = confirmDeleteFlavor;
 window.filterFlavors       = filterFlavors;
 window.applyFlavorFilters  = applyFlavorFilters;
+window.goToFlavorPage      = goToFlavorPage;
 window.dragStart           = dragStart;
 window.dragOver            = dragOver;
 window.dragLeave           = dragLeave;
