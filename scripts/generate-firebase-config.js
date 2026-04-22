@@ -63,10 +63,10 @@ if (typeof firebase !== 'undefined' && !firebase.apps.length) {
   firebase.initializeApp(_firebaseConfig);
 }
 
-// Global Firebase service references used by page-loader.js and admin.js
-const db      = firebase.firestore();
-const storage = firebase.storage();
-const auth    = firebase.auth();
+// Global Firebase service references — only initialised if the matching SDK is loaded
+const db      = typeof firebase.firestore === 'function' ? firebase.firestore() : null;
+const storage = typeof firebase.storage   === 'function' ? firebase.storage()   : null;
+const auth    = typeof firebase.auth      === 'function' ? firebase.auth()      : null;
 `;
 
 const outPath = path.join(ROOT, 'site', 'js', 'firebase-config.js');
