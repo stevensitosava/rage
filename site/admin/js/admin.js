@@ -107,16 +107,16 @@ function renderFlavorsTable(flavors) {
     return;
   }
 
-  body.innerHTML = flavors.map((f, idx) => {
+  body.innerHTML = flavors.map(f => {
     const badge = `<span class="badge badge-${f.category || 'gelato'}">${f.category || 'gelato'}</span>`;
     return `
-    <tr data-id="${f.id}">
-      <td style="text-align:center;">
-        <div style="display:flex;gap:2px;justify-content:center;">
-          <button class="btn btn-outline btn-sm btn-icon" onclick="moveOrder('${f.id}', -1)" ${idx === 0 ? 'disabled' : ''} title="Omhoog">↑</button>
-          <button class="btn btn-outline btn-sm btn-icon" onclick="moveOrder('${f.id}', 1)"  ${idx === flavors.length-1 ? 'disabled' : ''} title="Omlaag">↓</button>
-        </div>
-      </td>
+    <tr data-id="${f.id}" draggable="true"
+        ondragstart="dragStart(event,'${f.id}')"
+        ondragover="dragOver(event,'${f.id}')"
+        ondragleave="dragLeave(event)"
+        ondrop="dragDrop(event,'${f.id}')"
+        ondragend="dragEnd(event)">
+      <td><span class="drag-handle" title="Slepen om te herordenen">⠿</span></td>
       <td style="font-size:1.4rem;text-align:center;">${f.emoji || '🍦'}</td>
       <td><strong>${escAdmin(f.name || '')}</strong></td>
       <td>${badge}</td>
@@ -149,23 +149,70 @@ async function toggleVisibility(id, visible) {
   }
 }
 
-async function moveOrder(id, direction) {
-  const idx = allFlavors.findIndex(f => f.id === id);
-  const swapIdx = idx + direction;
-  if (swapIdx < 0 || swapIdx >= allFlavors.length) return;
+/* ── Drag and drop reorder ─────────────────────────────── */
+let dragSrcId = null;
 
-  const a = allFlavors[idx];
-  const b = allFlavors[swapIdx];
+function dragStart(e, id) {
+  dragSrcId = id;
+  e.dataTransfer.effectAllowed = 'move';
+  e.currentTarget.classList.add('dragging');
+}
 
+function dragOver(e, id) {
+  e.preventDefault();
+  e.dataTransfer.dropEffect = 'move';
+  if (dragSrcId !== id) e.currentTarget.classList.add('drag-over');
+}
+
+function dragLeave(e) {
+  e.currentTarget.classList.remove('drag-over');
+}
+
+function dragDrop(e, targetId) {
+  e.preventDefault();
+  e.currentTarget.classList.remove('drag-over');
+  if (!dragSrcId || dragSrcId === targetId) return;
+
+  const srcIdx = allFlavors.findIndex(f => f.id === dragSrcId);
+  const tgtIdx = allFlavors.findIndex(f => f.id === targetId);
+  if (srcIdx === -1 || tgtIdx === -1) return;
+
+  const [moved] = allFlavors.splice(srcIdx, 1);
+  allFlavors.splice(tgtIdx, 0, moved);
+  allFlavors.forEach((f, i) => { f.order = i + 1; });
+
+  renderFlavorsTable(allFlavors);
+  saveFlavorsOrder();
+}
+
+function dragEnd(e) {
+  e.currentTarget.classList.remove('dragging');
+  document.querySelectorAll('#flavors-table-body tr').forEach(r => r.classList.remove('drag-over'));
+}
+
+async function saveFlavorsOrder() {
   try {
     const batch = db.batch();
-    batch.update(db.collection('flavors').doc(a.id), { order: b.order });
-    batch.update(db.collection('flavors').doc(b.id), { order: a.order });
+    allFlavors.forEach((f, i) => {
+      batch.update(db.collection('flavors').doc(f.id), { order: i + 1 });
+    });
     await batch.commit();
-    await loadFlavors();
+    showStatus('flavors-status', 'Volgorde opgeslagen.');
   } catch (err) {
-    alert('Fout: ' + err.message);
+    showStatus('flavors-status', 'Fout bij opslaan: ' + err.message, 'error');
   }
+}
+
+/* ── Search / filter ──────────────────────────────────────── */
+function filterFlavors(query) {
+  const q = query.trim().toLowerCase();
+  if (!q) { renderFlavorsTable(allFlavors); return; }
+  const filtered = allFlavors.filter(f =>
+    (f.name        || '').toLowerCase().includes(q) ||
+    (f.description || '').toLowerCase().includes(q) ||
+    (f.category    || '').toLowerCase().includes(q)
+  );
+  renderFlavorsTable(filtered);
 }
 
 function confirmDeleteFlavor(id, name) {
@@ -604,7 +651,12 @@ function escAdmin(str) {
 }
 
 // Expose functions called from inline HTML
-window.toggleVisibility     = toggleVisibility;
-window.moveOrder            = moveOrder;
-window.openFlavorModal      = openFlavorModal;
-window.confirmDeleteFlavor  = confirmDeleteFlavor;
+window.toggleVisibility    = toggleVisibility;
+window.openFlavorModal     = openFlavorModal;
+window.confirmDeleteFlavor = confirmDeleteFlavor;
+window.filterFlavors       = filterFlavors;
+window.dragStart           = dragStart;
+window.dragOver            = dragOver;
+window.dragLeave           = dragLeave;
+window.dragDrop            = dragDrop;
+window.dragEnd             = dragEnd;

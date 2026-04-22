@@ -44,11 +44,17 @@
 
       <div id="flavors-status"></div>
 
+      <div style="margin-bottom:1rem;">
+        <input type="search" id="flavor-search" placeholder="Zoek op naam, beschrijving of categorie…"
+               style="width:100%;padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);"
+               oninput="filterFlavors(this.value)" />
+      </div>
+
       <div class="admin-table-wrap">
         <table class="admin-table">
           <thead>
             <tr>
-              <th style="width:80px;">Volgorde</th>
+              <th style="width:36px;"></th>
               <th style="width:50px;">Emoji</th>
               <th>Naam</th>
               <th>Categorie</th>
