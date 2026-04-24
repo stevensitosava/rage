@@ -10,6 +10,7 @@ function initFirebasePage() {
   else if (p.endsWith('about.html')   || p.endsWith('/about'))   loadAboutPage();
   else if (p.endsWith('contact.html') || p.endsWith('/contact')) loadContactPage();
   else if (p === '/' || p.endsWith('index.html') || p === '' || p.endsWith('/')) loadIndexPage();
+  loadSharedContent(); // always runs — keeps footer + CTA banners in sync with Firestore
 }
 
 /* ============================================================
@@ -396,6 +397,73 @@ async function loadIndexPage() {
   } catch (err) {
     console.error('[Raffy] Index laden mislukt:', err);
   }
+}
+
+/* ============================================================
+   SHARED CONTENT — footer + CTA banners (runs on every page)
+   ============================================================ */
+async function loadSharedContent() {
+  try {
+    const data = await getContact();
+    if (!data) return;
+
+    // Footer hours — update only the time <span>, leave the day labels untouched
+    const hourItems = document.querySelectorAll('.footer-hours-item span');
+    if (hourItems[0] && data.hoursWeekdays) hourItems[0].textContent = _extractHoursShort(data.hoursWeekdays);
+    if (hourItems[1] && data.hoursSaturday) hourItems[1].textContent = _extractHoursShort(data.hoursSaturday);
+    if (hourItems[2] && data.hoursSunday)   hourItems[2].textContent = _extractHoursShort(data.hoursSunday);
+
+    // Footer contact links
+    document.querySelectorAll('.footer-links').forEach(nav => {
+      const tel = nav.querySelector('a[href^="tel:"]');
+      if (tel && data.phone) {
+        tel.href        = `tel:${data.phone}`;
+        tel.textContent = data.phoneDisplay || data.phone;
+      }
+      const mail = nav.querySelector('a[href^="mailto:"]');
+      if (mail && data.email) {
+        mail.href        = `mailto:${data.email}`;
+        mail.textContent = data.email;
+      }
+      const addrLink = nav.querySelector('a[href="contact.html"]');
+      if (addrLink && data.address) {
+        addrLink.innerHTML = data.address.split('\n').map(_esc).join('<br />');
+      }
+    });
+
+    // CTA banner meta items — match by emoji icon
+    document.querySelectorAll('.cta-meta-item').forEach(item => {
+      const emoji = item.querySelector('span[aria-hidden="true"]')?.textContent?.trim();
+      const val   = item.querySelector('span:not([aria-hidden])');
+      if (!val) return;
+
+      if (emoji === '📍' && data.address) {
+        const lines = data.address.split('\n');
+        val.innerHTML = `<strong>${_esc(lines[0])}</strong>${lines[1] ? ', ' + _esc(lines[1]) : ''}`;
+      }
+      if (emoji === '🕐' && data.hoursWeekdays) {
+        const wd = _extractHoursShort(data.hoursWeekdays);
+        const sa = _extractHoursShort(data.hoursSaturday || '');
+        const su = _extractHoursShort(data.hoursSunday   || '');
+        let html = wd ? `Ma–Vr <strong>${_esc(wd)}</strong>` : '';
+        if (sa) html += ` · Za <strong>${_esc(sa)}</strong>`;
+        if (su) html += ` · Zo <strong>${_esc(su)}</strong>`;
+        val.innerHTML = html;
+      }
+      if (emoji === '📞' && (data.phoneDisplay || data.phone)) {
+        val.innerHTML = `<strong>${_esc(data.phoneDisplay || data.phone)}</strong>`;
+      }
+    });
+
+  } catch (err) {
+    console.error('[Raffy] Gedeelde inhoud laden mislukt:', err);
+  }
+}
+
+// Extracts "HH:MM–HH:MM" from a full string like "Maandag – Vrijdag: 12:00 – 21:00"
+function _extractHoursShort(str) {
+  const m = (str || '').match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/);
+  return m ? `${m[1]}–${m[2]}` : str;
 }
 
 /* ============================================================
