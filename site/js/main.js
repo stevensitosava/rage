@@ -665,7 +665,7 @@ function _syncNavLinks(url) {
 function _reinitPage() {
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     const p = location.pathname;
-    if (p === '/' || p === '') {
+    if (p === '/' || p === '' || p.endsWith('/') || p.endsWith('index.html')) {
       initVideoScroll();
     }
     initAnimations();
