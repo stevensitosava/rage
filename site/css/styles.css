@@ -961,7 +961,7 @@ p { max-width: 65ch; }
    PAGE HEROES (Inner pages)
    ============================================ */
 .page-hero {
-  min-height: 40vh;
+  min-height: 50vh;
   display: flex;
   align-items: flex-end;
   padding-top: var(--nav-height);
