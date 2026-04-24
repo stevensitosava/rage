@@ -578,13 +578,22 @@ async function navigateTo(url, push = true) {
     await new Promise(r => setTimeout(r, 230));
   }
 
+  // Derive URLs: always fetch the .html file, always push the clean URL
+  const _urlObj   = new URL(url);
+  const _hasExt   = /\.[a-z0-9]{1,5}$/i.test(_urlObj.pathname);
+  const fetchUrl  = _hasExt ? url : _urlObj.pathname === '/'
+    ? url
+    : url.replace(_urlObj.pathname, _urlObj.pathname.replace(/\/?$/, '.html'));
+  const cleanUrl  = url.replace(/\.html(?=$|\?|#)/, '');
+
   // Fetch new page (use cache for instant revisits)
-  let html = _pageCache.get(url);
+  let html = _pageCache.get(cleanUrl);
   if (!html) {
     try {
-      const res = await fetch(url);
+      const res = await fetch(fetchUrl);
+      if (!res.ok) throw new Error(res.statusText);
       html = await res.text();
-      _pageCache.set(url, html);
+      _pageCache.set(cleanUrl, html);
     } catch {
       releaseLock();
       location.href = url;
@@ -609,14 +618,14 @@ async function navigateTo(url, push = true) {
   const curDesc = document.querySelector('meta[name="description"]');
   if (newDesc && curDesc) curDesc.setAttribute('content', newDesc.getAttribute('content'));
 
-  // Push history state
-  if (push) history.pushState({ url }, doc.title, url);
+  // Push history state — store fetchUrl so popstate can refetch without server round-trip
+  if (push) history.pushState({ url: cleanUrl, fetchUrl }, doc.title, cleanUrl);
 
   // Scroll to top
   window.scrollTo(0, 0);
 
   // Highlight active nav link
-  _syncNavLinks(url);
+  _syncNavLinks(cleanUrl);
 
   // Wait for browser to lay out the new DOM before GSAP measures positions
   const inEl = document.querySelector('main');
@@ -647,7 +656,7 @@ async function navigateTo(url, push = true) {
 function _syncNavLinks(url) {
   const path = new URL(url).pathname;
   document.querySelectorAll('.nav-link').forEach(a => {
-    const href = a.getAttribute('href') || '';
+    const href = (a.getAttribute('href') || '').replace(/\.html$/, '');
     const isActive = href === '/' ? path === '/' : path.endsWith(href);
     a.classList.toggle('active', isActive);
   });
@@ -684,13 +693,15 @@ function initRouter() {
     navigateTo(new URL(href, location.href).href);
   });
 
-  // Back / forward buttons
+  // Back / forward buttons — prefer fetchUrl stored in state so local dev can re-fetch .html
   window.addEventListener('popstate', e => {
-    navigateTo(e.state?.url || location.href, false);
+    navigateTo(e.state?.fetchUrl || e.state?.url || location.href, false);
   });
 
   // Seed the history state for the current page
-  history.replaceState({ url: location.href }, document.title, location.href);
+  const _initFetch = location.pathname === '/' ? location.href
+    : location.href.replace(/\.html(?=$|\?|#)/, '') + '.html';
+  history.replaceState({ url: location.href.replace(/\.html(?=$|\?|#)/, ''), fetchUrl: _initFetch }, document.title, location.href.replace(/\.html(?=$|\?|#)/, ''));
 
   // Prefetch on hover — pages load before the user clicks
   document.addEventListener('mouseover', e => {

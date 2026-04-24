@@ -9,9 +9,9 @@
         <img src="assets/logo.png" alt="Raffy Gelato" />
       </a>
       <ul class="nav-links" role="list">
-        <li><a href="menu"    class="nav-link">Menu</a></li>
-        <li><a href="about"   class="nav-link">Over ons</a></li>
-        <li><a href="contact" class="nav-link">Vind ons</a></li>
+        <li><a href="menu.html"    class="nav-link">Menu</a></li>
+        <li><a href="about.html"   class="nav-link">Over ons</a></li>
+        <li><a href="contact.html" class="nav-link">Vind ons</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-menu">
         <img src="assets/helado-empty.png" alt="" class="nav-toggle-icon nav-toggle-empty" aria-hidden="true" />
@@ -47,9 +47,9 @@
           <h4>Navigatie</h4>
           <nav class="footer-links" aria-label="Footer navigatie">
             <a href="/">Home</a>
-            <a href="menu">Ons Menu</a>
-            <a href="about">Over ons</a>
-            <a href="contact">Vind ons</a>
+            <a href="menu.html">Ons Menu</a>
+            <a href="about.html">Over ons</a>
+            <a href="contact.html">Vind ons</a>
           </nav>
         </div>
         <div class="footer-col">
