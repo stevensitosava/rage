@@ -24,6 +24,7 @@ async function uploadToCloudinary(file) {
    STATE
    ============================================================ */
 let currentUser        = null;
+let isAdmin            = false; // true only for admin@raffygelato.nl
 let allFlavors         = [];
 let editingFlavor      = null;
 const pendingImgs      = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
@@ -34,15 +35,36 @@ let lastFlavorsRendered = [];
 /* ============================================================
    BOOT — auth guard
    ============================================================ */
-auth.onAuthStateChanged(user => {
-  if (!user) {
-    location.href = '/admin/index.html';
-    return;
+auth.onAuthStateChanged(async user => {
+  if (!user) { location.href = '/admin/index.html'; return; }
+
+  try {
+    // Verify against Firestore allowlist — only explicitly registered emails can enter
+    const snap = await db.collection('admin_users').doc(user.email).get();
+    if (!snap.exists) {
+      auth.signOut().then(() => { location.href = '/admin/index.html'; });
+      return;
+    }
+
+    currentUser = user;
+    isAdmin     = snap.data().role === 'admin';
+    document.getElementById('admin-email').textContent = user.email;
+    init();
+    applyRoleRestrictions();
+  } catch (err) {
+    console.error('[Admin] Auth check failed:', err);
+    auth.signOut().then(() => { location.href = '/admin/index.html'; });
   }
-  currentUser = user;
-  document.getElementById('admin-email').textContent = user.email;
-  init();
 });
+
+function applyRoleRestrictions() {
+  if (isAdmin) return;
+  // Owner role: hide only the text fields in story sections; images remain editable
+  const indexStoryText = document.getElementById('index-story-text-fields');
+  const aboutStoryText = document.getElementById('about-story-text-fields');
+  if (indexStoryText) indexStoryText.style.display = 'none';
+  if (aboutStoryText) aboutStoryText.style.display = 'none';
+}
 
 document.getElementById('logout-btn').addEventListener('click', () => {
   auth.signOut().then(() => { location.href = '/admin/index.html'; });
@@ -483,19 +505,24 @@ document.addEventListener('DOMContentLoaded', () => {
       const existingDoc = await db.collection('about').doc('main').get();
       if (existingDoc.exists) imageUrl = existingDoc.data().imageUrl || '';
 
+      // Upload founder image — all roles can change the image
       if (pendingImgs['about']) {
         imageUrl = await uploadToCloudinary(pendingImgs['about']);
         delete pendingImgs['about'];
       }
 
       const f = e.target;
-      const data = {
+      const aboutStoryFields = isAdmin ? {
         storyLabel:      f.elements['storyLabel'].value.trim(),
         storyTitle:      f.elements['storyTitle'].value.trim(),
         storyParagraph1: f.elements['storyParagraph1'].value.trim(),
         storyParagraph2: f.elements['storyParagraph2'].value.trim(),
         storyParagraph3: f.elements['storyParagraph3'].value.trim(),
         imageUrl,
+      } : { imageUrl }; // owner: image only
+
+      const data = {
+        ...aboutStoryFields,
         processSteps: [1,2,3].map(n => ({
           title:       f.elements[`step${n}Title`]?.value.trim() || '',
           description: f.elements[`step${n}Desc`]?.value.trim()  || '',
@@ -716,7 +743,7 @@ document.addEventListener('DOMContentLoaded', () => {
       let storyImageUrl = existingData.storyImageUrl || '';
       const existingSeasonal = existingData.seasonal || [];
 
-      // Upload story image if pending
+      // Upload story image if pending — all roles can change the image
       if (pendingImgs['index-story']) {
         storyImageUrl = await uploadToCloudinary(pendingImgs['index-story']);
       }
@@ -755,12 +782,16 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
-      const data = {
+      const storyFields = isAdmin ? {
         storyLabel:    f.elements['storyLabel'].value.trim(),
         storyTitle:    f.elements['storyTitle'].value.trim(),
         storyText1:    f.elements['storyText1'].value.trim(),
         storyText2:    f.elements['storyText2'].value.trim(),
         storyImageUrl,
+      } : { storyImageUrl }; // owner: image only
+
+      const data = {
+        ...storyFields,
         pillars: await Promise.all([1,2,3].map(async n => {
           let iconUrl = existingData?.pillars?.[n-1]?.iconUrl || '';
           if (pendingImgs[`index-pillar-icon-${n}`]) {

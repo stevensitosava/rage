@@ -99,32 +99,34 @@
     <form id="index-form">
 
       <!-- Story Strip -->
-      <div class="admin-card">
+      <div class="admin-card" id="index-story-card">
         <div class="admin-card-header">
           <h2 class="admin-card-title">Ons Verhaal (Story Strip)</h2>
         </div>
-        <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1rem;">
-          De sectie "Ons Verhaal" op de homepage. Het heldengedeelte wordt nooit bewerkt.
-        </p>
+        <div id="index-story-text-fields">
+          <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1rem;">
+            De sectie "Ons Verhaal" op de homepage. Het heldengedeelte wordt nooit bewerkt.
+          </p>
 
-        <div class="form-row">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Label (boven de titel)</label>
+              <input type="text" name="storyLabel" placeholder="Ons Verhaal" />
+            </div>
+            <div class="form-group">
+              <label>Titel (H2 — gebruik &lt;br /&gt; voor regelbreuk)</label>
+              <input type="text" name="storyTitle" placeholder="Al Meer Dan 25 Jaar&lt;br /&gt;op de Oude Markt" />
+            </div>
+          </div>
+
           <div class="form-group">
-            <label>Label (boven de titel)</label>
-            <input type="text" name="storyLabel" placeholder="Ons Verhaal" />
+            <label>Alinea 1</label>
+            <textarea name="storyText1" rows="3" placeholder="Eerste alinea tekst…"></textarea>
           </div>
           <div class="form-group">
-            <label>Titel (H2 — gebruik &lt;br /&gt; voor regelbreuk)</label>
-            <input type="text" name="storyTitle" placeholder="Al Meer Dan 25 Jaar&lt;br /&gt;op de Oude Markt" />
+            <label>Alinea 2</label>
+            <textarea name="storyText2" rows="3" placeholder="Tweede alinea tekst…"></textarea>
           </div>
-        </div>
-
-        <div class="form-group">
-          <label>Alinea 1</label>
-          <textarea name="storyText1" rows="3" placeholder="Eerste alinea tekst…"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Alinea 2</label>
-          <textarea name="storyText2" rows="3" placeholder="Tweede alinea tekst…"></textarea>
         </div>
 
         <div class="form-group">
@@ -450,33 +452,36 @@
     <form id="about-form">
 
       <!-- Story Section -->
-      <div class="admin-card">
+      <div class="admin-card" id="about-story-card">
         <div class="admin-card-header">
           <h2 class="admin-card-title">Verhaal Sectie</h2>
         </div>
 
-        <div class="form-row">
-          <div class="form-group">
-            <label>Label</label>
-            <input type="text" name="storyLabel" placeholder="Waar Het Allemaal Begon" />
+        <div id="about-story-text-fields">
+          <div class="form-row">
+            <div class="form-group">
+              <label>Label</label>
+              <input type="text" name="storyLabel" placeholder="Waar Het Allemaal Begon" />
+            </div>
+            <div class="form-group">
+              <label>Titel (gebruik &lt;br /&gt; voor regelbreuk)</label>
+              <input type="text" name="storyTitle" placeholder="Een Familiereceptuur.&lt;br /&gt;Een Grote Droom." />
+            </div>
           </div>
           <div class="form-group">
-            <label>Titel (gebruik &lt;br /&gt; voor regelbreuk)</label>
-            <input type="text" name="storyTitle" placeholder="Een Familiereceptuur.&lt;br /&gt;Een Grote Droom." />
+            <label>Alinea 1</label>
+            <textarea name="storyParagraph1" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Alinea 2</label>
+            <textarea name="storyParagraph2" rows="3"></textarea>
+          </div>
+          <div class="form-group">
+            <label>Alinea 3</label>
+            <textarea name="storyParagraph3" rows="3"></textarea>
           </div>
         </div>
-        <div class="form-group">
-          <label>Alinea 1</label>
-          <textarea name="storyParagraph1" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Alinea 2</label>
-          <textarea name="storyParagraph2" rows="3"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Alinea 3</label>
-          <textarea name="storyParagraph3" rows="3"></textarea>
-        </div>
+
         <div class="form-group">
           <label>Afbeelding (oprichter / product)</label>
           <div class="img-upload-area">
