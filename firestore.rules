@@ -33,6 +33,14 @@ service cloud.firestore {
       allow write: if false;
     }
 
+    // Visit counter — public can increment, only authenticated users can read
+    match /site_visits/{docId} {
+      allow read: if request.auth != null;
+      allow create: if request.resource.data.keys().hasOnly(['count'])
+                    && request.resource.data.count is int;
+      allow update: if request.resource.data.diff(resource.data).affectedKeys().hasOnly(['count']);
+    }
+
     // Deny everything else
     match /{document=**} {
       allow read, write: if false;

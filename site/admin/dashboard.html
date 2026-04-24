@@ -30,6 +30,7 @@
     <button class="admin-tab"        data-tab="index"    role="tab">Index Pagina</button>
     <button class="admin-tab"        data-tab="about"    role="tab">Over Ons</button>
     <button class="admin-tab"        data-tab="contact"  role="tab">Contact</button>
+    <button class="admin-tab admin-tab--stats" data-tab="stats" role="tab">📊 Statistieken</button>
   </nav>
 
   <!-- ══════════════════════════════════════════════════════
@@ -652,6 +653,49 @@
         <button type="submit" class="btn btn-primary save-btn" style="padding:0.65rem 1.75rem;">Opslaan</button>
       </div>
     </form>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: STATISTIEKEN (admin only)
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel" id="panel-stats">
+
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h2 class="admin-card-title">Bezoekersstatistieken</h2>
+        <button class="btn btn-outline btn-sm" id="stats-refresh-btn">↻ Vernieuwen</button>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1.5rem;">
+        Telt één bezoek per browsersessie op de publieke website.
+      </p>
+
+      <!-- Big numbers -->
+      <div class="stats-overview">
+        <div class="stat-big">
+          <span class="stat-big-num" id="stat-today">—</span>
+          <span class="stat-big-label">Vandaag</span>
+        </div>
+        <div class="stat-big">
+          <span class="stat-big-num" id="stat-week">—</span>
+          <span class="stat-big-label">Afgelopen 7 dagen</span>
+        </div>
+        <div class="stat-big">
+          <span class="stat-big-num" id="stat-total">—</span>
+          <span class="stat-big-label">Totaal</span>
+        </div>
+      </div>
+
+      <!-- 7-day bar chart -->
+      <div class="stats-chart-section">
+        <h3 class="stats-chart-title">Bezoekers per dag — laatste 7 dagen</h3>
+        <div class="stats-chart" id="stats-chart">
+          <p style="color:var(--text-light);font-size:0.85rem;">Laden…</p>
+        </div>
+      </div>
+
+      <div id="stats-status"></div>
+    </div>
+
   </div>
 
 </div><!-- end .admin-content -->

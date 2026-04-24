@@ -523,3 +523,105 @@ body {
 body.role-admin #index-story-text-fields,
 body.role-admin #about-story-text-fields { display: block !important; }
 
+/* Stats tab and panel — hidden for non-admin, normal active rules for admin */
+.admin-tab--stats { display: none !important; }
+body.role-admin .admin-tab--stats { display: inline-flex !important; }
+body:not(.role-admin) #panel-stats { display: none !important; }
+body.role-admin #panel-stats.active { display: block !important; }
+
+/* ── STATS PANEL ─────────────────────────────────────────── */
+.stats-overview {
+  display: flex;
+  gap: 1.5rem;
+  margin-bottom: 2rem;
+  flex-wrap: wrap;
+}
+.stat-big {
+  flex: 1;
+  min-width: 100px;
+  background: var(--bg);
+  border: 1px solid var(--border);
+  border-radius: var(--radius);
+  padding: 1.25rem 1rem;
+  text-align: center;
+}
+.stat-big-num {
+  display: block;
+  font-size: 2.2rem;
+  font-weight: 700;
+  color: var(--primary);
+  line-height: 1;
+  margin-bottom: 0.4rem;
+}
+.stat-big-label {
+  font-size: 0.72rem;
+  font-weight: 700;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: var(--text-light);
+}
+.stats-chart-section {
+  margin-top: 0.5rem;
+}
+.stats-chart-title {
+  font-size: 0.85rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 1.25rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+.stats-chart {
+  display: flex;
+  align-items: flex-end;
+  gap: 0.5rem;
+  height: 140px;
+  padding-bottom: 2rem;
+  position: relative;
+}
+.stats-bar-col {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 0;
+  height: 100%;
+  position: relative;
+}
+.stats-bar-count {
+  font-size: 0.7rem;
+  font-weight: 700;
+  color: var(--text-light);
+  margin-bottom: 4px;
+  min-height: 1em;
+}
+.stats-bar-track {
+  flex: 1;
+  width: 100%;
+  background: var(--bg);
+  border-radius: 4px 4px 0 0;
+  display: flex;
+  align-items: flex-end;
+  overflow: hidden;
+  border: 1px solid var(--border);
+  border-bottom: none;
+}
+.stats-bar-fill {
+  width: 100%;
+  background: #d4b3c7;
+  border-radius: 3px 3px 0 0;
+  transition: height 0.4s ease;
+  min-height: 2px;
+}
+.stats-bar-fill--today {
+  background: var(--primary);
+}
+.stats-bar-label {
+  position: absolute;
+  bottom: 0;
+  font-size: 0.65rem;
+  color: var(--text-light);
+  white-space: nowrap;
+  text-align: center;
+}
+

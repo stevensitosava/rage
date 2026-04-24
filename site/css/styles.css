@@ -1801,7 +1801,7 @@ p { max-width: 65ch; }
 
 /* Big cinematic title */
 .hs-hero-inner h1 {
-  font-size: clamp(3.8rem, 8.5vw, 8.5rem);
+  font-size: clamp(3rem, 6.5vw, 6.5rem);
   line-height: 1.02;
   letter-spacing: -0.03em;
   margin-bottom: var(--space-md);
@@ -2113,10 +2113,25 @@ p { max-width: 65ch; }
   .vs-progress { display: none; }
   #flavors {
     padding-top: 3.5rem;
+    padding-bottom: 3rem;
+    margin-top: -50vh;
     margin-top: -50svh;
     position: relative;
     z-index: 10;
     will-change: transform;
+  }
+}
+
+@media (max-width: 640px) {
+  #flavors {
+    padding-top: 2.5rem;
+    padding-bottom: 2rem;
+  }
+  .fls-header {
+    margin-bottom: 2.5rem;
+  }
+  .fls-reel {
+    margin-bottom: 2.8rem;
   }
 }
 
@@ -2222,6 +2237,7 @@ p { max-width: 65ch; }
   margin-bottom: 4.5rem;
   opacity: 0;
   transform: translateY(30px);
+  overflow: hidden;
 }
 .fls-track {
   display: flex;
@@ -2349,6 +2365,12 @@ p { max-width: 65ch; }
   .fls-item { width: 220px; height: 150px; }
   .fls-stats { gap: 1.8rem; }
   .fls-stat-div { height: 32px; }
+}
+@media (max-width: 380px) {
+  .fls-item { width: 180px; height: 130px; }
+  .fls-stats { gap: 1.1rem; }
+  .fls-stat-div { display: none; }
+  .fls-stat-num { font-size: 1.6rem; }
 }
 
 /* ============================================

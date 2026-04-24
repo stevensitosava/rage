@@ -73,6 +73,7 @@
       <div class="footer-bottom">
         <p class="footer-copy">&copy; 2026 Raffy Gelato. Alle rechten voorbehouden.</p>
         <p class="footer-copy">Gelato Italiano dal 1997 &middot; Tilburg, Nederland</p>
+        <p style="margin-top:0.5rem;font-size:0.7rem;color:rgba(253,246,236,0.25);letter-spacing:0.04em;">made by <a href="https://www.stevensawarin.com/" target="_blank" rel="noopener noreferrer" style="color:rgba(253,246,236,0.25);text-decoration:none;border-bottom:1px solid rgba(253,246,236,0.15);">Steven Sawarin</a></p>
       </div>
     </div>
   </footer>`;

@@ -77,6 +77,7 @@ function init() {
   loadContactContent();
   loadIndexContent();
   setupFlavorModal();
+  if (isAdmin) initStats();
 }
 
 /* ============================================================
@@ -92,6 +93,7 @@ function setupTabs() {
       panels.forEach(p => p.classList.remove('active'));
       tab.classList.add('active');
       document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
+      if (tab.dataset.tab === 'stats' && isAdmin) loadStats();
     });
   });
 }
@@ -842,3 +844,62 @@ window.dragOver            = dragOver;
 window.dragLeave           = dragLeave;
 window.dragDrop            = dragDrop;
 window.dragEnd             = dragEnd;
+
+/* ============================================================
+   STATS (admin only)
+   ============================================================ */
+function initStats() {
+  document.getElementById('stats-refresh-btn')
+    .addEventListener('click', loadStats);
+}
+
+async function loadStats() {
+  const chartEl  = document.getElementById('stats-chart');
+  const todayEl  = document.getElementById('stat-today');
+  const weekEl   = document.getElementById('stat-week');
+  const totalEl  = document.getElementById('stat-total');
+  if (!chartEl) return;
+
+  chartEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">Laden…</p>';
+
+  try {
+    const snap = await db.collection('site_visits').get();
+    const docs  = {};
+    snap.forEach(d => { docs[d.id] = d.data().count || 0; });
+
+    const today = new Date().toISOString().slice(0, 10);
+    const totalCount = docs['total'] || 0;
+    const todayCount = docs[today]   || 0;
+
+    // Build last-7-days array
+    const days = [];
+    for (let i = 6; i >= 0; i--) {
+      const d = new Date();
+      d.setDate(d.getDate() - i);
+      const key   = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric' });
+      days.push({ key, label, count: docs[key] || 0 });
+    }
+
+    const weekCount = days.reduce((s, d) => s + d.count, 0);
+    const maxCount  = Math.max(...days.map(d => d.count), 1);
+
+    todayEl.textContent = todayCount;
+    weekEl.textContent  = weekCount;
+    totalEl.textContent = totalCount;
+
+    chartEl.innerHTML = days.map(d => `
+      <div class="stats-bar-col">
+        <span class="stats-bar-count">${d.count}</span>
+        <div class="stats-bar-track">
+          <div class="stats-bar-fill${d.key === today ? ' stats-bar-fill--today' : ''}"
+               style="height:${Math.round((d.count / maxCount) * 100)}%"></div>
+        </div>
+        <span class="stats-bar-label">${d.label}</span>
+      </div>`).join('');
+
+  } catch (err) {
+    chartEl.innerHTML = '<p style="color:var(--danger);font-size:0.85rem;">Kon statistieken niet laden.</p>';
+    console.error('[Stats]', err);
+  }
+}
