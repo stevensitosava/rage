@@ -58,12 +58,9 @@ auth.onAuthStateChanged(async user => {
 });
 
 function applyRoleRestrictions() {
-  if (isAdmin) return;
-  // Owner role: hide only the text fields in story sections; images remain editable
-  const indexStoryText = document.getElementById('index-story-text-fields');
-  const aboutStoryText = document.getElementById('about-story-text-fields');
-  if (indexStoryText) indexStoryText.style.display = 'none';
-  if (aboutStoryText) aboutStoryText.style.display = 'none';
+  // CSS hides the story text fields by default (see admin.css).
+  // Add role-admin class to reveal them only for the admin account.
+  if (isAdmin) document.body.classList.add('role-admin');
 }
 
 document.getElementById('logout-btn').addEventListener('click', () => {

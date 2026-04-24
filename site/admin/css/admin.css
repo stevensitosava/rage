@@ -513,3 +513,13 @@ body {
   .admin-table th:nth-child(4),
   .admin-table td:nth-child(4) { display: none; }
 }
+
+/* ── ROLE-BASED ACCESS ───────────────────────────────────── */
+/* Story text fields are hidden by default for all roles.
+   Only revealed when body carries the role-admin class.      */
+#index-story-text-fields,
+#about-story-text-fields { display: none !important; }
+
+body.role-admin #index-story-text-fields,
+body.role-admin #about-story-text-fields { display: block !important; }
+
