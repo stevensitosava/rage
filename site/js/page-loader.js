@@ -431,17 +431,17 @@ async function loadSharedContent() {
       }
     });
 
-    // CTA banner meta items — match by emoji icon
-    document.querySelectorAll('.cta-meta-item').forEach(item => {
-      const emoji = item.querySelector('span[aria-hidden="true"]')?.textContent?.trim();
-      const val   = item.querySelector('span:not([aria-hidden])');
+    // CTA banner meta items — match by data-cta attribute
+    document.querySelectorAll('.cta-meta-item[data-cta]').forEach(item => {
+      const type = item.dataset.cta;
+      const val  = item.querySelector('span:not([aria-hidden])');
       if (!val) return;
 
-      if (emoji === '📍' && data.address) {
+      if (type === 'address' && data.address) {
         const lines = data.address.split('\n');
         val.innerHTML = `<strong>${_esc(lines[0])}</strong>${lines[1] ? ', ' + _esc(lines[1]) : ''}`;
       }
-      if (emoji === '🕐' && data.hoursWeekdays) {
+      if (type === 'hours' && data.hoursWeekdays) {
         const wd = _extractHoursShort(data.hoursWeekdays);
         const sa = _extractHoursShort(data.hoursSaturday || '');
         const su = _extractHoursShort(data.hoursSunday   || '');
@@ -450,7 +450,7 @@ async function loadSharedContent() {
         if (su) html += ` · Zo <strong>${_esc(su)}</strong>`;
         val.innerHTML = html;
       }
-      if (emoji === '📞' && (data.phoneDisplay || data.phone)) {
+      if (type === 'phone' && (data.phoneDisplay || data.phone)) {
         val.innerHTML = `<strong>${_esc(data.phoneDisplay || data.phone)}</strong>`;
       }
     });
