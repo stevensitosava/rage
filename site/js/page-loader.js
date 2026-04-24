@@ -9,7 +9,7 @@ function initFirebasePage() {
   if      (p.endsWith('menu.html')    || p.endsWith('/menu'))    loadMenuPage();
   else if (p.endsWith('about.html')   || p.endsWith('/about'))   loadAboutPage();
   else if (p.endsWith('contact.html') || p.endsWith('/contact')) loadContactPage();
-  else if (p === '/' || p.endsWith('index.html') || p === '')    loadIndexPage();
+  else if (p === '/' || p.endsWith('index.html') || p === '' || p.endsWith('/')) loadIndexPage();
 }
 
 /* ============================================================
