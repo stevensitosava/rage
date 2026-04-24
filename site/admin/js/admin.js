@@ -848,58 +848,115 @@ window.dragEnd             = dragEnd;
 /* ============================================================
    STATS (admin only)
    ============================================================ */
+let statsCache  = null;
+let statsPeriod = 'days';
+
+const PERIOD_TITLES = {
+  days:   'Bezoekers per dag — laatste 30 dagen',
+  months: 'Bezoekers per maand — laatste 12 maanden',
+  years:  'Bezoekers per jaar',
+};
+
 function initStats() {
-  document.getElementById('stats-refresh-btn')
-    .addEventListener('click', loadStats);
+  document.getElementById('stats-refresh-btn').addEventListener('click', () => {
+    statsCache = null;
+    loadStats();
+  });
+  document.querySelectorAll('.stats-period-btn').forEach(btn => {
+    btn.addEventListener('click', () => {
+      document.querySelectorAll('.stats-period-btn').forEach(b => b.classList.remove('active'));
+      btn.classList.add('active');
+      statsPeriod = btn.dataset.period;
+      document.getElementById('stats-chart-title').textContent = PERIOD_TITLES[statsPeriod];
+      if (statsCache) renderStatsChart(statsCache);
+    });
+  });
 }
 
 async function loadStats() {
-  const chartEl  = document.getElementById('stats-chart');
-  const todayEl  = document.getElementById('stat-today');
-  const weekEl   = document.getElementById('stat-week');
-  const totalEl  = document.getElementById('stat-total');
+  const chartEl = document.getElementById('stats-chart');
   if (!chartEl) return;
-
   chartEl.innerHTML = '<p style="color:var(--text-light);font-size:0.85rem;">Laden…</p>';
 
   try {
     const snap = await db.collection('site_visits').get();
-    const docs  = {};
+    const docs = {};
     snap.forEach(d => { docs[d.id] = d.data().count || 0; });
+    statsCache = docs;
 
-    const today = new Date().toISOString().slice(0, 10);
+    const today     = new Date().toISOString().slice(0, 10);
+    const todayCount = docs[today] || 0;
     const totalCount = docs['total'] || 0;
-    const todayCount = docs[today]   || 0;
 
-    // Build last-7-days array
-    const days = [];
-    for (let i = 6; i >= 0; i--) {
-      const d = new Date();
-      d.setDate(d.getDate() - i);
-      const key   = d.toISOString().slice(0, 10);
-      const label = d.toLocaleDateString('nl-NL', { weekday: 'short', day: 'numeric' });
-      days.push({ key, label, count: docs[key] || 0 });
-    }
+    const weekCount = Array.from({ length: 7 }, (_, i) => {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      return docs[d.toISOString().slice(0, 10)] || 0;
+    }).reduce((s, n) => s + n, 0);
 
-    const weekCount = days.reduce((s, d) => s + d.count, 0);
-    const maxCount  = Math.max(...days.map(d => d.count), 1);
+    document.getElementById('stat-today').textContent = todayCount;
+    document.getElementById('stat-week').textContent  = weekCount;
+    document.getElementById('stat-total').textContent = totalCount;
 
-    todayEl.textContent = todayCount;
-    weekEl.textContent  = weekCount;
-    totalEl.textContent = totalCount;
-
-    chartEl.innerHTML = days.map(d => `
-      <div class="stats-bar-col">
-        <span class="stats-bar-count">${d.count}</span>
-        <div class="stats-bar-track">
-          <div class="stats-bar-fill${d.key === today ? ' stats-bar-fill--today' : ''}"
-               style="height:${Math.round((d.count / maxCount) * 100)}%"></div>
-        </div>
-        <span class="stats-bar-label">${d.label}</span>
-      </div>`).join('');
-
+    renderStatsChart(docs);
   } catch (err) {
     chartEl.innerHTML = '<p style="color:var(--danger);font-size:0.85rem;">Kon statistieken niet laden.</p>';
     console.error('[Stats]', err);
   }
+}
+
+function renderStatsChart(docs) {
+  const chartEl = document.getElementById('stats-chart');
+  if (!chartEl) return;
+
+  const today = new Date().toISOString().slice(0, 10);
+  let bars = [];
+
+  if (statsPeriod === 'days') {
+    for (let i = 29; i >= 0; i--) {
+      const d = new Date(); d.setDate(d.getDate() - i);
+      const key   = d.toISOString().slice(0, 10);
+      const label = d.toLocaleDateString('nl-NL', { day: 'numeric', month: 'short' });
+      bars.push({ key, label, count: docs[key] || 0, highlight: key === today });
+    }
+  } else if (statsPeriod === 'months') {
+    const monthly = {};
+    Object.entries(docs).forEach(([k, v]) => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k)) {
+        const m = k.slice(0, 7);
+        monthly[m] = (monthly[m] || 0) + v;
+      }
+    });
+    const thisMonth = today.slice(0, 7);
+    for (let i = 11; i >= 0; i--) {
+      const d = new Date(); d.setDate(1); d.setMonth(d.getMonth() - i);
+      const key   = d.toISOString().slice(0, 7);
+      const label = d.toLocaleDateString('nl-NL', { month: 'short', year: '2-digit' });
+      bars.push({ key, label, count: monthly[key] || 0, highlight: key === thisMonth });
+    }
+  } else {
+    const yearly = {};
+    Object.entries(docs).forEach(([k, v]) => {
+      if (/^\d{4}-\d{2}-\d{2}$/.test(k)) {
+        const y = k.slice(0, 4);
+        yearly[y] = (yearly[y] || 0) + v;
+      }
+    });
+    const thisYear  = today.slice(0, 4);
+    const years     = [...new Set([...Object.keys(yearly), thisYear])].sort();
+    bars = years.map(y => ({ key: y, label: y, count: yearly[y] || 0, highlight: y === thisYear }));
+  }
+
+  const maxCount   = Math.max(...bars.map(b => b.count), 1);
+  const showEvery  = statsPeriod === 'days' ? 5 : 1;
+
+  chartEl.innerHTML = bars.map((b, i) => `
+    <div class="stats-bar-col">
+      <span class="stats-bar-count">${b.count > 0 ? b.count : ''}</span>
+      <div class="stats-bar-track">
+        <div class="stats-bar-fill${b.highlight ? ' stats-bar-fill--today' : ''}"
+             style="height:${Math.round((b.count / maxCount) * 100)}%"
+             title="${b.label}: ${b.count}"></div>
+      </div>
+      <span class="stats-bar-label">${i % showEvery === 0 || i === bars.length - 1 ? b.label : ''}</span>
+    </div>`).join('');
 }

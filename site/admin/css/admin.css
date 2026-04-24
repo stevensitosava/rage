@@ -563,21 +563,55 @@ body.role-admin #panel-stats.active { display: block !important; }
 .stats-chart-section {
   margin-top: 0.5rem;
 }
+.stats-chart-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  margin-bottom: 1.25rem;
+}
 .stats-chart-title {
-  font-size: 0.85rem;
+  font-size: 0.82rem;
   font-weight: 700;
   color: var(--text-light);
-  margin-bottom: 1.25rem;
   text-transform: uppercase;
   letter-spacing: 0.06em;
+  margin: 0;
+}
+.stats-period-toggle {
+  display: flex;
+  gap: 0.25rem;
+}
+.stats-period-btn {
+  padding: 0.3rem 0.85rem;
+  border: 1px solid var(--border);
+  border-radius: 20px;
+  background: var(--surface);
+  color: var(--text-light);
+  font-size: 0.76rem;
+  font-weight: 700;
+  font-family: var(--font);
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+}
+.stats-period-btn:hover {
+  border-color: var(--primary);
+  color: var(--primary);
+}
+.stats-period-btn.active {
+  background: var(--primary);
+  border-color: var(--primary);
+  color: #fff;
 }
 .stats-chart {
   display: flex;
   align-items: flex-end;
-  gap: 0.5rem;
-  height: 140px;
+  gap: 3px;
+  height: 160px;
   padding-bottom: 2rem;
   position: relative;
+  overflow-x: auto;
 }
 .stats-bar-col {
   flex: 1;
@@ -589,11 +623,12 @@ body.role-admin #panel-stats.active { display: block !important; }
   position: relative;
 }
 .stats-bar-count {
-  font-size: 0.7rem;
+  font-size: 0.62rem;
   font-weight: 700;
   color: var(--text-light);
-  margin-bottom: 4px;
+  margin-bottom: 3px;
   min-height: 1em;
+  white-space: nowrap;
 }
 .stats-bar-track {
   flex: 1;

@@ -685,9 +685,16 @@
         </div>
       </div>
 
-      <!-- 7-day bar chart -->
+      <!-- Period chart -->
       <div class="stats-chart-section">
-        <h3 class="stats-chart-title">Bezoekers per dag — laatste 7 dagen</h3>
+        <div class="stats-chart-header">
+          <h3 class="stats-chart-title" id="stats-chart-title">Bezoekers per dag — laatste 30 dagen</h3>
+          <div class="stats-period-toggle">
+            <button class="stats-period-btn active" data-period="days">Dagen</button>
+            <button class="stats-period-btn" data-period="months">Maanden</button>
+            <button class="stats-period-btn" data-period="years">Jaren</button>
+          </div>
+        </div>
         <div class="stats-chart" id="stats-chart">
           <p style="color:var(--text-light);font-size:0.85rem;">Laden…</p>
         </div>
