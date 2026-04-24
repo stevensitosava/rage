@@ -430,12 +430,17 @@ async function loadAboutContent() {
 
     // Values
     (data.values || []).forEach((v, i) => {
-      const iconEl  = f.elements[`val${i+1}Icon`];
-      const titleEl = f.elements[`val${i+1}Title`];
-      const descEl  = f.elements[`val${i+1}Desc`];
+      const n       = i + 1;
+      const iconEl  = f.elements[`val${n}Icon`];
+      const titleEl = f.elements[`val${n}Title`];
+      const descEl  = f.elements[`val${n}Desc`];
       if (iconEl)  iconEl.value  = v.icon        || '';
       if (titleEl) titleEl.value = v.title        || '';
       if (descEl)  descEl.value  = v.description  || '';
+      if (v.iconUrl) {
+        const prev = document.getElementById(`val${n}-icon-preview`);
+        if (prev) { prev.src = v.iconUrl; prev.style.display = 'block'; }
+      }
     });
   } catch (err) {
     console.error('[Admin] About laden mislukt:', err);
@@ -454,6 +459,17 @@ document.addEventListener('DOMContentLoaded', () => {
     const prev = document.getElementById('about-img-preview');
     prev.src   = URL.createObjectURL(file);
     prev.style.display = 'block';
+  });
+
+  // Value icon previews
+  [1,2,3].forEach(n => {
+    document.getElementById(`val${n}-icon-input`)?.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      pendingImgs[`about-val-icon-${n}`] = file;
+      const prev = document.getElementById(`val${n}-icon-preview`);
+      if (prev) { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
+    });
   });
 
   aboutForm.addEventListener('submit', async e => {
@@ -484,10 +500,18 @@ document.addEventListener('DOMContentLoaded', () => {
           title:       f.elements[`step${n}Title`]?.value.trim() || '',
           description: f.elements[`step${n}Desc`]?.value.trim()  || '',
         })),
-        values: [1,2,3].map(n => ({
-          icon:        f.elements[`val${n}Icon`]?.value.trim()  || '',
-          title:       f.elements[`val${n}Title`]?.value.trim() || '',
-          description: f.elements[`val${n}Desc`]?.value.trim()  || '',
+        values: await Promise.all([1,2,3].map(async n => {
+          let iconUrl = existingDoc.exists ? (existingDoc.data().values?.[n-1]?.iconUrl || '') : '';
+          if (pendingImgs[`about-val-icon-${n}`]) {
+            iconUrl = await uploadToCloudinary(pendingImgs[`about-val-icon-${n}`]);
+            delete pendingImgs[`about-val-icon-${n}`];
+          }
+          return {
+            icon:        f.elements[`val${n}Icon`]?.value.trim()  || '',
+            iconUrl,
+            title:       f.elements[`val${n}Title`]?.value.trim() || '',
+            description: f.elements[`val${n}Desc`]?.value.trim()  || '',
+          };
         })),
       };
 
@@ -575,12 +599,17 @@ async function loadIndexContent() {
     }
 
     (data.pillars || []).forEach((p, i) => {
-      const iconEl  = f.elements[`pillar${i+1}Icon`];
-      const titleEl = f.elements[`pillar${i+1}Title`];
-      const descEl  = f.elements[`pillar${i+1}Desc`];
+      const n       = i + 1;
+      const iconEl  = f.elements[`pillar${n}Icon`];
+      const titleEl = f.elements[`pillar${n}Title`];
+      const descEl  = f.elements[`pillar${n}Desc`];
       if (iconEl)  iconEl.value  = p.icon        || '';
       if (titleEl) titleEl.value = p.title        || '';
       if (descEl)  descEl.value  = p.description  || '';
+      if (p.iconUrl) {
+        const prev = document.getElementById(`pillar${n}-icon-preview`);
+        if (prev) { prev.src = p.iconUrl; prev.style.display = 'block'; }
+      }
     });
 
     (data.seasonal || []).forEach((s, i) => {
@@ -626,6 +655,17 @@ document.addEventListener('DOMContentLoaded', () => {
       prev.style.display = 'block';
     });
   }
+
+  // Pillar icon previews
+  [1,2,3].forEach(n => {
+    document.getElementById(`pillar${n}-icon-input`)?.addEventListener('change', e => {
+      const file = e.target.files[0];
+      if (!file) return;
+      pendingImgs[`index-pillar-icon-${n}`] = file;
+      const prev = document.getElementById(`pillar${n}-icon-preview`);
+      if (prev) { prev.src = URL.createObjectURL(file); prev.style.display = 'block'; }
+    });
+  });
 
   // Seasonal image previews (up to 8)
   for (let i = 1; i <= 8; i++) {
@@ -721,10 +761,18 @@ document.addEventListener('DOMContentLoaded', () => {
         storyText1:    f.elements['storyText1'].value.trim(),
         storyText2:    f.elements['storyText2'].value.trim(),
         storyImageUrl,
-        pillars: [1,2,3].map(n => ({
-          icon:        f.elements[`pillar${n}Icon`]?.value.trim()  || '',
-          title:       f.elements[`pillar${n}Title`]?.value.trim() || '',
-          description: f.elements[`pillar${n}Desc`]?.value.trim()  || '',
+        pillars: await Promise.all([1,2,3].map(async n => {
+          let iconUrl = existingData?.pillars?.[n-1]?.iconUrl || '';
+          if (pendingImgs[`index-pillar-icon-${n}`]) {
+            iconUrl = await uploadToCloudinary(pendingImgs[`index-pillar-icon-${n}`]);
+            delete pendingImgs[`index-pillar-icon-${n}`];
+          }
+          return {
+            icon:        f.elements[`pillar${n}Icon`]?.value.trim()  || '',
+            iconUrl,
+            title:       f.elements[`pillar${n}Title`]?.value.trim() || '',
+            description: f.elements[`pillar${n}Desc`]?.value.trim()  || '',
+          };
         })),
         seasonal,
         favSmaken,

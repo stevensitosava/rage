@@ -251,7 +251,10 @@ async function loadAboutPage() {
         const icon = cards[i].querySelector('.value-icon');
         const h3   = cards[i].querySelector('h3');
         const p    = cards[i].querySelector('p');
-        if (icon && val.icon)        icon.textContent = val.icon;
+        if (icon) {
+          if (val.iconUrl) icon.innerHTML = `<img src="${_esc(val.iconUrl)}" alt="" style="width:100%;height:100%;object-fit:contain;" />`;
+          else if (val.icon) icon.textContent = val.icon;
+        }
         if (h3   && val.title)       h3.textContent   = val.title;
         if (p    && val.description) p.textContent    = val.description;
       });
@@ -350,9 +353,12 @@ async function loadIndexPage() {
         const icon = cards[i].querySelector('.pillar-icon');
         const h3   = cards[i].querySelector('h3');
         const p    = cards[i].querySelector('p');
-        if (icon && pillar.icon)        icon.textContent = pillar.icon;
-        if (h3   && pillar.title)       h3.textContent   = pillar.title;
-        if (p    && pillar.description) p.textContent    = pillar.description;
+        if (icon) {
+          if (pillar.iconUrl) icon.innerHTML = `<img src="${_esc(pillar.iconUrl)}" alt="" style="width:100%;height:100%;object-fit:contain;" />`;
+          else if (pillar.icon) icon.textContent = pillar.icon;
+        }
+        if (h3 && pillar.title)       h3.textContent = pillar.title;
+        if (p  && pillar.description) p.textContent  = pillar.description;
       });
     }
 
