@@ -584,7 +584,7 @@ async function navigateTo(url, push = true) {
   const fetchUrl  = _hasExt ? url : _urlObj.pathname === '/'
     ? url
     : url.replace(_urlObj.pathname, _urlObj.pathname.replace(/\/?$/, '.html'));
-  const cleanUrl  = url.replace(/\.html(?=$|\?|#)/, '');
+  const cleanUrl  = url.replace(/\/index\.html(?=$|\?|#)/, '/').replace(/\.html(?=$|\?|#)/, '');
 
   // Fetch new page (use cache for instant revisits)
   let html = _pageCache.get(cleanUrl);
@@ -699,9 +699,10 @@ function initRouter() {
   });
 
   // Seed the history state for the current page
-  const _initFetch = location.pathname === '/' ? location.href
-    : location.href.replace(/\.html(?=$|\?|#)/, '') + '.html';
-  history.replaceState({ url: location.href.replace(/\.html(?=$|\?|#)/, ''), fetchUrl: _initFetch }, document.title, location.href.replace(/\.html(?=$|\?|#)/, ''));
+  const _initClean = location.href
+    .replace(/\/index\.html(?=$|\?|#)/, '/')
+    .replace(/\.html(?=$|\?|#)/, '');
+  history.replaceState({ url: _initClean, fetchUrl: location.href }, document.title, _initClean);
 
   // Prefetch on hover — pages load before the user clicks
   document.addEventListener('mouseover', e => {
