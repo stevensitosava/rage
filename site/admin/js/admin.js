@@ -99,13 +99,19 @@ function setupTabs() {
 }
 
 /* ============================================================
-   HELPER — show temporary status message
+   HELPER — toast notification from top of page
    ============================================================ */
-function showStatus(containerId, msg, type = 'success') {
-  const el = document.getElementById(containerId);
-  if (!el) return;
-  el.innerHTML = `<div class="admin-alert admin-alert-${type}">${msg}</div>`;
-  setTimeout(() => { el.innerHTML = ''; }, 3500);
+let _toastTimer = null;
+function showStatus(_containerId, msg, type = 'success') {
+  const toast = document.getElementById('admin-toast');
+  if (!toast) return;
+  toast.className = `admin-toast admin-toast--${type}`;
+  toast.textContent = msg;
+  // force reflow so the transition plays even if called back-to-back
+  toast.getBoundingClientRect();
+  toast.classList.add('admin-toast--show');
+  if (_toastTimer) clearTimeout(_toastTimer);
+  _toastTimer = setTimeout(() => toast.classList.remove('admin-toast--show'), 3200);
 }
 
 /* ============================================================
