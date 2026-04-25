@@ -69,7 +69,14 @@ function initMobileMenu() {
     menu.classList.contains('open') ? closeMenu() : open();
   });
   if (close) close.addEventListener('click', closeMenu);
-  menu.querySelectorAll('a').forEach(link => link.addEventListener('click', closeMenu));
+  menu.querySelectorAll('a').forEach(link => {
+    link.addEventListener('click', () => {
+      // Remove open class but keep overflow:hidden until the new page loads
+      // so iOS Safari doesn't flash the scroll position before navigation
+      menu.classList.remove('open');
+      toggle.setAttribute('aria-expanded', 'false');
+    });
+  });
   document.addEventListener('keydown', e => { if (e.key === 'Escape') closeMenu(); });
 }
 
