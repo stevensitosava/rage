@@ -372,7 +372,7 @@ function loadIndexPage() {
     if (data.testimonials && data.testimonials.length) {
       const grid = document.querySelector('.testimonials-grid');
       if (grid) {
-        grid.innerHTML = data.testimonials.map(r => {
+        grid.innerHTML = data.testimonials.slice(0, 3).map(r => {
           const initial   = _esc((r.name || '?').charAt(0).toUpperCase());
           const starCount = Math.max(1, Math.min(5, r.stars || 5));
           const stars     = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
