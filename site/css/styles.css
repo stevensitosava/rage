@@ -973,11 +973,6 @@ p { max-width: 65ch; }
   transition: max-height 0.4s ease;
 }
 
-.testimonial-card:hover .testimonial-text {
-  display: block;
-  -webkit-line-clamp: unset;
-  overflow: visible;
-}
 
 .testimonial-author {
   display: flex;
