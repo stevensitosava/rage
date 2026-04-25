@@ -368,6 +368,29 @@ function loadIndexPage() {
         srList.innerHTML = data.favSmaken.map(s => `<li>${_esc(s.name || '')}</li>`).join('');
       }
     }
+
+    if (data.testimonials && data.testimonials.length) {
+      const grid = document.querySelector('.testimonials-grid');
+      if (grid) {
+        grid.innerHTML = data.testimonials.map(r => {
+          const initial   = _esc((r.name || '?').charAt(0).toUpperCase());
+          const starCount = Math.max(1, Math.min(5, r.stars || 5));
+          const stars     = '★'.repeat(starCount) + '☆'.repeat(5 - starCount);
+          return `
+            <blockquote class="testimonial-card">
+              <span class="testimonial-quote" aria-hidden="true">"</span>
+              <p class="testimonial-text">${_esc(r.text || '')}</p>
+              <footer class="testimonial-author">
+                <div class="testimonial-avatar" aria-hidden="true">${initial}</div>
+                <div>
+                  <div class="testimonial-name">${_esc(r.name || '')}</div>
+                  <div class="testimonial-stars" aria-label="${starCount} sterren">${stars}</div>
+                </div>
+              </footer>
+            </blockquote>`;
+        }).join('');
+      }
+    }
   }, err => console.error('[Raffy] Index laden mislukt:', err));
 }
 

@@ -669,6 +669,16 @@ async function loadIndexContent() {
         if (prev) { prev.src = s.imageUrl; prev.style.display = 'block'; }
       }
     });
+
+    (data.testimonials || []).forEach((r, i) => {
+      const n       = i + 1;
+      const textEl  = f.elements[`review${n}Text`];
+      const nameEl  = f.elements[`review${n}Name`];
+      const starsEl = f.elements[`review${n}Stars`];
+      if (textEl)  textEl.value  = r.text  || '';
+      if (nameEl)  nameEl.value  = r.name  || '';
+      if (starsEl) starsEl.value = String(r.stars || 5);
+    });
   } catch (err) {
     console.error('[Admin] Index laden mislukt:', err);
   }
@@ -787,6 +797,18 @@ document.addEventListener('DOMContentLoaded', () => {
         });
       }
 
+      const testimonials = [];
+      for (let i = 1; i <= 6; i++) {
+        const textEl = f.elements[`review${i}Text`];
+        const nameEl = f.elements[`review${i}Name`];
+        if (!textEl?.value.trim() && !nameEl?.value.trim()) continue;
+        testimonials.push({
+          text:  textEl?.value.trim()  || '',
+          name:  nameEl?.value.trim()  || '',
+          stars: parseInt(f.elements[`review${i}Stars`]?.value || '5'),
+        });
+      }
+
       const storyFields = isAdmin ? {
         storyLabel:    f.elements['storyLabel'].value.trim(),
         storyTitle:    f.elements['storyTitle'].value.trim(),
@@ -797,6 +819,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
       const data = {
         ...storyFields,
+        testimonials,
         pillars: await Promise.all([1,2,3].map(async n => {
           let iconUrl = existingData?.pillars?.[n-1]?.iconUrl || '';
           if (pendingImgs[`index-pillar-icon-${n}`]) {

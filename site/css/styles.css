@@ -371,11 +371,11 @@ p { max-width: 65ch; }
   left: 0;
   width: 0;
   height: 2px;
-  background: var(--color-primary);
+  background: var(--color-gold);
   transition: width var(--transition);
 }
 
-.nav-link:hover { color: var(--color-primary); }
+.nav-link:hover { color: var(--color-gold); }
 .nav-link:hover::after { width: 100%; }
 
 .nav-cta {
