@@ -482,11 +482,7 @@ function initFlavors() {
   const section = document.querySelector('#flavors');
   if (!section) return;
 
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    section.querySelectorAll('.fls-eyebrow, .fls-tl, .fls-sub, .fls-reel, .fls-stats, .fls-cta-btn')
-      .forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
-    return;
-  }
+  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) return;
 
   const isMobile = window.innerWidth <= 768;
   const eyebrow = section.querySelector('.fls-eyebrow');
@@ -496,15 +492,23 @@ function initFlavors() {
   const stats   = section.querySelector('.fls-stats');
   const btn     = section.querySelector('.fls-cta-btn');
 
+  // Set initial hidden states in JS so elements are visible when GSAP isn't available
+  if (eyebrow) gsap.set(eyebrow, { opacity: 0, y: -12 });
+  if (lines.length) gsap.set(lines, { y: '105%' });
+  if (sub)   gsap.set(sub,   { opacity: 0 });
+  if (reel)  gsap.set(reel,  { opacity: 0, y: 32 });
+  if (stats) gsap.set(stats, { opacity: 0 });
+  if (btn)   gsap.set(btn,   { opacity: 0, y: 20 });
+
   const tl = gsap.timeline({
     defaults: { ease: 'power3.out' },
     scrollTrigger: {
       trigger: section,
-      // Mobile: section overlaps hero — fire when section top enters at 85% of viewport
-      // Desktop: fire when section top reaches 65% of viewport
-      start: isMobile ? 'top 85%' : 'top 65%',
-      end: 'bottom top',
-      toggleActions: 'play none none reverse',
+      // Use bottom of viewport as start on mobile so overlapping section
+      // with negative margin always triggers reliably
+      start: isMobile ? 'top bottom' : 'top 65%',
+      toggleActions: 'play none none none',
+      once: true,
     },
   });
 
@@ -512,9 +516,9 @@ function initFlavors() {
   if (lines[0]) tl.to(lines[0], { y: '0%', duration: 0.85, ease: 'power4.out' }, 0.1);
   if (lines[1]) tl.to(lines[1], { y: '0%', duration: 0.85, ease: 'power4.out' }, 0.3);
   if (sub)   tl.to(sub,   { opacity: 1, duration: 0.6 }, 0.4);
-  if (reel)  tl.fromTo(reel,  { opacity: 0, y: 32 }, { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0.25);
+  if (reel)  tl.to(reel,  { opacity: 1, y: 0, duration: 0.8, ease: 'power2.out' }, 0.25);
   if (stats) tl.to(stats, { opacity: 1, duration: 0.55 }, 0.65);
-  if (btn)   tl.fromTo(btn, { opacity: 0, y: 20 }, { opacity: 1, y: 0, duration: 0.5 }, 0.8);
+  if (btn)   tl.to(btn,   { opacity: 1, y: 0, duration: 0.5 }, 0.8);
 }
 
 /* ============================================

@@ -2326,8 +2326,6 @@ p { max-width: 65ch; }
   color: var(--color-gold);
   display: block;
   margin-bottom: 1.2rem;
-  opacity: 0;
-  transform: translateY(-12px);
 }
 .fls-tl-wrap {
   display: block;
@@ -2341,7 +2339,6 @@ p { max-width: 65ch; }
   font-size: clamp(3.5rem, 7vw, 6.5rem);
   font-weight: 700;
   color: var(--color-white);
-  transform: translateY(105%);
   line-height: 1.05;
 }
 .fls-tl--gold {
@@ -2355,7 +2352,6 @@ p { max-width: 65ch; }
   color: rgba(255,255,255,0.45);
   letter-spacing: 0.08em;
   margin: 1.4rem 0 0;
-  opacity: 0;
 }
 
 /* Marquee reel */
@@ -2364,8 +2360,6 @@ p { max-width: 65ch; }
   flex-direction: column;
   gap: 1rem;
   margin-bottom: 4.5rem;
-  opacity: 0;
-  transform: translateY(30px);
   overflow: hidden;
 }
 .fls-track {
@@ -2457,7 +2451,6 @@ p { max-width: 65ch; }
   align-items: center;
   gap: 3rem;
   margin-bottom: 2.8rem;
-  opacity: 0;
 }
 .fls-stat {
   display: flex;
@@ -2487,8 +2480,6 @@ p { max-width: 65ch; }
   background: rgba(255,255,255,0.12);
 }
 .fls-cta-btn {
-  opacity: 0;
-  transform: translateY(20px);
 }
 @media (max-width: 640px) {
   .fls-item { width: 220px; height: 150px; }

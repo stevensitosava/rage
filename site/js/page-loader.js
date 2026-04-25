@@ -362,6 +362,9 @@ function loadIndexPage() {
             </div>
           </div>`).join('');
         track.innerHTML = itemHTML + itemHTML;
+        if (typeof ScrollTrigger !== 'undefined') {
+          requestAnimationFrame(() => ScrollTrigger.refresh());
+        }
       }
       const srList = document.querySelector('.sr-only[aria-label="Onze favoriete smaken"]');
       if (srList) {
