@@ -1,6 +1,5 @@
 // Raffy Gelato — Firebase Page Loader
-// Called by main.js on every page load and after every SPA navigation.
-// Detects current page and loads the appropriate Firestore content.
+// Uses onSnapshot() so admin changes reflect on the live site in real time.
 // Depends on: firebase-data.js
 
 function initFirebasePage() {
@@ -10,17 +9,17 @@ function initFirebasePage() {
   else if (p.endsWith('about.html')   || p.endsWith('/about'))   loadAboutPage();
   else if (p.endsWith('contact.html') || p.endsWith('/contact')) loadContactPage();
   else if (p === '/' || p.endsWith('index.html') || p === '' || p.endsWith('/')) loadIndexPage();
-  loadSharedContent(); // always runs — keeps footer + CTA banners in sync with Firestore
+  loadSharedContent();
 }
 
 /* ============================================================
-   MENU PAGE — image cards, search, filter, pagination
+   MENU PAGE — real-time flavor updates
    ============================================================ */
 function _pageSize() {
   const w = window.innerWidth;
-  if (w < 540) return 3;  // 1-col grid  → 3 rows
-  if (w < 900) return 6;  // 2-col grid  → 3 rows
-  return 9;               // 3-col grid  → 3 rows
+  if (w < 540) return 3;
+  if (w < 900) return 6;
+  return 9;
 }
 
 let _allMenuFlavors = [];
@@ -28,68 +27,62 @@ let _menuPage       = 0;
 let _activeFilter   = 'all';
 let _menuSearch     = '';
 
-async function loadMenuPage() {
+function loadMenuPage() {
   const grid = document.querySelector('.menu-grid');
   if (!grid) return;
 
-  // Reset state on each page visit
   _menuPage     = 0;
   _activeFilter = 'all';
   _menuSearch   = '';
 
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>';
 
-  // Reset active filter tab
   document.querySelectorAll('.filter-tab').forEach(t => {
     t.classList.toggle('active', t.dataset.filter === 'all');
   });
 
-  // Clear search input
   const searchInput = document.querySelector('.menu-search-input');
-  if (searchInput) searchInput.value = '';
-
-  try {
-    _allMenuFlavors = await getFlavors();
-
-    if (!_allMenuFlavors.length) {
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
-      return;
-    }
-
-    // Search input — debounced for performance
-    if (searchInput) {
-      let _debounce;
-      searchInput.oninput = e => {
-        clearTimeout(_debounce);
-        _debounce = setTimeout(() => {
-          _menuSearch = e.target.value.trim().toLowerCase();
-          _menuPage   = 0;
-          _renderMenuPage();
-        }, 220);
-      };
-    }
-
-    // Filter tabs — use onclick to override any existing listeners
-    document.querySelectorAll('.filter-tab').forEach(tab => {
-      tab.onclick = () => {
-        document.querySelectorAll('.filter-tab').forEach(t => {
-          t.classList.remove('active');
-          t.setAttribute('aria-selected', 'false');
-        });
-        tab.classList.add('active');
-        tab.setAttribute('aria-selected', 'true');
-        _activeFilter = tab.dataset.filter || 'all';
-        _menuPage     = 0;
+  if (searchInput) {
+    searchInput.value = '';
+    let _debounce;
+    searchInput.oninput = e => {
+      clearTimeout(_debounce);
+      _debounce = setTimeout(() => {
+        _menuSearch = e.target.value.trim().toLowerCase();
+        _menuPage   = 0;
         _renderMenuPage();
-      };
-    });
-
-    _renderMenuPage();
-
-  } catch (err) {
-    console.error('[Raffy] Menu laden mislukt:', err);
-    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
+      }, 220);
+    };
   }
+
+  document.querySelectorAll('.filter-tab').forEach(tab => {
+    tab.onclick = () => {
+      document.querySelectorAll('.filter-tab').forEach(t => {
+        t.classList.remove('active');
+        t.setAttribute('aria-selected', 'false');
+      });
+      tab.classList.add('active');
+      tab.setAttribute('aria-selected', 'true');
+      _activeFilter = tab.dataset.filter || 'all';
+      _menuPage     = 0;
+      _renderMenuPage();
+    };
+  });
+
+  db.collection('flavors')
+    .where('visible', '==', true)
+    .orderBy('order', 'asc')
+    .onSnapshot(snap => {
+      _allMenuFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+      if (!_allMenuFlavors.length) {
+        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
+        return;
+      }
+      _renderMenuPage();
+    }, err => {
+      console.error('[Raffy] Menu laden mislukt:', err);
+      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
+    });
 }
 
 function _getFilteredFlavors() {
@@ -113,7 +106,6 @@ function _renderMenuPage() {
   const total      = filtered.length;
   const totalPages = Math.max(1, Math.ceil(total / _pageSize()));
 
-  // Clamp page index to valid range
   _menuPage = Math.max(0, Math.min(_menuPage, totalPages - 1));
 
   if (!total) {
@@ -145,11 +137,7 @@ function _updatePagination(currentPage, totalPages) {
   const bar = document.getElementById('menu-pagination');
   if (!bar) return;
 
-  // Hide entirely when everything fits on one page
-  if (totalPages <= 1) {
-    bar.innerHTML = '';
-    return;
-  }
+  if (totalPages <= 1) { bar.innerHTML = ''; return; }
 
   bar.innerHTML = `
     <button class="menu-pg-btn menu-pg-prev" aria-label="Vorige pagina"${currentPage <= 1 ? ' disabled' : ''}>
@@ -171,7 +159,6 @@ function _updatePagination(currentPage, totalPages) {
       document.querySelector('.menu-section')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
     }
   };
-
   bar.querySelector('.menu-pg-next').onclick = () => {
     if (currentPage < totalPages) {
       _menuPage++;
@@ -206,15 +193,15 @@ function _buildMenuItemHTML(flavor) {
 }
 
 /* ============================================================
-   ABOUT PAGE — updates text/image of existing DOM elements
+   ABOUT PAGE — real-time updates
    ============================================================ */
-async function loadAboutPage() {
-  const storySection = document.querySelector('.about-story');
-  if (!storySection) return;
+function loadAboutPage() {
+  if (!document.querySelector('.about-story')) return;
 
-  try {
-    const data = await getAbout();
-    if (!data) return;
+  db.collection('about').doc('main').onSnapshot(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    const storySection = document.querySelector('.about-story');
 
     if (data.imageUrl) {
       const img = storySection.querySelector('.about-founder-img img');
@@ -226,8 +213,8 @@ async function loadAboutPage() {
       const label = textEl.querySelector('.section-label');
       const h2    = textEl.querySelector('h2');
       const paras = textEl.querySelectorAll('p');
-      if (label && data.storyLabel)      label.textContent = data.storyLabel;
-      if (h2    && data.storyTitle)      h2.innerHTML      = data.storyTitle;
+      if (label && data.storyLabel)         label.textContent    = data.storyLabel;
+      if (h2    && data.storyTitle)         h2.innerHTML         = data.storyTitle;
       if (paras[0] && data.storyParagraph1) paras[0].textContent = data.storyParagraph1;
       if (paras[1] && data.storyParagraph2) paras[1].textContent = data.storyParagraph2;
       if (paras[2] && data.storyParagraph3) paras[2].textContent = data.storyParagraph3;
@@ -255,26 +242,23 @@ async function loadAboutPage() {
           if (val.iconUrl) icon.innerHTML = `<img src="${_esc(val.iconUrl)}" alt="" style="max-width:64px;max-height:64px;object-fit:contain;" />`;
           else if (val.icon) icon.textContent = val.icon;
         }
-        if (h3   && val.title)       h3.textContent   = val.title;
-        if (p    && val.description) p.textContent    = val.description;
+        if (h3 && val.title)       h3.textContent = val.title;
+        if (p  && val.description) p.textContent  = val.description;
       });
     }
-  } catch (err) {
-    console.error('[Raffy] About laden mislukt:', err);
-  }
+  }, err => console.error('[Raffy] About laden mislukt:', err));
 }
 
 /* ============================================================
-   CONTACT PAGE — updates existing info cards with Firestore data
+   CONTACT PAGE — real-time updates
    ============================================================ */
-async function loadContactPage() {
-  const contactSection = document.querySelector('.contact-section');
-  if (!contactSection) return;
+function loadContactPage() {
+  if (!document.querySelector('.contact-section')) return;
 
-  try {
-    const data = await getContact();
-    if (!data) return;
-
+  db.collection('contact').doc('main').onSnapshot(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
+    const contactSection = document.querySelector('.contact-section');
     const cards = contactSection.querySelectorAll('.contact-info-card');
 
     if (data.address && cards[0]) {
@@ -285,28 +269,18 @@ async function loadContactPage() {
         p.innerHTML = `${addr}<br><a href="${link}" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);font-weight:600;text-decoration:underline;">Routebeschrijving →</a>`;
       }
     }
-
     if (data.hoursWeekdays && cards[1]) {
       const p = cards[1].querySelector('p');
-      if (p) {
-        p.innerHTML = `${_esc(data.hoursWeekdays)}<br>${_esc(data.hoursSaturday || '')}<br>${_esc(data.hoursSunday || '')}`;
-      }
+      if (p) p.innerHTML = `${_esc(data.hoursWeekdays)}<br>${_esc(data.hoursSaturday || '')}<br>${_esc(data.hoursSunday || '')}`;
     }
-
     if (data.phone && cards[2]) {
       const p = cards[2].querySelector('p');
-      if (p) {
-        p.innerHTML = `<a href="tel:${_esc(data.phone)}">${_esc(data.phoneDisplay || data.phone)}</a>`;
-      }
+      if (p) p.innerHTML = `<a href="tel:${_esc(data.phone)}">${_esc(data.phoneDisplay || data.phone)}</a>`;
     }
-
     if (data.email && cards[3]) {
       const p = cards[3].querySelector('p');
-      if (p) {
-        p.innerHTML = `<a href="mailto:${_esc(data.email)}">${_esc(data.email)}</a><br><span style="font-size:0.8rem;color:var(--color-text-light);">We reageren binnen 24 uur.</span>`;
-      }
+      if (p) p.innerHTML = `<a href="mailto:${_esc(data.email)}">${_esc(data.email)}</a><br><span style="font-size:0.8rem;color:var(--color-text-light);">We reageren binnen 24 uur.</span>`;
     }
-
     if (data.instagram && cards[4]) {
       const p = cards[4].querySelector('p');
       if (p) {
@@ -314,24 +288,20 @@ async function loadContactPage() {
         p.innerHTML = `<a href="${igUrl}" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);">@${_esc(data.instagram)}</a><br><span style="font-size:0.8rem;color:var(--color-text-light);">Volg ons voor dagelijkse smaken &amp; aanbiedingen.</span>`;
       }
     }
-
     if (data.mapEmbedUrl) {
       const iframe = contactSection.querySelector('iframe');
       if (iframe) iframe.src = data.mapEmbedUrl;
     }
-
-  } catch (err) {
-    console.error('[Raffy] Contact laden mislukt:', err);
-  }
+  }, err => console.error('[Raffy] Contact laden mislukt:', err));
 }
 
 /* ============================================================
-   INDEX PAGE — updates story strip, pillars, seasonal section
+   INDEX PAGE — real-time updates
    ============================================================ */
-async function loadIndexPage() {
-  try {
-    const data = await getIndexContent();
-    if (!data) return;
+function loadIndexPage() {
+  db.collection('pages').doc('index').onSnapshot(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
 
     const storySection = document.querySelector('.story-strip');
     if (storySection) {
@@ -339,9 +309,9 @@ async function loadIndexPage() {
       const label = storySection.querySelector('.section-label');
       const h2    = storySection.querySelector('h2');
       const paras = storySection.querySelectorAll('p');
-      if (img   && data.storyImageUrl) img.src            = data.storyImageUrl;
-      if (label && data.storyLabel)    label.textContent  = data.storyLabel;
-      if (h2    && data.storyTitle)    h2.innerHTML       = data.storyTitle;
+      if (img   && data.storyImageUrl) img.src              = data.storyImageUrl;
+      if (label && data.storyLabel)    label.textContent    = data.storyLabel;
+      if (h2    && data.storyTitle)    h2.innerHTML         = data.storyTitle;
       if (paras[0] && data.storyText1) paras[0].textContent = data.storyText1;
       if (paras[1] && data.storyText2) paras[1].textContent = data.storyText2;
     }
@@ -363,8 +333,7 @@ async function loadIndexPage() {
     }
 
     if (data.seasonal && data.seasonal.length) {
-      const seasonalSection = document.querySelector('.seasonal');
-      const scroll = seasonalSection ? seasonalSection.querySelector('.seasonal-scroll') : null;
+      const scroll = document.querySelector('.seasonal .seasonal-scroll');
       if (scroll) {
         scroll.innerHTML = data.seasonal.map(s => `
           <article class="seasonal-card" role="listitem">
@@ -399,27 +368,22 @@ async function loadIndexPage() {
         srList.innerHTML = data.favSmaken.map(s => `<li>${_esc(s.name || '')}</li>`).join('');
       }
     }
-
-  } catch (err) {
-    console.error('[Raffy] Index laden mislukt:', err);
-  }
+  }, err => console.error('[Raffy] Index laden mislukt:', err));
 }
 
 /* ============================================================
-   SHARED CONTENT — footer + CTA banners (runs on every page)
+   SHARED CONTENT — footer + CTA banners, real-time
    ============================================================ */
-async function loadSharedContent() {
-  try {
-    const data = await getContact();
-    if (!data) return;
+function loadSharedContent() {
+  db.collection('contact').doc('main').onSnapshot(doc => {
+    if (!doc.exists) return;
+    const data = doc.data();
 
-    // Footer hours — update only the time <span>, leave the day labels untouched
     const hourItems = document.querySelectorAll('.footer-hours-item span');
     if (hourItems[0] && data.hoursWeekdays) hourItems[0].textContent = _extractHoursShort(data.hoursWeekdays);
     if (hourItems[1] && data.hoursSaturday) hourItems[1].textContent = _extractHoursShort(data.hoursSaturday);
     if (hourItems[2] && data.hoursSunday)   hourItems[2].textContent = _extractHoursShort(data.hoursSunday);
 
-    // Footer contact links
     document.querySelectorAll('.footer-links').forEach(nav => {
       const tel = nav.querySelector('a[href^="tel:"]');
       if (tel && data.phone) {
@@ -437,12 +401,10 @@ async function loadSharedContent() {
       }
     });
 
-    // CTA banner meta items — match by data-cta attribute
     document.querySelectorAll('.cta-meta-item[data-cta]').forEach(item => {
       const type = item.dataset.cta;
       const val  = item.querySelector('span:not([aria-hidden])');
       if (!val) return;
-
       if (type === 'address' && data.address) {
         const lines = data.address.split('\n');
         val.innerHTML = `<strong>${_esc(lines[0])}</strong>${lines[1] ? ', ' + _esc(lines[1]) : ''}`;
@@ -460,21 +422,14 @@ async function loadSharedContent() {
         val.innerHTML = `<strong>${_esc(data.phoneDisplay || data.phone)}</strong>`;
       }
     });
-
-  } catch (err) {
-    console.error('[Raffy] Gedeelde inhoud laden mislukt:', err);
-  }
+  }, err => console.error('[Raffy] Gedeelde inhoud laden mislukt:', err));
 }
 
-// Extracts "HH:MM–HH:MM" from a full string like "Maandag – Vrijdag: 12:00 – 21:00"
 function _extractHoursShort(str) {
   const m = (str || '').match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/);
   return m ? `${m[1]}–${m[2]}` : str;
 }
 
-/* ============================================================
-   UTILITY — HTML escaping to prevent XSS
-   ============================================================ */
 function _esc(str) {
   return String(str)
     .replace(/&/g,  '&amp;')
