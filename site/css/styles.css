@@ -935,6 +935,15 @@ p { max-width: 65ch; }
   position: relative;
   display: flex;
   flex-direction: column;
+  transition: box-shadow 0.25s ease, transform 0.25s ease;
+  cursor: default;
+  z-index: 1;
+}
+
+.testimonial-card:hover {
+  box-shadow: 0 12px 40px rgba(0, 0, 0, 0.12);
+  transform: translateY(-3px);
+  z-index: 10;
 }
 
 .testimonial-quote {
@@ -961,6 +970,13 @@ p { max-width: 65ch; }
   -webkit-line-clamp: 5;
   -webkit-box-orient: vertical;
   overflow: hidden;
+  transition: max-height 0.4s ease;
+}
+
+.testimonial-card:hover .testimonial-text {
+  display: block;
+  -webkit-line-clamp: unset;
+  overflow: visible;
 }
 
 .testimonial-author {

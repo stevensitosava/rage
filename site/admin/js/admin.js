@@ -670,7 +670,7 @@ async function loadIndexContent() {
       }
     });
 
-    (data.testimonials || []).forEach((r, i) => {
+    (data.testimonials || []).slice(0, 3).forEach((r, i) => {
       const n       = i + 1;
       const textEl  = f.elements[`review${n}Text`];
       const nameEl  = f.elements[`review${n}Name`];
@@ -798,7 +798,7 @@ document.addEventListener('DOMContentLoaded', () => {
       }
 
       const testimonials = [];
-      for (let i = 1; i <= 6; i++) {
+      for (let i = 1; i <= 3; i++) {
         const textEl = f.elements[`review${i}Text`];
         const nameEl = f.elements[`review${i}Name`];
         if (!textEl?.value.trim() && !nameEl?.value.trim()) continue;
