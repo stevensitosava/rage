@@ -933,6 +933,8 @@ p { max-width: 65ch; }
   border-radius: var(--radius-md);
   border: 1px solid var(--color-border);
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 
 .testimonial-quote {
@@ -954,12 +956,18 @@ p { max-width: 65ch; }
   color: var(--color-text);
   margin-bottom: var(--space-md);
   margin-top: var(--space-sm);
+  flex: 1;
+  display: -webkit-box;
+  -webkit-line-clamp: 5;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
 }
 
 .testimonial-author {
   display: flex;
   align-items: center;
   gap: var(--space-sm);
+  margin-top: auto;
 }
 
 .testimonial-avatar {
