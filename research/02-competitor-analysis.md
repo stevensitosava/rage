@@ -11,103 +11,103 @@ Raffy Gelato operates at Oude Markt 1, Tilburg. Competitors are evaluated within
 
 ## Tilburg — Direct Competitors
 
-| # | Naam | Locatie | Stijl | Sterkte | Score |
-|---|------|---------|-------|---------|:-----:|
-| 1 | Intermezzo | Heuvelring 31 & 226 | Artisanaal, 40–45 smaken | Sterkste merknaam Tilburg | **★★★★★** |
-| 2 | Softy's | Oude Markt (zelfde straat) | Softijs, veel toppings | Directe buurman | **★★★☆☆** |
-| 3 | Porto Koffie en IJs | Tilburg centrum | Italiaans bollenijs + koffie | Crossover koffie/ijs | **★★★☆☆** |
-| 4 | Karvansara (Vittorio) | Piushaven | Perzisch ijs (saffraan, rozenwater) | Unieke niche | **★★★★☆** |
-| 5 | Piazza del Gelato | Reeshof | Pop-up, 18 smaken, eigen melk | Seizoensgebonden | **★★★☆☆** |
-| 6 | Dutch Homemade | Frederikstraat | Macarons + ~8 smaken | Beperkt aanbod | **★★☆☆☆** |
-| 7 | Friandries | Tilburg centrum | Bonbon-gebaseerde smaken | Seizoensbeschikbaar | **★★☆☆☆** |
-| 8 | Huize Geers | Tilburg | Zomer ijs + bonbons (sinds 1937) | Traditioneel, geen gelato focus | **★★☆☆☆** |
+| # | Name | Location | Style | Strength | Score |
+|---|------|----------|-------|----------|:-----:|
+| 1 | Intermezzo | Heuvelring 31 & 226 | Artisanal, 40–45 daily flavors | Strongest local brand in Tilburg | **★★★★★** |
+| 2 | Softy's | Oude Markt (same street) | Soft serve, many toppings | Immediate neighbour | **★★★☆☆** |
+| 3 | Porto Koffie en IJs | Tilburg centre | Italian scoops + specialty coffee | Coffee/ice cream crossover | **★★★☆☆** |
+| 4 | Karvansara (Vittorio) | Piushaven | Persian ice cream (saffron, rosewater) | Unique niche positioning | **★★★★☆** |
+| 5 | Piazza del Gelato | Reeshof | Pop-up, 18 flavors, own-brand cow milk | Seasonal only | **★★★☆☆** |
+| 6 | Dutch Homemade | Frederikstraat | Macarons + ~8 flavors | Very limited range | **★★☆☆☆** |
+| 7 | Friandries | Tilburg centre | Bonbon-based flavors | Spring/summer seasonal | **★★☆☆☆** |
+| 8 | Huize Geers | Tilburg | Summer ice cream + chocolates (est. 1937) | Traditional, no gelato focus | **★★☆☆☆** |
 
 ---
 
-## Regionaal — Steden tot 40 km
+## Regional — Cities within 40 km
 
 ### Breda (~30 km)
 
-| Naam | Adres | Opmerkelijk |
-|------|-------|-------------|
-| Bon Appetit | Vlaszak, Breda | Verkozen "beste ijssalon van heel Nederland" |
-| De IJssalon van Breda | Centrum | Ambachtelijk, wafels, milkshakes |
-| Frezzo Breda | Nieuwe Ginnekenstraat | Glutenvrije opties |
-| Gusti Factory | Ginnekenweg | Vier generaties familiebedrijf |
+| Name | Address | Notable |
+|------|---------|---------|
+| Bon Appetit | Vlaszak, Breda | Voted "best ice cream parlour in the entire Netherlands" |
+| De IJssalon van Breda | City centre | Artisanal, waffles, milkshakes |
+| Frezzo Breda | Nieuwe Ginnekenstraat | Gluten-free options |
+| Gusti Factory | Ginnekenweg | Fourth-generation family business |
 
 ### 's-Hertogenbosch / Den Bosch (~25 km)
 
-| Naam | Adres | Opmerkelijk |
-|------|-------|-------------|
-| Gelateria Davide | Hinthamerstraat 86 | Verse marktvruchten, eigenaarsgedreven |
-| Frezzo Den Bosch | Centrum | Glutenvrije opties |
-| Australian Den Bosch | Centrum | Specialty ijs sinds 1972 |
+| Name | Address | Notable |
+|------|---------|---------|
+| Gelateria Davide | Hinthamerstraat 86 | Fresh market fruit, owner-driven |
+| Frezzo Den Bosch | City centre | Gluten-free options |
+| Australian Den Bosch | City centre | Specialty ice cream since 1972 |
 
 ### Eindhoven (~40 km)
 
-| Naam | Adres | Opmerkelijk |
-|------|-------|-------------|
-| IJssalon Bastani | Centrum | Genomineerd "IJssalon van het Jaar", beroemd ijsmacaron |
-| Uomini di Gelato | Strijp-S | Artisanaal gelato, authenticiteitsgedreven |
-| Boschdijk IJssalon | Boschdijk | Klassiek sinds 1953 |
-| Dutch Homemade | Kleine Berg 49 | Macarons + ijs, open tot 22:00 |
+| Name | Address | Notable |
+|------|---------|---------|
+| IJssalon Bastani | City centre | Nominated "Ice Cream Parlour of the Year"; famous ice cream macaron |
+| Uomini di Gelato | Strijp-S | Artisanal gelato, authenticity-driven |
+| Boschdijk IJssalon | Boschdijk | Classic neighbourhood parlour since 1953 |
+| Dutch Homemade | Kleine Berg 49 | Macarons + ice cream, open until 22:00 |
 
 ### Waalwijk (~20 km)
 
-| Naam | Opmerkelijk |
-|------|-------------|
-| The Ice Cream & Cake Moment | Gelato + wafels, wintermaanden open |
+| Name | Notable |
+|------|---------|
+| The Ice Cream & Cake Moment | Gelato + waffles, open in winter months |
 
 ---
 
-## Diepteanalyse: Directe Topconculenten
+## Deep Analysis: Key Direct Competitors
 
-### 1. Intermezzo (Tilburg — 2 vestigingen)
-- **Sterkste concurrent in Tilburg** — twee locaties op de Heuvelring
-- 40–45 smaken dagelijks, lactosevrij, veganistisch, suikervrij
-- Open zeven dagen per week 12:00–22:00
-- Positionering: "nostalgisch klassiek Tilburgs icoon"
-- **Risico voor Raffy:** sterkste naamsbekendheid lokaal; breeder assortiment
-- **Kans voor Raffy:** Raffy zit op de Oude Markt (meer toeristen/horeca traffic); authentiek Italiaans/Grieks onderscheidt zich van Intermezzo's generieke artisanale positionering
+### 1. Intermezzo (Tilburg — 2 locations)
+- **Strongest competitor in Tilburg** — two locations on the Heuvelring
+- 40–45 flavors daily; lactose-free, vegan, sugar-free options
+- Open seven days a week, 12:00–22:00
+- Positioned as "the nostalgic Tilburg classic"
+- **Risk for Raffy:** strongest local brand awareness; broader range
+- **Opportunity for Raffy:** Raffy sits on Oude Markt (higher tourist/hospitality traffic); authentic Italian/Greek identity differentiates from Intermezzo's generic artisanal positioning
 
-### 2. Softy's (Oude Markt — zelfde straat)
-- Directe buurconcurrent op dezelfde straat
-- Softijs met toppings — heel anders product dan Raffy's bollengelato
-- **Risico:** deelt hetzelfde looopverkeer
-- **Kans:** totaal ander product; Raffy's kwaliteitspositionering staat ver boven softijs
+### 2. Softy's (Oude Markt — same street)
+- Immediate neighbour sharing the same foot traffic
+- Soft serve with toppings — a fundamentally different product to Raffy's scooped gelato
+- **Risk:** shares the same walk-by audience
+- **Opportunity:** entirely different product; Raffy's quality positioning sits far above soft serve
 
 ### 3. Karvansara by Vittorio (Piushaven)
-- Unieke niche: Perzisch ijs met saffraan, rozenwater, pistache
-- Gezellige sfeer, loyale klantenkring
-- **Risico:** trekt nieuwsgierige klanten die experimenteren willen
-- **Kans:** compleet andere doelgroep; geen directe overlap met Raffy's Italiaans-Griekse positionering
+- Unique niche: Persian ice cream with saffron, rosewater, pistachio
+- Cosy atmosphere, loyal local following
+- **Risk:** draws adventurous customers looking to experiment
+- **Opportunity:** completely different target audience; no direct overlap with Raffy's Italian-Greek positioning
 
-### 4. Bon Appetit (Breda — "beste van Nederland")
-- Verkozen als beste ijssalon van heel Nederland
-- 30 km verwijderd — geen dagelijkse concurrent maar referentiepunt voor kwaliteit
-- **Kans:** Raffy kan als "het Bon Appetit van Tilburg" gepositioneerd worden
-
----
-
-## Patronen van de Beste Lokale Concurrenten
-
-1. **Ambacht + verhaal wint.** Shops met een eigenaarsverhaal (Davide, Vittorio, Gusti Family) bouwen sterkere loyaliteit dan anonieme ketens.
-
-2. **Dagversheid als USP.** Alle sterke concurrenten communiceren "vers bereid" prominent. Raffy doet dit ook — dit moet in alle communicatie terugkomen.
-
-3. **Niche = bescherming.** Karvansara's Perzisch ijs, Bastani's ijsmacaron — een onderscheidende specialiteit maakt je moeilijker te kopiëren. Raffy's Italiaans + Grieks combo is dit al.
-
-4. **Locatie is marketing.** Softy's zit naast Raffy en profiteert van dezelfde traffic. Raffy moet duidelijker communiceren *waarom* het de upgrade is.
-
-5. **Seizoenslimiteds creëren urgentie.** Shops die roteren op seizoenssmaken (Piazza del Gelato, Davide) genereren terugkerende bezoekers.
+### 4. Bon Appetit (Breda — "Best in the Netherlands")
+- Voted best ice cream parlour in the entire Netherlands
+- 30 km away — not a daily competitor but a quality benchmark
+- **Opportunity:** Raffy can be positioned as "the Bon Appetit of Tilburg"
 
 ---
 
-## Wat te Vermijden
+## Patterns of the Best Local Competitors
 
-- Generieke pastellenpaletten (roze/mint — oversaturated)
-- Stockfoto's van ijs
-- Menu verstopt achter meerdere klikken
-- Geen zichtbare prijzen of smaakomschrijvingen
-- Formulieren met meer dan 3 velden voor contact
-- Vergelijken met internationale ketens (Salt & Straw, Jeni's) — niet relevant voor Tilburgse klant
+1. **Craft + story wins.** Shops with an owner-driven narrative (Davide, Vittorio, Gusti Family) build stronger loyalty than anonymous chains.
+
+2. **Daily freshness as USP.** All strong competitors communicate "made fresh today" prominently. Raffy does this too — it must appear in all communication.
+
+3. **Niche = protection.** Karvansara's Persian ice cream, Bastani's ice cream macaron — a distinctive specialty makes you hard to copy. Raffy's Italian + Greek combo already does this.
+
+4. **Location is marketing.** Softy's sits next to Raffy and benefits from the same foot traffic. Raffy must communicate more clearly *why* it is the upgrade.
+
+5. **Seasonal limited editions create urgency.** Shops that rotate seasonal flavors (Piazza del Gelato, Davide) generate repeat visitors.
+
+---
+
+## What to AVOID
+
+- Generic pastel color palettes (pink/mint — oversaturated in this niche)
+- Stock photography of ice cream
+- Hiding the menu behind too many clicks
+- No visible pricing or flavor descriptions
+- Forms with more than 3 fields for contact/reservations
+- Comparing against international chains (not relevant to the Tilburg customer)
