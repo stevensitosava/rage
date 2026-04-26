@@ -1,87 +1,113 @@
-# 02 — Competitor Analysis: Ice Cream & Gelato Niche
+# 02 — Competitor Analysis: Ice Cream & Gelato — Tilburg & Region
 
 ---
 
-## Top 10 Competitors Evaluated
+## Competitive Landscape Overview
 
-| # | Brand | Search Visibility | Visual Design | Social Proof | CTA Strategy | Mobile | Score |
-|---|-------|:-----------------:|:-------------:|:------------:|:------------:|:------:|:-----:|
-| 1 | Salt & Straw | 10 | 10 | 10 | 9 | 10 | **49/50** |
-| 2 | Jeni's Splendid | 9 | 10 | 9 | 10 | 10 | **48/50** |
-| 3 | Talenti Gelato | 9 | 9 | 8 | 8 | 9 | **43/50** |
-| 4 | Caffe Panna | 7 | 10 | 8 | 7 | 9 | **41/50** |
-| 5 | Morgenstern's | 8 | 9 | 8 | 8 | 8 | **41/50** |
-| 6 | Grom Gelato | 7 | 8 | 7 | 7 | 8 | **37/50** |
-| 7 | Bi-Rite Creamery | 7 | 7 | 8 | 7 | 7 | **36/50** |
-| 8 | Ample Hills | 6 | 7 | 7 | 6 | 7 | **33/50** |
-| 9 | Marble Slab | 5 | 5 | 6 | 6 | 6 | **28/50** |
-| 10 | Generic local shop | 3 | 3 | 3 | 3 | 4 | **16/50** |
+Raffy Gelato operates at Oude Markt 1, Tilburg. Competitors are evaluated within
+**Tilburg city centre** (direct) and **nearby cities up to ~40 km** (regional).
 
 ---
 
-## Deep Analysis: Top 5
+## Tilburg — Direct Competitors
 
-### 1. Salt & Straw
-- **Colors:** Off-white (#F9F5F0), deep navy (#1A2332), warm copper (#C17B4E)
-- **Typography:** Custom serif display + clean sans body
-- **Hero Strategy:** Full-bleed product photography — ice cream drips, styled scoops
-- **Conversion:** Seasonal flavor drops create urgency; email capture for "flavor alerts"
-- **Social proof:** Story-driven — features the artisan behind each flavor
-- **Key Win:** Storytelling turns $14/scoop into an experience, not a price tag
-
-### 2. Jeni's Splendid Ice Creams
-- **Colors:** Warm cream (#FFF8F2), black, hand-drawn accents
-- **Typography:** Bold chunky serif headlines + Helvetica body
-- **Hero Strategy:** Video loop of product being scooped/served
-- **Conversion:** "Build a box" flow — turns browsing into buying in 3 clicks
-- **Social proof:** Press logos (NYT, Bon Appétit) front and center
-- **Key Win:** Premium editorial photography makes you feel the texture through the screen
-
-### 3. Talenti Gelato
-- **Colors:** Geometric gradients, brand-specific pastels per flavor
-- **Typography:** Geometric sans-serif, very minimal
-- **Hero Strategy:** Product-first, no lifestyle photography
-- **Conversion:** Flavor finder quiz drives engagement
-- **Social proof:** Awards and certifications prominently placed
-- **Key Win:** Each flavor gets its own identity — turns the product page into theater
-
-### 4. Caffe Panna
-- **Colors:** Espresso (#2A1810), warm white, muted sage
-- **Typography:** Thin serif, editorial spacing
-- **Hero Strategy:** Moody, atmospheric photography — feels like an Italian cafe
-- **Conversion:** Minimal CTA — relies on brand desire, not urgency
-- **Social proof:** Press mentions only — no star ratings
-- **Key Win:** Restraint. The website *feels* like the product tastes.
-
-### 5. Morgenstern's Finest Ice Cream
-- **Colors:** Deep burgundy, cream, gold accents
-- **Typography:** Art Deco-influenced serif
-- **Hero Strategy:** Dark backgrounds make product colors pop
-- **Conversion:** Location + hours always one click away
-- **Social proof:** Celebrity/media mentions, Instagram integration
-- **Key Win:** Dark aesthetic differentiates in a category dominated by light palettes
+| # | Naam | Locatie | Stijl | Sterkte | Score |
+|---|------|---------|-------|---------|:-----:|
+| 1 | Intermezzo | Heuvelring 31 & 226 | Artisanaal, 40–45 smaken | Sterkste merknaam Tilburg | **★★★★★** |
+| 2 | Softy's | Oude Markt (zelfde straat) | Softijs, veel toppings | Directe buurman | **★★★☆☆** |
+| 3 | Porto Koffie en IJs | Tilburg centrum | Italiaans bollenijs + koffie | Crossover koffie/ijs | **★★★☆☆** |
+| 4 | Karvansara (Vittorio) | Piushaven | Perzisch ijs (saffraan, rozenwater) | Unieke niche | **★★★★☆** |
+| 5 | Piazza del Gelato | Reeshof | Pop-up, 18 smaken, eigen melk | Seizoensgebonden | **★★★☆☆** |
+| 6 | Dutch Homemade | Frederikstraat | Macarons + ~8 smaken | Beperkt aanbod | **★★☆☆☆** |
+| 7 | Friandries | Tilburg centrum | Bonbon-gebaseerde smaken | Seizoensbeschikbaar | **★★☆☆☆** |
+| 8 | Huize Geers | Tilburg | Zomer ijs + bonbons (sinds 1937) | Traditioneel, geen gelato focus | **★★☆☆☆** |
 
 ---
 
-## Patterns of the Top 10%
+## Regionaal — Steden tot 40 km
 
-These 5 things separate elite ice cream websites from average ones:
+### Breda (~30 km)
 
-1. **Product photography is everything.** All top sites invest in custom shots — close-up texture, dramatic lighting, ingredient stories. No stock photos.
+| Naam | Adres | Opmerkelijk |
+|------|-------|-------------|
+| Bon Appetit | Vlaszak, Breda | Verkozen "beste ijssalon van heel Nederland" |
+| De IJssalon van Breda | Centrum | Ambachtelijk, wafels, milkshakes |
+| Frezzo Breda | Nieuwe Ginnekenstraat | Glutenvrije opties |
+| Gusti Factory | Ginnekenweg | Vier generaties familiebedrijf |
 
-2. **They sell the experience, not the product.** Headlines say "Made with real milk from grass-fed cows" not "Chocolate Ice Cream." The *process* is the differentiator.
+### 's-Hertogenbosch / Den Bosch (~25 km)
 
-3. **Flavor stories create engagement.** Every flavor has a name, a backstory, and an ingredient callout. This drives dwell time and return visits.
+| Naam | Adres | Opmerkelijk |
+|------|-------|-------------|
+| Gelateria Davide | Hinthamerstraat 86 | Verse marktvruchten, eigenaarsgedreven |
+| Frezzo Den Bosch | Centrum | Glutenvrije opties |
+| Australian Den Bosch | Centrum | Specialty ijs sinds 1972 |
 
-4. **Mobile is treated as primary.** Menus are card-based, CTAs are thumb-friendly, and the menu section works as a standalone mini-app.
+### Eindhoven (~40 km)
 
-5. **Seasonal + limited edition = urgency.** All top brands rotate seasonal offerings prominently. "Available this weekend only" is a conversion multiplier.
+| Naam | Adres | Opmerkelijk |
+|------|-------|-------------|
+| IJssalon Bastani | Centrum | Genomineerd "IJssalon van het Jaar", beroemd ijsmacaron |
+| Uomini di Gelato | Strijp-S | Artisanaal gelato, authenticiteitsgedreven |
+| Boschdijk IJssalon | Boschdijk | Klassiek sinds 1953 |
+| Dutch Homemade | Kleine Berg 49 | Macarons + ijs, open tot 22:00 |
+
+### Waalwijk (~20 km)
+
+| Naam | Opmerkelijk |
+|------|-------------|
+| The Ice Cream & Cake Moment | Gelato + wafels, wintermaanden open |
 
 ---
 
-## What to AVOID
-- Generic pastel color palettes (pink/mint — oversaturated in this niche)
-- Stock photography of ice cream
-- Hiding the menu behind too many clicks
-- No visible pricing or flavor descriptions
-- Forms with more than 3 fields for contact/reservations
+## Diepteanalyse: Directe Topconculenten
+
+### 1. Intermezzo (Tilburg — 2 vestigingen)
+- **Sterkste concurrent in Tilburg** — twee locaties op de Heuvelring
+- 40–45 smaken dagelijks, lactosevrij, veganistisch, suikervrij
+- Open zeven dagen per week 12:00–22:00
+- Positionering: "nostalgisch klassiek Tilburgs icoon"
+- **Risico voor Raffy:** sterkste naamsbekendheid lokaal; breeder assortiment
+- **Kans voor Raffy:** Raffy zit op de Oude Markt (meer toeristen/horeca traffic); authentiek Italiaans/Grieks onderscheidt zich van Intermezzo's generieke artisanale positionering
+
+### 2. Softy's (Oude Markt — zelfde straat)
+- Directe buurconcurrent op dezelfde straat
+- Softijs met toppings — heel anders product dan Raffy's bollengelato
+- **Risico:** deelt hetzelfde looopverkeer
+- **Kans:** totaal ander product; Raffy's kwaliteitspositionering staat ver boven softijs
+
+### 3. Karvansara by Vittorio (Piushaven)
+- Unieke niche: Perzisch ijs met saffraan, rozenwater, pistache
+- Gezellige sfeer, loyale klantenkring
+- **Risico:** trekt nieuwsgierige klanten die experimenteren willen
+- **Kans:** compleet andere doelgroep; geen directe overlap met Raffy's Italiaans-Griekse positionering
+
+### 4. Bon Appetit (Breda — "beste van Nederland")
+- Verkozen als beste ijssalon van heel Nederland
+- 30 km verwijderd — geen dagelijkse concurrent maar referentiepunt voor kwaliteit
+- **Kans:** Raffy kan als "het Bon Appetit van Tilburg" gepositioneerd worden
+
+---
+
+## Patronen van de Beste Lokale Concurrenten
+
+1. **Ambacht + verhaal wint.** Shops met een eigenaarsverhaal (Davide, Vittorio, Gusti Family) bouwen sterkere loyaliteit dan anonieme ketens.
+
+2. **Dagversheid als USP.** Alle sterke concurrenten communiceren "vers bereid" prominent. Raffy doet dit ook — dit moet in alle communicatie terugkomen.
+
+3. **Niche = bescherming.** Karvansara's Perzisch ijs, Bastani's ijsmacaron — een onderscheidende specialiteit maakt je moeilijker te kopiëren. Raffy's Italiaans + Grieks combo is dit al.
+
+4. **Locatie is marketing.** Softy's zit naast Raffy en profiteert van dezelfde traffic. Raffy moet duidelijker communiceren *waarom* het de upgrade is.
+
+5. **Seizoenslimiteds creëren urgentie.** Shops die roteren op seizoenssmaken (Piazza del Gelato, Davide) genereren terugkerende bezoekers.
+
+---
+
+## Wat te Vermijden
+
+- Generieke pastellenpaletten (roze/mint — oversaturated)
+- Stockfoto's van ijs
+- Menu verstopt achter meerdere klikken
+- Geen zichtbare prijzen of smaakomschrijvingen
+- Formulieren met meer dan 3 velden voor contact
+- Vergelijken met internationale ketens (Salt & Straw, Jeni's) — niet relevant voor Tilburgse klant
