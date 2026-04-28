@@ -17,18 +17,27 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
-    ScrollTrigger.config({ limitCallbacks: true });
+    // ignoreMobileResize prevents mobile address-bar show/hide from
+    // constantly triggering refresh — real breakpoint changes are handled
+    // via matchMedia below instead.
+    ScrollTrigger.config({ limitCallbacks: true, ignoreMobileResize: true });
 
     initVideoScroll();
     initAnimations();
     initFlavors();
 
-    // Refresh all ScrollTrigger positions whenever the viewport resizes
+    // Refresh layout when the viewport is resized on desktop
     let _stRefreshTimer;
     window.addEventListener('resize', () => {
       clearTimeout(_stRefreshTimer);
       _stRefreshTimer = setTimeout(() => ScrollTrigger.refresh(true), 250);
     }, { passive: true });
+
+    // When the mobile/desktop breakpoint is crossed, force a full refresh
+    const _bpMql = window.matchMedia('(max-width: 768px)');
+    _bpMql.addEventListener('change', () => {
+      setTimeout(() => ScrollTrigger.refresh(true), 100);
+    });
   }
 
   initNav();
@@ -222,6 +231,18 @@ function initVideoScroll() {
 
     _activeMode = mode;
     if (wantMobile) {
+      // Clear any GSAP inline styles left by desktop setup so hero
+      // elements are always visible when entering mobile mode
+      const heroEls = [
+        heroContent,
+        section.querySelector('.hero-eyebrow'),
+        section.querySelector('.hero-sub'),
+        section.querySelector('.hero-ctas'),
+        scrollCue,
+        blackout,
+      ].filter(Boolean);
+      gsap.set(heroEls, { clearProps: 'all' });
+
       setupMobile(_setupAC.signal);
     } else {
       setupDesktop();
