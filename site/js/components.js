@@ -6,7 +6,7 @@
   <nav class="nav" role="navigation" aria-label="Hoofdnavigatie">
     <div class="container nav-inner">
       <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
-        <img src="assets/logo.png" alt="Raffy Gelato" />
+        <img src="assets/logo.webp" alt="Raffy Gelato" />
       </a>
       <ul class="nav-links" role="list">
         <li><a href="menu.html"    class="nav-link">Menu</a></li>
@@ -14,8 +14,8 @@
         <li><a href="contact.html" class="nav-link">Vind ons</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-menu">
-        <img src="assets/helado-empty.png" alt="" class="nav-toggle-icon nav-toggle-empty" aria-hidden="true" />
-        <img src="assets/helado-full.png"  alt="" class="nav-toggle-icon nav-toggle-full"  aria-hidden="true" />
+        <img src="assets/helado-empty.webp" alt="" class="nav-toggle-icon nav-toggle-empty" aria-hidden="true" />
+        <img src="assets/helado-full.webp"  alt="" class="nav-toggle-icon nav-toggle-full"  aria-hidden="true" />
       </button>
     </div>
   </nav>
@@ -34,7 +34,7 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
-            <img src="assets/logo.png" alt="Raffy Gelato" />
+            <img src="assets/logo.webp" alt="Raffy Gelato" />
           </a>
           <p class="footer-tagline">Authentiek Italiaans en Grieks gelato, wafels en crêpes — al meer dan 25 jaar op de Oude Markt in Tilburg.</p>
           <div class="footer-social" aria-label="Sociale media">

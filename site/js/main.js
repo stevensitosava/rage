@@ -215,7 +215,7 @@ function initVideoScroll() {
 
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
-    img.src    = `assets/frames/frame_${String(i + 1).padStart(4, '0')}.jpg`;
+    img.src    = `assets/frames/frame_${String(i + 1).padStart(4, '0')}.webp`;
     img.onload = img.onerror = onLoaded;
     images[i]  = img;
   }
