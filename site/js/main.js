@@ -17,10 +17,18 @@ document.addEventListener('DOMContentLoaded', () => {
 
   if (typeof gsap !== 'undefined' && typeof ScrollTrigger !== 'undefined') {
     gsap.registerPlugin(ScrollTrigger);
-    ScrollTrigger.config({ limitCallbacks: true, ignoreMobileResize: true });
+    ScrollTrigger.config({ limitCallbacks: true });
+
     initVideoScroll();
     initAnimations();
     initFlavors();
+
+    // Refresh all ScrollTrigger positions whenever the viewport resizes
+    let _stRefreshTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(_stRefreshTimer);
+      _stRefreshTimer = setTimeout(() => ScrollTrigger.refresh(true), 250);
+    }, { passive: true });
   }
 
   initNav();
@@ -198,18 +206,43 @@ function initVideoScroll() {
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas, { passive: true, signal: _pageSignal() });
 
+  // Track active mode so we can switch cleanly on resize
+  let _activeMode = null;
+  let _setupAC    = new AbortController();
+
+  function applySetup() {
+    const wantMobile = window.innerWidth <= 768;
+    const mode = wantMobile ? 'mobile' : 'desktop';
+    if (mode === _activeMode) return;
+
+    // Teardown previous mode
+    _setupAC.abort();
+    _setupAC = new AbortController();
+    ScrollTrigger.getAll().filter(st => st.trigger === section).forEach(st => st.kill());
+
+    _activeMode = mode;
+    if (wantMobile) {
+      setupMobile(_setupAC.signal);
+    } else {
+      setupDesktop();
+      ScrollTrigger.refresh();
+    }
+  }
+
   function onLoaded() {
     loaded++;
     if (loadingFill) loadingFill.style.width = (loaded / FRAME_COUNT * 100).toFixed(0) + '%';
     if (loaded === FRAME_COUNT) {
       loadingEl && loadingEl.classList.add('hidden');
       drawFrame(0);
-      if (window.innerWidth <= 768) {
-        setupMobile();
-      } else {
-        setupDesktop();
-        ScrollTrigger.refresh();
-      }
+      applySetup();
+
+      // Re-run setup when crossing the mobile/desktop breakpoint
+      let _modeTimer;
+      window.addEventListener('resize', () => {
+        clearTimeout(_modeTimer);
+        _modeTimer = setTimeout(applySetup, 250);
+      }, { passive: true, signal: _pageSignal() });
     }
   }
 
@@ -221,7 +254,7 @@ function initVideoScroll() {
   }
 
   // ── Mobile: scroll listener maps canvas exit → frame index ──
-  function setupMobile() {
+  function setupMobile(signal) {
     const LAST = FRAME_COUNT - 1;
     let raf = null;
 
@@ -232,7 +265,7 @@ function initVideoScroll() {
     window.addEventListener('resize', () => {
       sectionTop  = section.getBoundingClientRect().top + window.scrollY;
       scrollRange = section.offsetHeight - window.innerHeight;
-    }, { passive: true, signal: _pageSignal() });
+    }, { passive: true, signal });
 
     function update() {
       raf = null;
@@ -260,7 +293,7 @@ function initVideoScroll() {
 
     window.addEventListener('scroll', () => {
       if (!raf) raf = requestAnimationFrame(update);
-    }, { passive: true, signal: _pageSignal() });
+    }, { passive: true, signal });
     update();
   }
 
