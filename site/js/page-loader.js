@@ -16,10 +16,12 @@ function initFirebasePage() {
    MENU PAGE — real-time flavor updates
    ============================================================ */
 function _pageSize() {
+  // Text-only menu items are compact — show many per page so most
+  // categories fit on a single screen without pagination
   const w = window.innerWidth;
-  if (w < 540) return 3;
-  if (w < 900) return 6;
-  return 9;
+  if (w < 540) return 25;
+  if (w < 900) return 35;
+  return 50;
 }
 
 let _allMenuFlavors = [];
@@ -172,22 +174,17 @@ function _buildMenuItemHTML(flavor) {
   const name     = _esc(flavor.name        || '');
   const price    = _esc(flavor.price       || '');
   const desc     = _esc(flavor.description || '');
-  const category = _esc(flavor.category   || 'gelato');
-  const emoji    = flavor.emoji || '🍦';
-
-  const mediaHtml = flavor.imageUrl
-    ? `<div class="menu-item-img"><img src="${_esc(flavor.imageUrl)}" alt="${name}" loading="lazy" /></div>`
-    : `<div class="menu-item-emoji" aria-hidden="true">${emoji}</div>`;
+  const category = _esc(flavor.category    || 'gelato');
 
   return `
     <article class="menu-item" data-category="${category}" role="listitem">
-      ${mediaHtml}
       <div class="menu-item-info">
         <div class="menu-item-header">
           <span class="menu-item-name">${name}</span>
+          <span class="menu-item-leader" aria-hidden="true"></span>
           <span class="menu-item-price">${price}</span>
         </div>
-        <p class="menu-item-desc">${desc}</p>
+        ${desc ? `<p class="menu-item-desc">${desc}</p>` : ''}
       </div>
     </article>`;
 }

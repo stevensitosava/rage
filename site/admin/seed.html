@@ -48,7 +48,11 @@
     <div class="progress"><div class="progress-bar" id="progress-bar"></div></div>
 
     <button class="btn btn-primary" id="seed-btn" onclick="runSeed()" style="width:100%;justify-content:center;padding:0.7rem;">
-      Database Seeden
+      Database Seeden (Alles)
+    </button>
+
+    <button class="btn btn-outline" id="seed-menu-btn" onclick="resetMenuOnly()" style="width:100%;justify-content:center;padding:0.7rem;margin-top:0.6rem;">
+      Alleen Menu Resetten (54 items)
     </button>
 
     <div class="log" id="log" style="display:none;"></div>
@@ -91,28 +95,68 @@ function tick() {
    ══════════════════════════════════════════════════════════ */
 
 const FLAVORS = [
-  /* ── Gelato ─────────────────────────────────────────── */
-  { order:1,  category:'gelato', emoji:'🍓', name:'Aardbei & Rood Fruit',    price:'€ 3,50', description:'Verse aardbeien en rood fruit — een klassieke, frisse zomersmaak.', visible:true },
-  { order:2,  category:'gelato', emoji:'🍫', name:'Chocolade & Hazelnoot',   price:'€ 3,50', description:'Belgische pure chocolade met geroosterde Piemontese hazelnoten.', visible:true },
-  { order:3,  category:'gelato', emoji:'🌿', name:'Pistache',                price:'€ 3,50', description:'Siciliaanse pistachenoten, langzaam gemalen. Onze absolute bestseller.', visible:true },
-  { order:4,  category:'gelato', emoji:'🍦', name:'Stracciatella',           price:'€ 3,50', description:'Romige Italiaanse vanille met dunne, knapperige chocoladevlokken.', visible:true },
-  { order:5,  category:'gelato', emoji:'☕', name:'Tiramisu',                price:'€ 3,75', description:'Mascarpone, espresso en een vleugje amaretto — dessert in een bolletje.', visible:true },
-  { order:6,  category:'gelato', emoji:'🌸', name:'Vanille',                 price:'€ 3,00', description:'Madagaskar vanillestokjes, puur en romig. De klassieke basis.', visible:true },
-  { order:7,  category:'gelato', emoji:'🧂', name:'Caramel & Zeezout',       price:'€ 3,75', description:'Fluweelzachte karamel met een tikje Atlantisch zeezout. Onweerstaanbaar.', visible:true },
-  { order:8,  category:'gelato', emoji:'🍒', name:'Kers & Munt',             price:'€ 3,50', description:'Zoete kersen, verse munt, een vleugje vanille. Seizoensspecialiteit.', visible:true },
-  { order:9,  category:'gelato', emoji:'🎃', name:'Speculaas & Peer',        price:'€ 3,75', description:'Gekruide speculaas, sappige Conference peer, luchtige slagroom.', visible:true },
-  { order:10, category:'gelato', emoji:'💜', name:'Lavendel & Honing',       price:'€ 3,75', description:'Provençaalse lavendel met wildebloemen honing — verfijnd en bloemig.', visible:true },
-  /* ── Sorbet ──────────────────────────────────────────── */
-  { order:11, category:'sorbet', emoji:'🍋', name:'Citroen Sorbet',          price:'€ 3,00', description:'Fris, licht en tintelend. Puur citroensap, zonder zuivel.', visible:true },
-  { order:12, category:'sorbet', emoji:'🥭', name:'Mango Sorbet',            price:'€ 3,00', description:'Tropische Alphonso mango, 100% zuivelvrij en veganistisch.', visible:true },
-  { order:13, category:'sorbet', emoji:'🍉', name:'Watermeloen Sorbet',      price:'€ 3,00', description:'IJskoude watermeloen met limoen en verse munt. Zomers verfrissend.', visible:true },
-  { order:14, category:'sorbet', emoji:'🫐', name:'Bosvruchten Sorbet',      price:'€ 3,00', description:'Bramen, aalbessen en bosbessen — intense kleur, intense smaak.', visible:true },
-  /* ── Wafels ──────────────────────────────────────────── */
-  { order:15, category:'wafel',  emoji:'🧇', name:'Klassieke Wafel',         price:'€ 4,50', description:'Knapperige Belgische wafel met slagroom en poedersuiker.', visible:true },
-  { order:16, category:'wafel',  emoji:'🧇', name:'Wafel met Gelato',        price:'€ 5,50', description:'Knapperige wafel met 2 bolletjes gelato naar keuze.', visible:true },
-  /* ── Crêpes ──────────────────────────────────────────── */
-  { order:17, category:'crepe',  emoji:'🥞', name:'Crêpe Naturel',           price:'€ 4,00', description:'Flinterdunne crêpe met boter, suiker en een scheutje citroensap.', visible:true },
-  { order:18, category:'crepe',  emoji:'🥞', name:'Crêpe met Nutella',       price:'€ 4,50', description:'Crêpe gevuld met Nutella en verse aardbeien.', visible:true },
+  /* ── ZOETE CRÊPES ─────────────────────────────────────── */
+  { order:1,  category:'crepe',   name:'1. Chocolate',         price:'€ 1,00', description:'Versgebakken crêpe met chocolade', visible:true },
+  { order:2,  category:'crepe',   name:'2. Mixed Chocolate',   price:'€ 1,00', description:'Versgebakken crêpe met gemengde chocolade', visible:true },
+  { order:3,  category:'crepe',   name:'3. Nutella',           price:'€ 1,00', description:'Versgebakken crêpe met Nutella', visible:true },
+  { order:4,  category:'crepe',   name:'4. Biscuit',           price:'€ 1,00', description:'Versgebakken crêpe met chocolade en koekjes', visible:true },
+  { order:5,  category:'crepe',   name:'5. Fresh Banana',      price:'€ 1,00', description:'Versgebakken crêpe met chocolade en verse banaan', visible:true },
+  { order:6,  category:'crepe',   name:'6. Raffaello',         price:'€ 1,00', description:'Versgebakken crêpe met witte chocolade, kokosvlokken en Raffaello chocolaatjes', visible:true },
+  { order:7,  category:'crepe',   name:'7. Honey and Nuts',    price:'€ 1,00', description:'Versgebakken crêpe met honing, noten en kaneel', visible:true },
+  { order:8,  category:'crepe',   name:'8. Kids',              price:'€ 1,00', description:'Versgebakken crêpe met chocolade, kleurrijke vlokken en smarties', visible:true },
+  { order:9,  category:'crepe',   name:'9. Cinnamon Apple',    price:'€ 1,00', description:'Versgebakken crêpe met appeljam, noten en kaneel', visible:true },
+  { order:10, category:'crepe',   name:'10. Bueno',            price:'€ 1,00', description:'Versgebakken crêpe met bueno chocolade, geraspte hazelnoten en bueno chocolaatjes', visible:true },
+  /* ── HARTIGE CRÊPES (+ één saus naar keuze) ───────────── */
+  { order:11, category:'crepe',   name:'11. Cheese',           price:'€ 1,00', description:'Versgebakken crêpe met kaas (+ één saus naar keuze)', visible:true },
+  { order:12, category:'crepe',   name:'12. Ham and Cheese',   price:'€ 1,00', description:'Versgebakken crêpe met ham en kaas (+ één saus naar keuze)', visible:true },
+  { order:13, category:'crepe',   name:'13. Bacon',            price:'€ 1,00', description:'Versgebakken crêpe met spek en kaas (+ één saus naar keuze)', visible:true },
+  { order:14, category:'crepe',   name:'14. Chicken',          price:'€ 1,00', description:'Versgebakken crêpe met kipfilet en kaas (+ één saus naar keuze)', visible:true },
+  { order:15, category:'crepe',   name:'15. Mixed Cheese',     price:'€ 1,00', description:'Versgebakken crêpe met Gouda, Cheddar, Parmezaanse kaas en Philadelphia roomkaas (+ één saus naar keuze)', visible:true },
+  /* ── MINIWAFELS (12 stuks) ────────────────────────────── */
+  { order:16, category:'wafel',   name:'16. Chocolate',        price:'€ 1,00', description:'Twaalf versgebakken miniwafels met chocolade', visible:true },
+  { order:17, category:'wafel',   name:'17. Mixed Chocolate',  price:'€ 1,00', description:'Twaalf versgebakken miniwafels met gemengde chocolade', visible:true },
+  { order:18, category:'wafel',   name:'18. Nutella',          price:'€ 1,00', description:'Twaalf versgebakken miniwafels met Nutella', visible:true },
+  { order:19, category:'wafel',   name:'19. Biscuit',          price:'€ 1,00', description:'Twaalf versgebakken miniwafels met chocolade en koekjes', visible:true },
+  { order:20, category:'wafel',   name:'20. Fresh Banana',     price:'€ 1,00', description:'Twaalf versgebakken miniwafels met chocolade en verse banaan', visible:true },
+  { order:21, category:'wafel',   name:'21. Raffaello',        price:'€ 1,00', description:'Twaalf versgebakken miniwafels met witte chocolade, kokosvlokken en Raffaello chocolaatjes', visible:true },
+  { order:22, category:'wafel',   name:'22. Honey and Nuts',   price:'€ 1,00', description:'Twaalf versgebakken miniwafels met honing, noten en kaneel', visible:true },
+  { order:23, category:'wafel',   name:'23. Kids',             price:'€ 1,00', description:'Twaalf versgebakken miniwafels met chocolade, kleurrijke vlokken en smarties', visible:true },
+  { order:24, category:'wafel',   name:'24. Cinnamon Apple',   price:'€ 1,00', description:'Twaalf versgebakken miniwafels met appeljam, noten en kaneel', visible:true },
+  { order:25, category:'wafel',   name:'25. Cinnamon Sugar',   price:'€ 1,00', description:'Twaalf versgebakken miniwafels met kaneelsuiker', visible:true },
+  { order:26, category:'wafel',   name:'26. Bueno',            price:'€ 1,00', description:'Twaalf versgebakken miniwafels met bueno chocolade, geraspte hazelnoten en bueno chocolaatjes', visible:true },
+  { order:27, category:'wafel',   name:'27. Ice Cream',        price:'€ 1,00', description:'Twaalf versgebakken miniwafels met chocolade en een bolletje ijs naar keuze', visible:true },
+  /* ── GELATO ───────────────────────────────────────────── */
+  { order:28, category:'gelato',  name:'1 bol',                price:'€ 1,00', description:'Eén bolletje gelato', visible:true },
+  { order:29, category:'gelato',  name:'2 bollen',             price:'€ 1,00', description:'Twee bolletjes gelato', visible:true },
+  { order:30, category:'gelato',  name:'3 bollen',             price:'€ 1,00', description:'Drie bolletjes gelato', visible:true },
+  { order:31, category:'gelato',  name:'5 bollen',             price:'€ 1,00', description:'Vijf bolletjes gelato', visible:true },
+  { order:32, category:'gelato',  name:'1 liter',              price:'€ 1,00', description:'Een liter gelato — vijf smaken naar keuze', visible:true },
+  { order:33, category:'gelato',  name:'Gelato Sandwich',      price:'€ 1,00', description:'IJssandwich', visible:true },
+  /* ── TOPPINGS ─────────────────────────────────────────── */
+  { order:34, category:'gelato',  name:'Topping: Sprinkles',   price:'€ 1,00', description:'Sprinkles', visible:true },
+  { order:35, category:'gelato',  name:'Topping: Chocolade',   price:'€ 1,00', description:'Witte, melk of Bueno chocolade', visible:true },
+  { order:36, category:'gelato',  name:'Topping: Nutella',     price:'€ 1,00', description:'Nutella', visible:true },
+  { order:37, category:'gelato',  name:'Topping: Slagroom',    price:'€ 1,00', description:'Slagroom (whipped cream)', visible:true },
+  /* ── HOT DRINKS ───────────────────────────────────────── */
+  { order:38, category:'dranken', name:'Coffee',                  price:'€ 1,00', description:'Koffie', visible:true },
+  { order:39, category:'dranken', name:'Decaffeinated Coffee',    price:'€ 1,00', description:'Cafeïnevrije koffie', visible:true },
+  { order:40, category:'dranken', name:'Espresso',                price:'€ 1,00', description:'Espresso', visible:true },
+  { order:41, category:'dranken', name:'Cappuccino',              price:'€ 1,00', description:'Cappuccino', visible:true },
+  { order:42, category:'dranken', name:'Milk Coffee',             price:'€ 1,00', description:'Koffie verkeerd', visible:true },
+  { order:43, category:'dranken', name:'Latte Macchiato',         price:'€ 1,00', description:'Latte macchiato', visible:true },
+  { order:44, category:'dranken', name:'Hot Chocolate',           price:'€ 1,00', description:'Warme chocolademelk', visible:true },
+  { order:45, category:'dranken', name:'Tea',                     price:'€ 1,00', description:'Thee', visible:true },
+  { order:46, category:'dranken', name:'Raffcoffee',              price:'€ 1,00', description:'Koffie met gelato naar keuze', visible:true },
+  /* ── MILKSHAKES ───────────────────────────────────────── */
+  { order:47, category:'dranken', name:'Milkshake',               price:'€ 1,00', description:'Melk en ijs naar keuze', visible:true },
+  { order:48, category:'dranken', name:'Fruit Milkshake',         price:'€ 1,00', description:'Melk, ijs, slagroom en fruit naar keuze (aardbei, framboos, bosvruchten of banaan)', visible:true },
+  /* ── SOFT DRINKS ──────────────────────────────────────── */
+  { order:49, category:'dranken', name:'Water 50cl',              price:'€ 1,00', description:'Water 50cl', visible:true },
+  { order:50, category:'dranken', name:'Sparkling Water 50cl',    price:'€ 1,00', description:'Bruisend water 50cl', visible:true },
+  { order:51, category:'dranken', name:'Cola / Cola Zero 33cl',   price:'€ 1,00', description:'Cola of Cola Zero 33cl', visible:true },
+  { order:52, category:'dranken', name:'Fanta Orange 33cl',       price:'€ 1,00', description:'Fanta sinaasappel 33cl', visible:true },
+  { order:53, category:'dranken', name:'Apple/Orange Juice 20cl', price:'€ 1,00', description:'Appel- of sinaasappelsap 20cl', visible:true },
+  { order:54, category:'dranken', name:'Lipton Ice Tea',          price:'€ 1,00', description:'Lipton ice tea', visible:true },
 ];
 
 const ABOUT = {
@@ -231,6 +275,56 @@ async function runSeed() {
     btn.textContent = 'Klaar ✓';
     btn.style.background = '#2e7d32';
 
+  } catch (err) {
+    log('❌ Fout: ' + err.message, 'err');
+    btn.disabled = false;
+    btn.textContent = 'Opnieuw Proberen';
+    console.error(err);
+  }
+}
+
+/* ══════════════════════════════════════════════════════════
+   RESET MENU ONLY — wipes only the flavors collection
+   ══════════════════════════════════════════════════════════ */
+async function resetMenuOnly() {
+  if (!confirm('Hiermee worden ALLE bestaande menu-items verwijderd en vervangen door het nieuwe menu (54 items, prijs € 1,00). Doorgaan?')) return;
+
+  const btn = document.getElementById('seed-menu-btn');
+  btn.disabled = true;
+  btn.textContent = 'Bezig…';
+  bar.style.width = '0%';
+  total = FLAVORS.length + 1;
+  done  = 0;
+
+  try {
+    log('Bestaande menu-items verwijderen…', 'inf');
+    const existing = await db.collection('flavors').get();
+    if (!existing.empty) {
+      // Firestore batch limit is 500 ops — we have far fewer so a single batch is fine
+      const delBatch = db.batch();
+      existing.forEach(doc => delBatch.delete(doc.ref));
+      await delBatch.commit();
+      log(`✓ ${existing.size} oude items verwijderd`, 'ok');
+    }
+    tick();
+
+    log('Nieuwe menu-items schrijven…', 'inf');
+    const writeBatch = db.batch();
+    FLAVORS.forEach(f => {
+      const ref = db.collection('flavors').doc();
+      writeBatch.set(ref, { ...f, createdAt: firebase.firestore.FieldValue.serverTimestamp() });
+    });
+    await writeBatch.commit();
+    FLAVORS.forEach(f => {
+      log(`✓ ${f.name}`, 'ok');
+      tick();
+    });
+
+    log('', 'inf');
+    log('✅ Menu opnieuw geladen!', 'ok');
+    btn.textContent = 'Klaar ✓';
+    btn.style.background = '#2e7d32';
+    btn.style.color = '#fff';
   } catch (err) {
     log('❌ Fout: ' + err.message, 'err');
     btn.disabled = false;
