@@ -34,13 +34,15 @@ function loadMenuPage() {
   if (!grid) return;
 
   _menuPage     = 0;
-  _activeFilter = 'all';
+  _activeFilter = 'gelato';
   _menuSearch   = '';
 
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>';
 
   document.querySelectorAll('.filter-tab').forEach(t => {
-    t.classList.toggle('active', t.dataset.filter === 'all');
+    const isActive = t.dataset.filter === 'gelato';
+    t.classList.toggle('active', isActive);
+    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
   });
 
   const searchInput = document.querySelector('.menu-search-input');

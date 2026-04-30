@@ -113,21 +113,23 @@
           <input type="search" class="menu-search-input" placeholder="Zoek op naam of smaak…" aria-label="Zoek smaken" />
         </div>
 
-        <!-- Filter Tabs -->
+        <!-- Filter Tabs — Gelato shown by default, Alles is last -->
         <div class="filter-tabs" role="tablist" aria-label="Filter menu op categorie">
-          <button class="filter-tab active" data-filter="all"     role="tab" aria-selected="true">Alles</button>
-          <button class="filter-tab"        data-filter="gelato"  role="tab" aria-selected="false">Gelato</button>
+          <button class="filter-tab active" data-filter="gelato"  role="tab" aria-selected="true">Gelato</button>
           <button class="filter-tab"        data-filter="smaken"  role="tab" aria-selected="false">Smaken</button>
           <button class="filter-tab"        data-filter="crepe"   role="tab" aria-selected="false">Crêpes</button>
           <button class="filter-tab"        data-filter="wafel"   role="tab" aria-selected="false">Miniwafels</button>
           <button class="filter-tab"        data-filter="dranken" role="tab" aria-selected="false">Dranken</button>
+          <button class="filter-tab"        data-filter="all"     role="tab" aria-selected="false">Alles</button>
         </div>
 
         <!-- Smaken intro — shown only when Smaken filter is active -->
         <div class="smaken-info" id="smaken-info-top" hidden>
           <p class="smaken-info-title">Verkrijgbaar in ijs en milkshake!</p>
           <p class="smaken-info-allergen">
-            <a href="#allergen-key" class="smaken-allergen-link">Klik hier voor de allergenenwijzer</a>
+            <button type="button" class="smaken-allergen-link" id="open-allergen-modal">
+              Klik hier voor de allergenenwijzer
+            </button>
           </p>
           <p class="smaken-info-legend">
             <span class="smaken-vegan-mark">*</span> = op waterbasis (vegan)
@@ -172,6 +174,47 @@
       </div>
     </section>
   </main>
+
+  <!-- ── Allergenenwijzer Modal ───────────────────────────── -->
+  <div class="allergen-modal" id="allergen-modal" hidden role="dialog" aria-labelledby="allergen-modal-title" aria-modal="true">
+    <div class="allergen-modal-backdrop" data-close-allergen></div>
+    <div class="allergen-modal-content" role="document">
+      <button type="button" class="allergen-modal-close" data-close-allergen aria-label="Sluiten">×</button>
+
+      <p class="allergen-modal-disclaimer">
+        Deze lijst is met de grootst mogelijke zorgvuldigheid gemaakt, echter werken wij in een open omgeving, kruisbestuiving is dus mogelijk.
+      </p>
+
+      <div class="allergen-card">
+        <h2 class="allergen-card-title" id="allergen-modal-title">ALLERGENENWIJZER</h2>
+        <div class="allergen-grid">
+          <div class="allergen-cell"><span class="allergen-num">1</span><h3>LACTOSE</h3><p>Melk &amp; producten op basis van melk (incl. lactose)</p></div>
+          <div class="allergen-cell"><span class="allergen-num">2</span><h3>GLUTEN</h3><p>Gluten</p></div>
+          <div class="allergen-cell"><span class="allergen-num">3</span><h3>EIEREN</h3><p>Eieren &amp; producten op basis van eieren</p></div>
+          <div class="allergen-cell"><span class="allergen-num">4</span><h3>SOJA</h3><p>Soja(olie)</p></div>
+          <div class="allergen-cell"><span class="allergen-num">5</span><h3>PINDA'S</h3><p>Pinda's &amp; producten op basis van pinda(olie)</p></div>
+          <div class="allergen-cell"><span class="allergen-num">6</span><h3>NOTEN</h3><p>Noten(olie)</p></div>
+          <div class="allergen-cell"><span class="allergen-num">7</span><h3>SESAMZAAD</h3><p>Sesamzaad &amp; producten op basis van sesamzaad</p></div>
+          <div class="allergen-cell"><span class="allergen-num">8</span><h3>SULFIET</h3><p>Sulfiet</p></div>
+          <div class="allergen-cell"><span class="allergen-num">9</span><h3>LUPINE</h3><p>Lupine</p></div>
+          <div class="allergen-cta"><span>ALLERGIE?</span><span>GEEF HET DOOR!</span></div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    (function () {
+      const modal   = document.getElementById('allergen-modal');
+      const opener  = document.getElementById('open-allergen-modal');
+      if (!modal || !opener) return;
+      function open()  { modal.hidden = false; document.body.style.overflow = 'hidden'; }
+      function close() { modal.hidden = true;  document.body.style.overflow = ''; }
+      opener.addEventListener('click', open);
+      modal.querySelectorAll('[data-close-allergen]').forEach(el => el.addEventListener('click', close));
+      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
+    })();
+  </script>
 
   <div id="footer-root"></div>
 

@@ -1364,6 +1364,181 @@ p { max-width: 65ch; }
   .smaak-allergens { font-size: 0.7rem; }
 }
 
+/* Allergen-link is a button — strip default button look */
+button.smaken-allergen-link {
+  background: none;
+  border: none;
+  padding: 0;
+  font: inherit;
+  cursor: pointer;
+}
+
+/* ════════════════════════════════════════════════════════
+   ALLERGENENWIJZER MODAL
+   ════════════════════════════════════════════════════════ */
+.allergen-modal[hidden] { display: none; }
+.allergen-modal {
+  position: fixed;
+  inset: 0;
+  z-index: 1000;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 1rem;
+}
+
+.allergen-modal-backdrop {
+  position: absolute;
+  inset: 0;
+  background: rgba(13, 16, 20, 0.72);
+  backdrop-filter: blur(4px);
+  -webkit-backdrop-filter: blur(4px);
+}
+
+.allergen-modal-content {
+  position: relative;
+  width: 100%;
+  max-width: 1080px;
+  max-height: 92vh;
+  overflow-y: auto;
+  padding: 2.5rem 1.5rem 1.5rem;
+}
+
+.allergen-modal-close {
+  position: absolute;
+  top: 0.5rem;
+  right: 0.75rem;
+  width: 38px;
+  height: 38px;
+  border-radius: 50%;
+  border: none;
+  background: var(--color-white);
+  color: var(--color-espresso);
+  font-size: 1.6rem;
+  font-weight: 400;
+  line-height: 1;
+  cursor: pointer;
+  z-index: 2;
+  box-shadow: 0 4px 12px rgba(0,0,0,0.25);
+  transition: transform 0.18s ease, background 0.18s ease;
+}
+.allergen-modal-close:hover { background: var(--color-primary); color: var(--color-white); transform: scale(1.06); }
+
+.allergen-modal-disclaimer {
+  color: var(--color-white);
+  font-size: 0.95rem;
+  line-height: 1.55;
+  margin: 0 0 1.25rem;
+  max-width: 760px;
+  font-family: var(--font-body);
+}
+
+.allergen-card {
+  background: #15183b;
+  border-radius: var(--radius-md);
+  padding: 1.5rem;
+  box-shadow: 0 24px 60px rgba(0,0,0,0.45);
+}
+
+.allergen-card-title {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: clamp(2rem, 6vw, 3.6rem);
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  text-align: center;
+  margin: 0 0 1.25rem;
+  text-transform: uppercase;
+  line-height: 1;
+}
+
+.allergen-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 0.5rem;
+}
+
+.allergen-cell {
+  border: 1px solid var(--color-primary);
+  padding: 0.6rem 0.7rem 0.7rem;
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  position: relative;
+  min-height: 130px;
+}
+
+.allergen-num {
+  position: absolute;
+  top: 0.45rem;
+  left: 0.55rem;
+  background: var(--color-primary);
+  color: var(--color-white);
+  font-weight: 700;
+  font-size: 0.78rem;
+  width: 22px;
+  height: 22px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 4px;
+  line-height: 1;
+}
+
+.allergen-cell h3 {
+  color: var(--color-primary);
+  font-family: var(--font-display);
+  font-size: 1.05rem;
+  font-weight: 700;
+  letter-spacing: 0.02em;
+  margin: 0 0 0 1.7rem;
+  padding-top: 2px;
+  text-transform: uppercase;
+  line-height: 1.1;
+}
+
+.allergen-cell p {
+  color: rgba(255, 255, 255, 0.8);
+  font-size: 0.78rem;
+  line-height: 1.4;
+  margin: 0;
+}
+
+.allergen-cta {
+  border: 1px solid var(--color-primary);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  text-align: center;
+  font-family: var(--font-display);
+  font-weight: 700;
+  color: var(--color-primary);
+  font-size: 1.15rem;
+  letter-spacing: 0.02em;
+  padding: 0.75rem;
+  line-height: 1.15;
+  text-transform: uppercase;
+}
+.allergen-cta span:first-child { font-size: 1.4rem; }
+
+@media (max-width: 900px) {
+  .allergen-grid { grid-template-columns: repeat(3, 1fr); }
+}
+
+@media (max-width: 540px) {
+  .allergen-modal-content { padding: 2.5rem 0.75rem 1rem; }
+  .allergen-card { padding: 1rem; }
+  .allergen-card-title { font-size: 1.7rem; margin-bottom: 0.85rem; }
+  .allergen-grid { grid-template-columns: repeat(2, 1fr); gap: 0.4rem; }
+  .allergen-cell { min-height: 110px; padding: 0.5rem 0.55rem 0.6rem; }
+  .allergen-cell h3 { font-size: 0.92rem; margin-left: 1.5rem; }
+  .allergen-cell p { font-size: 0.72rem; }
+  .allergen-modal-disclaimer { font-size: 0.85rem; }
+  .allergen-cta span:first-child { font-size: 1.15rem; }
+  .allergen-cta { font-size: 0.95rem; }
+}
+
 /* Pagination bar */
 .menu-pagination {
   display: flex;
