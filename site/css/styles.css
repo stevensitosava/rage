@@ -1262,6 +1262,108 @@ p { max-width: 65ch; }
   .menu-item-desc { font-size: 0.78rem; }
 }
 
+/* ── Smaken (flavors) info panel ───────────────────────── */
+.smaken-info {
+  max-width: 760px;
+  margin: 0 auto var(--space-sm);
+  padding: 1rem 1.25rem;
+  background: var(--color-cream);
+  border-left: 3px solid var(--color-primary);
+  border-radius: var(--radius-sm);
+}
+
+.smaken-info-title {
+  font-family: var(--font-display);
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: var(--color-espresso);
+  margin: 0 0 0.5rem;
+}
+
+.smaken-info-allergen {
+  font-size: 0.85rem;
+  margin: 0 0 0.4rem;
+}
+
+.smaken-allergen-link {
+  color: var(--color-primary);
+  text-decoration: underline;
+  font-weight: 600;
+}
+
+.smaken-allergen-link:hover { color: var(--color-espresso); }
+
+.smaken-info-legend {
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  margin: 0;
+}
+
+.smaken-vegan-mark {
+  color: var(--color-primary);
+  font-weight: 700;
+  font-size: 1rem;
+}
+
+.smaken-footnote {
+  max-width: 760px;
+  margin: var(--space-sm) auto 0;
+  text-align: center;
+  font-size: 0.85rem;
+  color: var(--color-text-light);
+  font-style: italic;
+}
+
+/* ── Smaken grid: 3 columns desktop, 2 tablet, 1 mobile ── */
+.menu-grid--smaken {
+  grid-template-columns: 1fr;
+  column-gap: var(--space-md);
+  padding: var(--space-md);
+}
+
+@media (min-width: 540px) {
+  .menu-grid--smaken { grid-template-columns: 1fr 1fr; }
+}
+
+@media (min-width: 900px) {
+  .menu-grid--smaken { grid-template-columns: repeat(3, 1fr); }
+}
+
+/* ── Smaak item: compact single row ────────────────────── */
+.menu-item--smaak {
+  display: flex;
+  align-items: baseline;
+  gap: 0.45rem;
+  padding: 0.45rem 0;
+  border-bottom: 1px dashed var(--color-border);
+  font-size: 0.92rem;
+  line-height: 1.35;
+}
+
+.smaak-name {
+  font-weight: 600;
+  color: var(--color-espresso);
+}
+
+.smaak-vegan {
+  color: var(--color-primary);
+  font-weight: 700;
+  margin-left: 1px;
+}
+
+.smaak-allergens {
+  font-size: 0.74rem;
+  color: var(--color-text-light);
+  letter-spacing: 0.02em;
+  margin-left: auto;
+  white-space: nowrap;
+}
+
+@media (max-width: 540px) {
+  .menu-item--smaak { font-size: 0.88rem; padding: 0.4rem 0; }
+  .smaak-allergens { font-size: 0.7rem; }
+}
+
 /* Pagination bar */
 .menu-pagination {
   display: flex;

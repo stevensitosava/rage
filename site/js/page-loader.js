@@ -67,9 +67,12 @@ function loadMenuPage() {
       tab.setAttribute('aria-selected', 'true');
       _activeFilter = tab.dataset.filter || 'all';
       _menuPage     = 0;
+      _applySmakenChrome();
       _renderMenuPage();
     };
   });
+
+  _applySmakenChrome();
 
   db.collection('flavors')
     .where('visible', '==', true)
@@ -171,11 +174,23 @@ function _updatePagination(currentPage, totalPages) {
 }
 
 function _buildMenuItemHTML(flavor) {
-  const name     = _esc(flavor.name        || '');
+  const rawName  = flavor.name || '';
   const price    = _esc(flavor.price       || '');
   const desc     = _esc(flavor.description || '');
   const category = _esc(flavor.category    || 'gelato');
 
+  // Smaken: compact layout, vegan asterisk highlighted, allergens inline
+  if (category === 'smaken') {
+    const isVegan   = rawName.endsWith('*');
+    const cleanName = isVegan ? rawName.slice(0, -1) : rawName;
+    return `
+      <article class="menu-item menu-item--smaak" data-category="${category}" role="listitem">
+        <span class="smaak-name">${_esc(cleanName)}${isVegan ? '<span class="smaak-vegan">*</span>' : ''}</span>
+        ${desc ? `<span class="smaak-allergens">${desc}</span>` : ''}
+      </article>`;
+  }
+
+  const name = _esc(rawName);
   return `
     <article class="menu-item" data-category="${category}" role="listitem">
       <div class="menu-item-info">
@@ -187,6 +202,16 @@ function _buildMenuItemHTML(flavor) {
         ${desc ? `<p class="menu-item-desc">${desc}</p>` : ''}
       </div>
     </article>`;
+}
+
+function _applySmakenChrome() {
+  const top    = document.getElementById('smaken-info-top');
+  const bottom = document.getElementById('smaken-info-bottom');
+  const grid   = document.querySelector('.menu-grid');
+  const isSmaken = _activeFilter === 'smaken';
+  if (top)    top.hidden    = !isSmaken;
+  if (bottom) bottom.hidden = !isSmaken;
+  if (grid)   grid.classList.toggle('menu-grid--smaken', isSmaken);
 }
 
 /* ============================================================

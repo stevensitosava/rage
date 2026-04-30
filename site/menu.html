@@ -116,16 +116,33 @@
         <!-- Filter Tabs -->
         <div class="filter-tabs" role="tablist" aria-label="Filter menu op categorie">
           <button class="filter-tab active" data-filter="all"     role="tab" aria-selected="true">Alles</button>
+          <button class="filter-tab"        data-filter="gelato"  role="tab" aria-selected="false">Gelato</button>
+          <button class="filter-tab"        data-filter="smaken"  role="tab" aria-selected="false">Smaken</button>
           <button class="filter-tab"        data-filter="crepe"   role="tab" aria-selected="false">Crêpes</button>
           <button class="filter-tab"        data-filter="wafel"   role="tab" aria-selected="false">Miniwafels</button>
-          <button class="filter-tab"        data-filter="gelato"  role="tab" aria-selected="false">Gelato</button>
           <button class="filter-tab"        data-filter="dranken" role="tab" aria-selected="false">Dranken</button>
+        </div>
+
+        <!-- Smaken intro — shown only when Smaken filter is active -->
+        <div class="smaken-info" id="smaken-info-top" hidden>
+          <p class="smaken-info-title">Verkrijgbaar in ijs en milkshake!</p>
+          <p class="smaken-info-allergen">
+            <a href="#allergen-key" class="smaken-allergen-link">Klik hier voor de allergenenwijzer</a>
+          </p>
+          <p class="smaken-info-legend">
+            <span class="smaken-vegan-mark">*</span> = op waterbasis (vegan)
+          </p>
         </div>
 
         <!-- Menu Grid — populated dynamically from Firestore via page-loader.js -->
         <div class="menu-grid" role="list">
           <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>
         </div>
+
+        <!-- Smaken footer note — shown only when Smaken filter is active -->
+        <p class="smaken-footnote" id="smaken-info-bottom" hidden>
+          Niet alle smaken zijn altijd aanwezig.
+        </p>
 
         <!-- Pagination — always present, updated by page-loader.js -->
         <div class="menu-pagination" id="menu-pagination" aria-label="Paginering" role="navigation"></div>
