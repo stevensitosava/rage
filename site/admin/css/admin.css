@@ -102,6 +102,33 @@ body {
 .admin-tab.active { background: var(--primary); color: #fff; }
 
 /* ── FLAVOR CATEGORY TABS ────────────────────────────────── */
+/* ── Step-move ▲▼ buttons ────────────────────────────────── */
+.move-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 26px;
+  height: 22px;
+  padding: 0;
+  border: 1px solid var(--border);
+  border-radius: 4px;
+  background: var(--surface);
+  color: var(--text-light);
+  font-size: 0.7rem;
+  cursor: pointer;
+  transition: background 0.15s, color 0.15s, border-color 0.15s;
+  line-height: 1;
+}
+.move-btn:hover:not(:disabled) {
+  background: var(--primary);
+  color: #fff;
+  border-color: var(--primary);
+}
+.move-btn:disabled {
+  opacity: 0.25;
+  cursor: not-allowed;
+}
+
 .flavor-tabs {
   display: flex;
   gap: 0.3rem;

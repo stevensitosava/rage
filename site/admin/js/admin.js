@@ -195,6 +195,8 @@ function renderFlavorsTable(flavors) {
     }
 
     const badge = `<span class="badge badge-${cat}">${escAdmin(labelFor(cat))}</span>`;
+    const isFirst = flavors.indexOf(f) === 0;
+    const isLast  = flavors.indexOf(f) === flavors.length - 1;
     html += `
       <tr data-id="${f.id}" draggable="true"
           ondragstart="dragStart(event,'${f.id}')"
@@ -202,7 +204,14 @@ function renderFlavorsTable(flavors) {
           ondragleave="dragLeave(event)"
           ondrop="dragDrop(event,'${f.id}')"
           ondragend="dragEnd(event)">
-        <td><span class="drag-handle" title="Slepen om te herordenen">⠿</span></td>
+        <td>
+          <div style="display:flex;flex-direction:column;gap:2px;align-items:center;">
+            <button class="move-btn" onclick="moveFlavorUp('${f.id}')"
+                    title="Omhoog" ${isFirst ? 'disabled' : ''}>▲</button>
+            <button class="move-btn" onclick="moveFlavorDown('${f.id}')"
+                    title="Omlaag" ${isLast ? 'disabled' : ''}>▼</button>
+          </div>
+        </td>
         <td><strong>${escAdmin(f.name || '')}</strong></td>
         <td>${badge}</td>
         <td>${escAdmin(f.price || '')}</td>
@@ -288,6 +297,44 @@ async function saveFlavorsOrder() {
   } catch (err) {
     showStatus('flavors-status', 'Fout bij opslaan: ' + err.message, 'error');
   }
+}
+
+/* ── Step-move buttons ─────────────────────────────────────── */
+async function _swapFlavorOrder(idA, idB) {
+  const a = allFlavors.find(f => f.id === idA);
+  const b = allFlavors.find(f => f.id === idB);
+  if (!a || !b) return;
+  try {
+    const batch = db.batch();
+    batch.update(db.collection('flavors').doc(a.id), { order: b.order });
+    batch.update(db.collection('flavors').doc(b.id), { order: a.order });
+    await batch.commit();
+    [a.order, b.order] = [b.order, a.order];
+    allFlavors.sort((x, y) => (x.order ?? 0) - (y.order ?? 0));
+    applyFlavorFilters();
+  } catch (err) {
+    showStatus('flavors-status', 'Fout: ' + err.message, 'error');
+  }
+}
+
+function _visibleFlavors() {
+  return allFlavors
+    .filter(f => !activeFlavorCat || (f.category || '') === activeFlavorCat)
+    .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+}
+
+async function moveFlavorUp(id) {
+  const list = _visibleFlavors();
+  const idx  = list.findIndex(f => f.id === id);
+  if (idx <= 0) return;
+  await _swapFlavorOrder(list[idx].id, list[idx - 1].id);
+}
+
+async function moveFlavorDown(id) {
+  const list = _visibleFlavors();
+  const idx  = list.findIndex(f => f.id === id);
+  if (idx === -1 || idx >= list.length - 1) return;
+  await _swapFlavorOrder(list[idx].id, list[idx + 1].id);
 }
 
 /* ── Search / filter ──────────────────────────────────────── */
@@ -1116,6 +1163,8 @@ window.openFlavorModal        = openFlavorModal;
 window.confirmDeleteFlavor    = confirmDeleteFlavor;
 window.filterFlavors          = filterFlavors;
 window.applyFlavorFilters     = applyFlavorFilters;
+window.moveFlavorUp           = moveFlavorUp;
+window.moveFlavorDown         = moveFlavorDown;
 window.dragStart              = dragStart;
 window.dragOver               = dragOver;
 window.dragLeave              = dragLeave;
