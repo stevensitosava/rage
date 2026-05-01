@@ -58,7 +58,7 @@ function loadMenuPage() {
   if (!grid) return;
 
   _menuPage     = 0;
-  _activeFilter = 'gelato';
+  _activeFilter = '';
   _menuSearch   = '';
 
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>';
@@ -77,48 +77,66 @@ function loadMenuPage() {
     };
   }
 
-  // Load categories first, then set up flavors
-  db.collection('categories').orderBy('order', 'asc').get().then(snap => {
-    const cats = snap.docs.map(d => d.data()).filter(c => c.visible !== false);
-    _renderMenuFilterTabs(cats);
+  // Track whether the flavor listener has been started
+  let _flavorsListening = false;
 
-    // Flavor listener runs after tabs are ready
-    db.collection('flavors')
-      .where('visible', '==', true)
-      .orderBy('order', 'asc')
-      .onSnapshot(snap => {
-        _allMenuFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-        if (!_allMenuFlavors.length) {
-          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
-          return;
-        }
-        _renderMenuPage();
-      }, err => {
-        console.error('[Raffy] Menu laden mislukt:', err);
-        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
-      });
-  }).catch(err => {
+  // Real-time categories — updates tabs whenever a category is added, hidden or deleted
+  db.collection('categories').orderBy('order', 'asc').onSnapshot(snap => {
+    const cats = snap.docs.map(d => d.data()).filter(c => c.visible !== false);
+    const isFirstLoad = !_flavorsListening;
+
+    // On first load set the active filter to the first category; on updates preserve it
+    _renderMenuFilterTabs(cats, !isFirstLoad);
+
+    if (!_flavorsListening) {
+      _flavorsListening = true;
+
+      // Start real-time flavor listener once
+      db.collection('flavors')
+        .where('visible', '==', true)
+        .orderBy('order', 'asc')
+        .onSnapshot(snap => {
+          _allMenuFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+          _renderMenuPage();
+        }, err => {
+          console.error('[Raffy] Menu laden mislukt:', err);
+          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
+        });
+    } else {
+      // Categories changed while user is browsing — re-render menu with preserved filter
+      _renderMenuPage();
+    }
+  }, err => {
     console.error('[Raffy] Categorieën laden mislukt:', err);
     grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Kon menu niet laden.</p>';
   });
 }
 
-function _renderMenuFilterTabs(cats) {
+// preserveFilter=true keeps the user's current active tab when categories update live
+function _renderMenuFilterTabs(cats, preserveFilter = false) {
   const tabsEl = document.querySelector('.filter-tabs');
   if (!tabsEl || !cats.length) return;
 
-  // Set default active filter to first category slug
-  _activeFilter = cats[0].slug || '';
+  const slugs = cats.map(c => c.slug || '');
 
-  tabsEl.innerHTML = cats.map((c, i) => `
-    <button class="filter-tab${i === 0 ? ' active' : ''}"
+  // Determine which slug should be active
+  let activeSlug;
+  if (preserveFilter && slugs.includes(_activeFilter)) {
+    activeSlug = _activeFilter; // keep what the user selected
+  } else {
+    activeSlug = slugs[0] || '';
+    _activeFilter = activeSlug;
+  }
+
+  tabsEl.innerHTML = cats.map(c => `
+    <button class="filter-tab${c.slug === activeSlug ? ' active' : ''}"
             data-filter="${_esc(c.slug || '')}"
             role="tab"
-            aria-selected="${i === 0 ? 'true' : 'false'}">
+            aria-selected="${c.slug === activeSlug ? 'true' : 'false'}">
       ${_esc(c.name || '')}
     </button>`).join('');
 
-  // Bind tab click handlers
+  // Bind tab click handlers on the freshly rendered buttons
   tabsEl.querySelectorAll('.filter-tab').forEach(tab => {
     tab.onclick = () => {
       tabsEl.querySelectorAll('.filter-tab').forEach(t => {
