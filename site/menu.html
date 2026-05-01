@@ -113,14 +113,13 @@
           <input type="search" class="menu-search-input" placeholder="Zoek op naam of smaak…" aria-label="Zoek smaken" />
         </div>
 
-        <!-- Filter Tabs — Gelato shown by default, Alles is last -->
+        <!-- Filter Tabs -->
         <div class="filter-tabs" role="tablist" aria-label="Filter menu op categorie">
           <button class="filter-tab active" data-filter="gelato"  role="tab" aria-selected="true">Gelato</button>
           <button class="filter-tab"        data-filter="smaken"  role="tab" aria-selected="false">Smaken</button>
           <button class="filter-tab"        data-filter="crepe"   role="tab" aria-selected="false">Crêpes</button>
           <button class="filter-tab"        data-filter="wafel"   role="tab" aria-selected="false">Miniwafels</button>
           <button class="filter-tab"        data-filter="dranken" role="tab" aria-selected="false">Dranken</button>
-          <button class="filter-tab"        data-filter="all"     role="tab" aria-selected="false">Alles</button>
         </div>
 
         <!-- Smaken intro — shown only when Smaken filter is active -->
@@ -203,19 +202,6 @@
       </div>
     </div>
   </div>
-
-  <script>
-    (function () {
-      const modal   = document.getElementById('allergen-modal');
-      const opener  = document.getElementById('open-allergen-modal');
-      if (!modal || !opener) return;
-      function open()  { modal.hidden = false; document.body.style.overflow = 'hidden'; }
-      function close() { modal.hidden = true;  document.body.style.overflow = ''; }
-      opener.addEventListener('click', open);
-      modal.querySelectorAll('[data-close-allergen]').forEach(el => el.addEventListener('click', close));
-      document.addEventListener('keydown', e => { if (e.key === 'Escape' && !modal.hidden) close(); });
-    })();
-  </script>
 
   <div id="footer-root"></div>
 

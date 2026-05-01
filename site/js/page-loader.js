@@ -10,6 +10,35 @@ function initFirebasePage() {
   else if (p.endsWith('contact.html') || p.endsWith('/contact')) loadContactPage();
   else if (p === '/' || p.endsWith('index.html') || p === '' || p.endsWith('/')) loadIndexPage();
   loadSharedContent();
+  _initAllergenModal();
+}
+
+/* ── Allergen modal — event delegation so it survives SPA navigation ── */
+let _allergenBound = false;
+function _initAllergenModal() {
+  if (_allergenBound) return;
+  _allergenBound = true;
+
+  function _openAllergen() {
+    const m = document.getElementById('allergen-modal');
+    if (m) { m.hidden = false; document.body.style.overflow = 'hidden'; }
+  }
+  function _closeAllergen() {
+    const m = document.getElementById('allergen-modal');
+    if (m) { m.hidden = true; document.body.style.overflow = ''; }
+  }
+
+  document.addEventListener('click', e => {
+    if (e.target.id === 'open-allergen-modal' || e.target.closest('#open-allergen-modal')) {
+      _openAllergen();
+    } else if (e.target.dataset.closeAllergen !== undefined || e.target.closest('[data-close-allergen]')) {
+      _closeAllergen();
+    }
+  });
+
+  document.addEventListener('keydown', e => {
+    if (e.key === 'Escape') _closeAllergen();
+  });
 }
 
 /* ============================================================
