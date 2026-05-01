@@ -23,7 +23,6 @@ document.addEventListener('DOMContentLoaded', () => {
     ScrollTrigger.config({ limitCallbacks: true, ignoreMobileResize: true });
 
     initVideoScroll();
-    initSplitHero();
     initAnimations();
     initFlavors();
 
@@ -528,44 +527,6 @@ function initAnimations() {
       { opacity: 1, y: 0, duration: 0.5, stagger: 0.07, ease: 'power2.out',
         scrollTrigger: { trigger: '.menu-grid', start: 'top 88%', toggleActions: 'play none none reverse' } });
   }
-}
-
-/* ============================================
-   SPLIT-SCREEN HERO — entrance animation
-   ============================================ */
-function initSplitHero() {
-  const section = document.querySelector('#hero-split');
-  if (!section) return;
-
-  // Trigger image zoom-out as soon as it's loaded
-  const img = section.querySelector('.hs-panel--img img');
-  if (img) {
-    const onLoad = () => section.querySelector('.hs-panel--img')?.classList.add('loaded');
-    img.complete ? onLoad() : img.addEventListener('load', onLoad, { once: true });
-  }
-
-  if (window.matchMedia('(prefers-reduced-motion: reduce)').matches) {
-    section.querySelectorAll('.hs-eyebrow, .hs-tl, .hs-sub, .hs-ctas, .hs-meta, .hs-scroll')
-      .forEach(el => { el.style.opacity = '1'; el.style.transform = 'none'; });
-    return;
-  }
-
-  const tl = gsap.timeline({ delay: 0.2, defaults: { ease: 'power4.out' } });
-
-  const eyebrow = section.querySelector('.hs-eyebrow');
-  const lines   = section.querySelectorAll('.hs-tl');
-  const sub     = section.querySelector('.hs-sub');
-  const ctas    = section.querySelector('.hs-ctas');
-  const meta    = section.querySelector('.hs-meta');
-  const scroll  = section.querySelector('.hs-scroll');
-
-  if (eyebrow) tl.to(eyebrow, { opacity: 1, duration: 0.7, ease: 'power3.out' }, 0);
-  if (lines[0]) tl.to(lines[0], { y: '0%', duration: 0.9 }, 0.15);
-  if (lines[1]) tl.to(lines[1], { y: '0%', duration: 0.9 }, 0.35);
-  if (sub)    tl.to(sub,    { opacity: 1, duration: 0.7 }, 0.55);
-  if (ctas)   tl.to(ctas,   { opacity: 1, y: 0, duration: 0.65 }, 0.7);
-  if (meta)   tl.to(meta,   { opacity: 1, duration: 0.6 }, 0.85);
-  if (scroll) tl.to(scroll, { opacity: 1, duration: 0.6 }, 1.05);
 }
 
 /* ============================================
