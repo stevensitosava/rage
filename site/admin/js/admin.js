@@ -298,41 +298,39 @@ async function saveFlavorsOrder() {
   }
 }
 
-/* ── Position-jump reorder ─────────────────────────────────── */
+/* ── Position swap ─────────────────────────────────────────── */
 async function moveFlavorToPosition(id, rawTarget, listLength) {
   const target = Math.max(1, Math.min(parseInt(rawTarget) || 1, listLength));
 
-  // Current filtered+sorted list (what the user sees)
   const list = allFlavors
     .filter(f => !activeFlavorCat || (f.category || '') === activeFlavorCat)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
 
   const currentIdx = list.findIndex(f => f.id === id);
-  if (currentIdx === -1 || currentIdx === target - 1) return; // no change
+  if (currentIdx === -1 || currentIdx === target - 1) {
+    applyFlavorFilters(); return; // no change — reset input
+  }
 
-  // Move item in local array
-  const [moved] = list.splice(currentIdx, 1);
-  list.splice(target - 1, 0, moved);
-
-  // Recalculate order values for this category's items only,
-  // preserving the base offset so other categories are unaffected.
-  const baseOrder = list.reduce((min, f) => Math.min(min, f.order ?? 999), 999);
+  const a = list[currentIdx];   // item being moved
+  const b = list[target - 1];   // item currently at target position
 
   try {
     const batch = db.batch();
-    list.forEach((f, i) => {
-      const newOrder = baseOrder + i;
-      batch.update(db.collection('flavors').doc(f.id), { order: newOrder });
-      const inAll = allFlavors.find(x => x.id === f.id);
-      if (inAll) inAll.order = newOrder;
-    });
+    batch.update(db.collection('flavors').doc(a.id), { order: b.order });
+    batch.update(db.collection('flavors').doc(b.id), { order: a.order });
     await batch.commit();
-    allFlavors.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+
+    // Update local state
+    const aInAll = allFlavors.find(x => x.id === a.id);
+    const bInAll = allFlavors.find(x => x.id === b.id);
+    if (aInAll && bInAll) [aInAll.order, bInAll.order] = [bInAll.order, aInAll.order];
+
+    allFlavors.sort((x, y) => (x.order ?? 0) - (y.order ?? 0));
     applyFlavorFilters();
-    showStatus('flavors-status', `Verplaatst naar positie ${target}.`);
+    showStatus('flavors-status', `Positie ${currentIdx + 1} ↔ ${target} gewisseld.`);
   } catch (err) {
     showStatus('flavors-status', 'Fout: ' + err.message, 'error');
-    applyFlavorFilters(); // reset input to current state
+    applyFlavorFilters();
   }
 }
 
