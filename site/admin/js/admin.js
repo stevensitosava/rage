@@ -205,11 +205,12 @@ function renderFlavorsTable(flavors) {
           ondrop="dragDrop(event,'${f.id}')"
           ondragend="dragEnd(event)">
         <td style="text-align:center;">
-          <input type="number" class="pos-input"
-                 value="${pos}" min="1" max="${total}"
-                 title="Typ positie + Enter om te verplaatsen"
-                 onchange="moveFlavorToPosition('${f.id}', this.value, ${total})"
-                 onkeydown="if(event.key==='Enter')this.blur()" />
+          <input type="text" inputmode="numeric" class="pos-input"
+                 value="${pos}" data-pos="${pos}"
+                 title="Typ een positie en druk Enter om te wisselen. Escape = annuleren."
+                 onfocus="this.select()"
+                 onkeydown="handlePosKey(event,'${f.id}',${total})"
+                 onblur="this.value=this.dataset.pos" />
         </td>
         <td><strong>${escAdmin(f.name || '')}</strong></td>
         <td>${badge}</td>
@@ -299,6 +300,16 @@ async function saveFlavorsOrder() {
 }
 
 /* ── Position swap ─────────────────────────────────────────── */
+function handlePosKey(e, id, total) {
+  if (e.key === 'Enter') {
+    e.preventDefault();
+    moveFlavorToPosition(id, e.target.value, total);
+  } else if (e.key === 'Escape') {
+    e.target.value = e.target.dataset.pos; // reset
+    e.target.blur();
+  }
+}
+
 async function moveFlavorToPosition(id, rawTarget, listLength) {
   const target = Math.max(1, Math.min(parseInt(rawTarget) || 1, listLength));
 
@@ -1161,6 +1172,7 @@ window.confirmDeleteFlavor    = confirmDeleteFlavor;
 window.filterFlavors          = filterFlavors;
 window.applyFlavorFilters     = applyFlavorFilters;
 window.moveFlavorToPosition   = moveFlavorToPosition;
+window.handlePosKey           = handlePosKey;
 window.dragStart              = dragStart;
 window.dragOver               = dragOver;
 window.dragLeave              = dragLeave;
