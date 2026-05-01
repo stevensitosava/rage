@@ -16,12 +16,7 @@ function initFirebasePage() {
    MENU PAGE — real-time flavor updates
    ============================================================ */
 function _pageSize() {
-  // Text-only menu items are compact — show many per page so most
-  // categories fit on a single screen without pagination
-  const w = window.innerWidth;
-  if (w < 540) return 25;
-  if (w < 900) return 35;
-  return 50;
+  return 9999; // No pagination — show all items in the active category at once
 }
 
 let _allMenuFlavors = [];
