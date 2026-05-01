@@ -180,8 +180,10 @@ function renderFlavorsTable(flavors) {
 
   let html = '';
   let lastCategory = null;
+  let pos = 0;
   for (const f of flavors) {
     const cat = f.category || 'gelato';
+    pos++;
 
     if (showHeaders && cat !== lastCategory) {
       const count = allFlavors.filter(x => (x.category || 'gelato') === cat).length;
@@ -195,8 +197,6 @@ function renderFlavorsTable(flavors) {
     }
 
     const badge = `<span class="badge badge-${cat}">${escAdmin(labelFor(cat))}</span>`;
-    const isFirst = flavors.indexOf(f) === 0;
-    const isLast  = flavors.indexOf(f) === flavors.length - 1;
     html += `
       <tr data-id="${f.id}" draggable="true"
           ondragstart="dragStart(event,'${f.id}')"
@@ -204,13 +204,12 @@ function renderFlavorsTable(flavors) {
           ondragleave="dragLeave(event)"
           ondrop="dragDrop(event,'${f.id}')"
           ondragend="dragEnd(event)">
-        <td>
-          <div style="display:flex;flex-direction:column;gap:2px;align-items:center;">
-            <button class="move-btn" onclick="moveFlavorUp('${f.id}')"
-                    title="Omhoog" ${isFirst ? 'disabled' : ''}>▲</button>
-            <button class="move-btn" onclick="moveFlavorDown('${f.id}')"
-                    title="Omlaag" ${isLast ? 'disabled' : ''}>▼</button>
-          </div>
+        <td style="text-align:center;">
+          <input type="number" class="pos-input"
+                 value="${pos}" min="1" max="${total}"
+                 title="Typ positie + Enter om te verplaatsen"
+                 onchange="moveFlavorToPosition('${f.id}', this.value, ${total})"
+                 onkeydown="if(event.key==='Enter')this.blur()" />
         </td>
         <td><strong>${escAdmin(f.name || '')}</strong></td>
         <td>${badge}</td>
@@ -299,42 +298,42 @@ async function saveFlavorsOrder() {
   }
 }
 
-/* ── Step-move buttons ─────────────────────────────────────── */
-async function _swapFlavorOrder(idA, idB) {
-  const a = allFlavors.find(f => f.id === idA);
-  const b = allFlavors.find(f => f.id === idB);
-  if (!a || !b) return;
-  try {
-    const batch = db.batch();
-    batch.update(db.collection('flavors').doc(a.id), { order: b.order });
-    batch.update(db.collection('flavors').doc(b.id), { order: a.order });
-    await batch.commit();
-    [a.order, b.order] = [b.order, a.order];
-    allFlavors.sort((x, y) => (x.order ?? 0) - (y.order ?? 0));
-    applyFlavorFilters();
-  } catch (err) {
-    showStatus('flavors-status', 'Fout: ' + err.message, 'error');
-  }
-}
+/* ── Position-jump reorder ─────────────────────────────────── */
+async function moveFlavorToPosition(id, rawTarget, listLength) {
+  const target = Math.max(1, Math.min(parseInt(rawTarget) || 1, listLength));
 
-function _visibleFlavors() {
-  return allFlavors
+  // Current filtered+sorted list (what the user sees)
+  const list = allFlavors
     .filter(f => !activeFlavorCat || (f.category || '') === activeFlavorCat)
     .sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
-}
 
-async function moveFlavorUp(id) {
-  const list = _visibleFlavors();
-  const idx  = list.findIndex(f => f.id === id);
-  if (idx <= 0) return;
-  await _swapFlavorOrder(list[idx].id, list[idx - 1].id);
-}
+  const currentIdx = list.findIndex(f => f.id === id);
+  if (currentIdx === -1 || currentIdx === target - 1) return; // no change
 
-async function moveFlavorDown(id) {
-  const list = _visibleFlavors();
-  const idx  = list.findIndex(f => f.id === id);
-  if (idx === -1 || idx >= list.length - 1) return;
-  await _swapFlavorOrder(list[idx].id, list[idx + 1].id);
+  // Move item in local array
+  const [moved] = list.splice(currentIdx, 1);
+  list.splice(target - 1, 0, moved);
+
+  // Recalculate order values for this category's items only,
+  // preserving the base offset so other categories are unaffected.
+  const baseOrder = list.reduce((min, f) => Math.min(min, f.order ?? 999), 999);
+
+  try {
+    const batch = db.batch();
+    list.forEach((f, i) => {
+      const newOrder = baseOrder + i;
+      batch.update(db.collection('flavors').doc(f.id), { order: newOrder });
+      const inAll = allFlavors.find(x => x.id === f.id);
+      if (inAll) inAll.order = newOrder;
+    });
+    await batch.commit();
+    allFlavors.sort((a, b) => (a.order ?? 0) - (b.order ?? 0));
+    applyFlavorFilters();
+    showStatus('flavors-status', `Verplaatst naar positie ${target}.`);
+  } catch (err) {
+    showStatus('flavors-status', 'Fout: ' + err.message, 'error');
+    applyFlavorFilters(); // reset input to current state
+  }
 }
 
 /* ── Search / filter ──────────────────────────────────────── */
@@ -1163,8 +1162,7 @@ window.openFlavorModal        = openFlavorModal;
 window.confirmDeleteFlavor    = confirmDeleteFlavor;
 window.filterFlavors          = filterFlavors;
 window.applyFlavorFilters     = applyFlavorFilters;
-window.moveFlavorUp           = moveFlavorUp;
-window.moveFlavorDown         = moveFlavorDown;
+window.moveFlavorToPosition   = moveFlavorToPosition;
 window.dragStart              = dragStart;
 window.dragOver               = dragOver;
 window.dragLeave              = dragLeave;
