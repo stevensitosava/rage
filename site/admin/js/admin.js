@@ -27,8 +27,8 @@ let currentUser        = null;
 let isAdmin            = false; // true only for admin@raffygelato.nl
 let allFlavors         = [];
 let editingFlavor      = null;
-const pendingImgs      = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
-const FLAVORS_PER_PAGE = 25;
+const pendingImgs      = {}; // keyed by context: 'about' | 'index-story' | 'index-seasonal-N'
+let activeFlavorCat    = 'gelato'; // default category tab
 const CATEGORY_LABELS = {
   gelato:  'Gelato',
   smaken:  'Smaken',
@@ -37,7 +37,6 @@ const CATEGORY_LABELS = {
   dranken: 'Dranken',
 };
 const CATEGORY_ORDER = ['gelato', 'smaken', 'crepe', 'wafel', 'dranken'];
-let flavorPage         = 1;
 let lastFlavorsRendered = [];
 
 /* ============================================================
@@ -131,12 +130,29 @@ async function loadFlavors() {
 
   try {
     const snap = await db.collection('flavors').orderBy('order', 'asc').get();
-    allFlavors  = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-    flavorPage  = 1;
-    renderFlavorsTable(allFlavors);
+    allFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    setupFlavorTabs();
+    applyFlavorFilters();
   } catch (err) {
     body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--danger);">Fout bij laden: ${err.message}</td></tr>`;
   }
+}
+
+let _flavorTabsBound = false;
+function setupFlavorTabs() {
+  if (_flavorTabsBound) return;
+  _flavorTabsBound = true;
+  document.querySelectorAll('.flavor-tab').forEach(tab => {
+    tab.addEventListener('click', () => {
+      activeFlavorCat = tab.dataset.cat || '';
+      document.querySelectorAll('.flavor-tab').forEach(t => {
+        const isActive = t === tab;
+        t.classList.toggle('active', isActive);
+        t.setAttribute('aria-selected', isActive ? 'true' : 'false');
+      });
+      applyFlavorFilters();
+    });
+  });
 }
 
 function renderFlavorsTable(flavors) {
@@ -144,25 +160,22 @@ function renderFlavorsTable(flavors) {
   const body  = document.getElementById('flavors-table-body');
   const total = flavors.length;
 
+  // Hide pagination — every section now fits on one page
+  const pagBar = document.getElementById('flavors-pagination');
+  if (pagBar) pagBar.innerHTML = '';
+
   if (!total) {
-    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-light);">Nog geen smaken toegevoegd.</td></tr>';
-    renderFlavorPagination(0);
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-light);">Geen smaken in deze categorie.</td></tr>';
     return;
   }
 
-  const start = (flavorPage - 1) * FLAVORS_PER_PAGE;
-  const page  = flavors.slice(start, start + FLAVORS_PER_PAGE);
-
-  // Show category section headers only when "All categories" is selected
-  // (so groups stay legible). When a single category is filtered, skip them.
-  const catFilter = document.getElementById('filter-category')?.value || '';
-  const showHeaders = !catFilter;
-
+  // Show category section headers only when the "Alles" tab is active
+  const showHeaders = !activeFlavorCat;
   const labelFor = c => CATEGORY_LABELS[c] || c;
 
   let html = '';
   let lastCategory = null;
-  for (const f of page) {
+  for (const f of flavors) {
     const cat = f.category || 'gelato';
 
     if (showHeaders && cat !== lastCategory) {
@@ -205,39 +218,6 @@ function renderFlavorsTable(flavors) {
   }
 
   body.innerHTML = html;
-  renderFlavorPagination(total);
-}
-
-function renderFlavorPagination(total) {
-  const container = document.getElementById('flavors-pagination');
-  if (!container) return;
-  const pageCount = Math.ceil(total / FLAVORS_PER_PAGE);
-  if (pageCount <= 1) { container.innerHTML = ''; return; }
-
-  const btnStyle = (active) =>
-    `style="padding:0.35rem 0.65rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.8rem;font-family:var(--font);cursor:pointer;background:${active ? 'var(--primary)' : 'var(--surface)'};color:${active ? '#fff' : 'var(--text)'};font-weight:${active ? '700' : '400'};"`;
-
-  const start = (flavorPage - 1) * FLAVORS_PER_PAGE + 1;
-  const end   = Math.min(flavorPage * FLAVORS_PER_PAGE, total);
-
-  let pages = '';
-  for (let i = 1; i <= pageCount; i++) {
-    pages += `<button ${btnStyle(i === flavorPage)} onclick="goToFlavorPage(${i})">${i}</button>`;
-  }
-
-  container.innerHTML = `
-    <span style="font-size:0.8rem;color:var(--text-light);">${start}–${end} van ${total} smaken</span>
-    <div style="display:flex;gap:0.3rem;flex-wrap:wrap;">
-      <button ${btnStyle(false)} onclick="goToFlavorPage(${flavorPage - 1})" ${flavorPage === 1 ? 'disabled' : ''}>‹</button>
-      ${pages}
-      <button ${btnStyle(false)} onclick="goToFlavorPage(${flavorPage + 1})" ${flavorPage === pageCount ? 'disabled' : ''}>›</button>
-    </div>`;
-}
-
-function goToFlavorPage(page) {
-  const pageCount = Math.ceil(lastFlavorsRendered.length / FLAVORS_PER_PAGE);
-  flavorPage = Math.max(1, Math.min(page, pageCount));
-  renderFlavorsTable(lastFlavorsRendered);
 }
 
 async function toggleVisibility(id, visible) {
@@ -283,7 +263,7 @@ function dragDrop(e, targetId) {
   allFlavors.splice(tgtIdx, 0, moved);
   allFlavors.forEach((f, i) => { f.order = i + 1; });
 
-  renderFlavorsTable(allFlavors);
+  applyFlavorFilters();
   saveFlavorsOrder();
 }
 
@@ -307,9 +287,7 @@ async function saveFlavorsOrder() {
 
 /* ── Search / filter ──────────────────────────────────────── */
 function applyFlavorFilters() {
-  flavorPage = 1;
   const q        = (document.getElementById('flavor-search')?.value  || '').trim().toLowerCase();
-  const catVal   =  document.getElementById('filter-category')?.value || '';
   const priceVal =  document.getElementById('filter-price')?.value   || '';
   const visVal   =  document.getElementById('filter-visible')?.value || '';
 
@@ -319,7 +297,7 @@ function applyFlavorFilters() {
       (f.description || '').toLowerCase().includes(q) ||
       (f.category    || '').toLowerCase().includes(q)
     )) return false;
-    if (catVal && (f.category || '') !== catVal) return false;
+    if (activeFlavorCat && (f.category || '') !== activeFlavorCat) return false;
     if (visVal === '1' && !f.visible)  return false;
     if (visVal === '0' &&  f.visible)  return false;
     return true;
@@ -867,7 +845,6 @@ window.openFlavorModal     = openFlavorModal;
 window.confirmDeleteFlavor = confirmDeleteFlavor;
 window.filterFlavors       = filterFlavors;
 window.applyFlavorFilters  = applyFlavorFilters;
-window.goToFlavorPage      = goToFlavorPage;
 window.dragStart           = dragStart;
 window.dragOver            = dragOver;
 window.dragLeave           = dragLeave;

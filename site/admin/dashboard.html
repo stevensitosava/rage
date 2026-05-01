@@ -48,19 +48,21 @@
 
       <div id="flavors-status"></div>
 
-      <div style="display:grid;grid-template-columns:1fr auto auto auto;gap:0.5rem;margin-bottom:1rem;align-items:center;">
-        <input type="search" id="flavor-search" placeholder="Zoek op naam, beschrijving of categorie…"
+      <!-- Category tabs — same UX as the public menu page -->
+      <div class="flavor-tabs" role="tablist" aria-label="Filter smaken op categorie">
+        <button class="flavor-tab active" data-cat="gelato"  role="tab" aria-selected="true">Gelato</button>
+        <button class="flavor-tab"        data-cat="smaken"  role="tab" aria-selected="false">Smaken</button>
+        <button class="flavor-tab"        data-cat="crepe"   role="tab" aria-selected="false">Crêpes</button>
+        <button class="flavor-tab"        data-cat="wafel"   role="tab" aria-selected="false">Miniwafels</button>
+        <button class="flavor-tab"        data-cat="dranken" role="tab" aria-selected="false">Dranken</button>
+        <button class="flavor-tab"        data-cat=""        role="tab" aria-selected="false">Alles</button>
+      </div>
+
+      <!-- Search + secondary filters -->
+      <div style="display:grid;grid-template-columns:1fr auto auto;gap:0.5rem;margin-bottom:1rem;align-items:center;">
+        <input type="search" id="flavor-search" placeholder="Zoek op naam of beschrijving…"
                style="padding:0.55rem 0.75rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);"
                oninput="applyFlavorFilters()" />
-        <select id="filter-category" onchange="applyFlavorFilters()"
-                style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
-          <option value="">Alle categorieën</option>
-          <option value="gelato">Gelato</option>
-          <option value="smaken">Smaken</option>
-          <option value="crepe">Crêpes</option>
-          <option value="wafel">Miniwafels</option>
-          <option value="dranken">Dranken</option>
-        </select>
         <select id="filter-price" onchange="applyFlavorFilters()"
                 style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
           <option value="">Prijs (standaard)</option>
