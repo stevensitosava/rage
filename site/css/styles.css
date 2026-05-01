@@ -482,6 +482,200 @@ p { max-width: 65ch; }
 }
 
 /* ============================================
+   HERO — SPLIT-SCREEN (#hero-split)
+   ============================================ */
+.hs {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  min-height: 100vh;
+  min-height: 100svh;
+  overflow: hidden;
+}
+
+/* ── Text panel ── */
+.hs-panel--text {
+  background: var(--color-espresso);
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 9rem 5rem 3.5rem;
+  position: relative;
+  z-index: 1;
+}
+
+.hs-panel-inner {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+}
+
+.hs-eyebrow {
+  display: block;
+  font-family: var(--font-body);
+  font-size: 0.7rem;
+  font-weight: 700;
+  letter-spacing: 0.32em;
+  text-transform: uppercase;
+  color: var(--color-gold);
+  margin-bottom: 2rem;
+  opacity: 0;
+}
+
+.hs-title {
+  margin: 0 0 1.75rem;
+  line-height: 1;
+}
+
+.hs-tl-wrap {
+  display: block;
+  overflow: hidden;
+  padding-bottom: 0.12em;
+}
+
+.hs-tl {
+  display: block;
+  font-family: var(--font-display);
+  font-size: clamp(3rem, 4.5vw, 5.5rem);
+  font-weight: 700;
+  color: var(--color-white);
+  transform: translateY(110%);
+  line-height: 1.05;
+}
+
+.hs-tl--gold {
+  font-style: italic;
+  color: var(--color-gold);
+  font-size: clamp(3.5rem, 5.5vw, 6.5rem);
+}
+
+.hs-sub {
+  font-family: var(--font-body);
+  font-size: 1rem;
+  line-height: 1.75;
+  color: rgba(255, 255, 255, 0.55);
+  margin-bottom: 2.5rem;
+  max-width: 420px;
+  opacity: 0;
+}
+
+.hs-ctas {
+  display: flex;
+  gap: 1rem;
+  flex-wrap: wrap;
+  margin-bottom: 2.5rem;
+  opacity: 0;
+  transform: translateY(16px);
+}
+
+.hs-meta {
+  display: flex;
+  align-items: center;
+  gap: 0.6rem;
+  flex-wrap: wrap;
+  font-family: var(--font-body);
+  font-size: 0.75rem;
+  color: rgba(255, 255, 255, 0.3);
+  letter-spacing: 0.04em;
+  opacity: 0;
+}
+
+.hs-meta-dot { opacity: 0.4; }
+
+/* Scroll indicator */
+.hs-scroll {
+  display: flex;
+  align-items: center;
+  gap: 0.75rem;
+  padding-bottom: 0.5rem;
+  opacity: 0;
+}
+
+.hs-scroll span {
+  font-family: var(--font-body);
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.25em;
+  text-transform: uppercase;
+  color: rgba(255, 255, 255, 0.25);
+}
+
+.hs-scroll-line {
+  width: 48px;
+  height: 1px;
+  background: linear-gradient(to right, var(--color-gold), transparent);
+  animation: hs-line-pulse 2.2s ease-in-out infinite;
+}
+
+@keyframes hs-line-pulse {
+  0%, 100% { opacity: 0.35; transform: scaleX(1); }
+  50%       { opacity: 1;    transform: scaleX(1.15); transform-origin: left; }
+}
+
+/* ── Image panel ── */
+.hs-panel--img {
+  position: relative;
+  overflow: hidden;
+}
+
+.hs-panel--img img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center;
+  display: block;
+  transform: scale(1.06);
+  transition: transform 1.8s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+.hs-panel--img.loaded img { transform: scale(1); }
+
+.hs-img-fade {
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(to right, var(--color-espresso) 0%, rgba(13,16,20,0.15) 40%, transparent 100%);
+  pointer-events: none;
+}
+
+/* ── Tablet & mobile ── */
+@media (max-width: 900px) {
+  .hs-panel--text { padding: 9rem 3rem 3rem; }
+  .hs-tl          { font-size: clamp(2.5rem, 5.5vw, 4rem); }
+  .hs-tl--gold    { font-size: clamp(3rem, 6.5vw, 5rem); }
+  .hs-sub         { font-size: 0.92rem; }
+}
+
+@media (max-width: 640px) {
+  .hs {
+    grid-template-columns: 1fr;
+    grid-template-rows: 55vw 1fr;
+  }
+
+  /* Image panel on top */
+  .hs-panel--img {
+    order: -1;
+    min-height: 55vw;
+  }
+
+  .hs-img-fade {
+    background: linear-gradient(to bottom, transparent 40%, var(--color-espresso) 100%);
+  }
+
+  .hs-panel--text {
+    padding: 1.75rem 1.5rem 3rem;
+    min-height: unset;
+  }
+
+  .hs-eyebrow    { margin-bottom: 1.25rem; font-size: 0.65rem; }
+  .hs-title      { margin-bottom: 1.25rem; }
+  .hs-tl         { font-size: clamp(2.2rem, 9vw, 3.2rem); }
+  .hs-tl--gold   { font-size: clamp(2.6rem, 10.5vw, 3.8rem); }
+  .hs-sub        { font-size: 0.88rem; margin-bottom: 1.75rem; }
+  .hs-ctas       { gap: 0.65rem; margin-bottom: 1.75rem; }
+  .hs-scroll     { display: none; }
+}
+
+/* ============================================
    HERO SECTION
    ============================================ */
 .hero {

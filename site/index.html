@@ -93,56 +93,49 @@
 
   <main>
 
-    <!-- ============ HERO (gelato animation + hero text) ============ -->
-    <section id="video-scroll" class="hero" aria-label="Welkomssectie">
-      <div class="vs-sticky">
+    <!-- ============ HERO — split-screen ============ -->
+    <section id="hero-split" class="hs" aria-label="Welkomssectie">
 
-        <!-- Gelato animation canvas — scroll-driven -->
-        <canvas class="vs-canvas" aria-hidden="true"></canvas>
-
-        <!-- Gradient overlay for text legibility -->
-        <div class="vs-overlay" aria-hidden="true"></div>
-
-        <!-- Blackout layer — fades in at end to transition out -->
-        <div class="vs-blackout" aria-hidden="true"></div>
-
-        <!-- Bottom gradient — blends hero into next section background -->
-        <div class="vs-bottom-fade" aria-hidden="true"></div>
-
-        <!-- Loading screen -->
-        <div class="vs-loading" aria-hidden="true">
-          <div class="vs-loading-bar"><div class="vs-loading-fill"></div></div>
-          <span class="vs-loading-label">Laden…</span>
-        </div>
-
-        <!-- Hero text content -->
-        <div class="hs-hero-content">
-          <div class="container">
-            <div class="hs-hero-inner">
-              <span class="hero-eyebrow">Gelato Italiano · Oude Markt, Tilburg</span>
-              <h1>
-                <span class="hero-line-wrap"><span class="hero-line">Proef de <em style="font-style:italic;display:inline-block;padding-right:0.12em;background:linear-gradient(115deg,#fde8c8 0%,#e7bb97 25%,#d4944f 55%,#e7bb97 80%,#fde8c8 100%);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text;">Zoetheid</em></span></span>
-                <span class="hero-line-wrap"><span class="hero-line">van Italië</span></span>
-              </h1>
-              <p class="hero-sub">
-                Van romig gelato tot knapperige wafels en flinterdunne crêpes —
-                al meer dan 25 jaar dé verwenplek in hartje Tilburg.
-              </p>
-              <div class="hero-ctas">
-                <a href="menu.html"    class="btn btn-primary">Bekijk ons Menu</a>
-                <a href="contact.html" class="btn btn-outline-light">Vind ons</a>
-              </div>
-            </div>
+      <!-- Left: text panel -->
+      <div class="hs-panel hs-panel--text">
+        <div class="hs-panel-inner">
+          <span class="hs-eyebrow">Raffy Gelato · Oude Markt, Tilburg</span>
+          <h1 class="hs-title">
+            <span class="hs-tl-wrap"><span class="hs-tl">Vers Gelato,</span></span>
+            <span class="hs-tl-wrap"><em class="hs-tl hs-tl--gold">Elke Dag.</em></span>
+          </h1>
+          <p class="hs-sub">
+            Authentiek Italiaans en Grieks ijs, knapperige wafels en flinterdunne crêpes —
+            al meer dan 25 jaar dé verwenplek in hartje Tilburg.
+          </p>
+          <div class="hs-ctas">
+            <a href="menu.html"    class="btn btn-primary">Bekijk het Menu</a>
+            <a href="contact.html" class="btn btn-outline-light">Vind Ons</a>
+          </div>
+          <div class="hs-meta">
+            <span>Ma–Vr &nbsp;12–21u</span>
+            <span class="hs-meta-dot" aria-hidden="true">·</span>
+            <span>Za–Zo &nbsp;11–22u</span>
+            <span class="hs-meta-dot" aria-hidden="true">·</span>
+            <span>Gratis proefje</span>
           </div>
         </div>
 
-        <!-- Scroll cue -->
-        <div class="hs-scroll-cue" aria-hidden="true">
+        <!-- Animated scroll indicator -->
+        <div class="hs-scroll" aria-hidden="true">
+          <div class="hs-scroll-line"></div>
           <span>Scroll</span>
-          <div class="scroll-line"></div>
         </div>
-
       </div>
+
+      <!-- Right: image panel -->
+      <div class="hs-panel hs-panel--img" aria-hidden="true">
+        <img src="assets/icecreams-5.webp"
+             alt="Verse gelato bij Raffy Gelato Tilburg"
+             loading="eager" />
+        <div class="hs-img-fade"></div>
+      </div>
+
     </section>
 
     <!-- ============ FLAVOUR SHOWCASE ============ -->
