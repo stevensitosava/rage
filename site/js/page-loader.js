@@ -63,12 +63,6 @@ function loadMenuPage() {
 
   grid.innerHTML = '<div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>';
 
-  document.querySelectorAll('.filter-tab').forEach(t => {
-    const isActive = t.dataset.filter === 'gelato';
-    t.classList.toggle('active', isActive);
-    t.setAttribute('aria-selected', isActive ? 'true' : 'false');
-  });
-
   const searchInput = document.querySelector('.menu-search-input');
   if (searchInput) {
     searchInput.value = '';
@@ -83,15 +77,57 @@ function loadMenuPage() {
     };
   }
 
-  document.querySelectorAll('.filter-tab').forEach(tab => {
+  // Load categories first, then set up flavors
+  db.collection('categories').orderBy('order', 'asc').get().then(snap => {
+    const cats = snap.docs.map(d => d.data()).filter(c => c.visible !== false);
+    _renderMenuFilterTabs(cats);
+
+    // Flavor listener runs after tabs are ready
+    db.collection('flavors')
+      .where('visible', '==', true)
+      .orderBy('order', 'asc')
+      .onSnapshot(snap => {
+        _allMenuFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+        if (!_allMenuFlavors.length) {
+          grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
+          return;
+        }
+        _renderMenuPage();
+      }, err => {
+        console.error('[Raffy] Menu laden mislukt:', err);
+        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
+      });
+  }).catch(err => {
+    console.error('[Raffy] Categorieën laden mislukt:', err);
+    grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Kon menu niet laden.</p>';
+  });
+}
+
+function _renderMenuFilterTabs(cats) {
+  const tabsEl = document.querySelector('.filter-tabs');
+  if (!tabsEl || !cats.length) return;
+
+  // Set default active filter to first category slug
+  _activeFilter = cats[0].slug || '';
+
+  tabsEl.innerHTML = cats.map((c, i) => `
+    <button class="filter-tab${i === 0 ? ' active' : ''}"
+            data-filter="${_esc(c.slug || '')}"
+            role="tab"
+            aria-selected="${i === 0 ? 'true' : 'false'}">
+      ${_esc(c.name || '')}
+    </button>`).join('');
+
+  // Bind tab click handlers
+  tabsEl.querySelectorAll('.filter-tab').forEach(tab => {
     tab.onclick = () => {
-      document.querySelectorAll('.filter-tab').forEach(t => {
+      tabsEl.querySelectorAll('.filter-tab').forEach(t => {
         t.classList.remove('active');
         t.setAttribute('aria-selected', 'false');
       });
       tab.classList.add('active');
       tab.setAttribute('aria-selected', 'true');
-      _activeFilter = tab.dataset.filter || 'all';
+      _activeFilter = tab.dataset.filter || '';
       _menuPage     = 0;
       _applySmakenChrome();
       _renderMenuPage();
@@ -99,21 +135,6 @@ function loadMenuPage() {
   });
 
   _applySmakenChrome();
-
-  db.collection('flavors')
-    .where('visible', '==', true)
-    .orderBy('order', 'asc')
-    .onSnapshot(snap => {
-      _allMenuFlavors = snap.docs.map(d => ({ id: d.id, ...d.data() }));
-      if (!_allMenuFlavors.length) {
-        grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Geen smaken beschikbaar.</p>';
-        return;
-      }
-      _renderMenuPage();
-    }, err => {
-      console.error('[Raffy] Menu laden mislukt:', err);
-      grid.innerHTML = '<p style="grid-column:1/-1;text-align:center;padding:2rem;color:var(--color-text-light);">Menu kon niet worden geladen.</p>';
-    });
 }
 
 function _getFilteredFlavors() {

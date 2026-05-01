@@ -30,6 +30,7 @@
   <!-- Tabs -->
   <nav class="admin-tabs" role="tablist">
     <button class="admin-tab active" data-tab="flavors"  role="tab">Smaken</button>
+    <button class="admin-tab"        data-tab="categories" role="tab">Categorieën</button>
     <button class="admin-tab"        data-tab="index"    role="tab">Index Pagina</button>
     <button class="admin-tab"        data-tab="about"    role="tab">Over Ons</button>
     <button class="admin-tab"        data-tab="contact"  role="tab">Contact</button>
@@ -48,13 +49,9 @@
 
       <div id="flavors-status"></div>
 
-      <!-- Category tabs -->
-      <div class="flavor-tabs" role="tablist" aria-label="Filter smaken op categorie">
-        <button class="flavor-tab active" data-cat="gelato"  role="tab" aria-selected="true">Gelato</button>
-        <button class="flavor-tab"        data-cat="smaken"  role="tab" aria-selected="false">Smaken</button>
-        <button class="flavor-tab"        data-cat="crepe"   role="tab" aria-selected="false">Crêpes</button>
-        <button class="flavor-tab"        data-cat="wafel"   role="tab" aria-selected="false">Miniwafels</button>
-        <button class="flavor-tab"        data-cat="dranken" role="tab" aria-selected="false">Dranken</button>
+      <!-- Category tabs — populated dynamically from Firestore -->
+      <div class="flavor-tabs" id="flavor-tabs-container" role="tablist" aria-label="Filter op categorie">
+        <span style="font-size:0.8rem;color:var(--text-light);">Laden…</span>
       </div>
 
       <!-- Search + secondary filters -->
@@ -94,6 +91,38 @@
         </table>
       </div>
       <div id="flavors-pagination" style="display:flex;align-items:center;justify-content:space-between;gap:0.5rem;margin-top:1rem;flex-wrap:wrap;"></div>
+    </div>
+  </div>
+
+  <!-- ══════════════════════════════════════════════════════
+       PANEL: CATEGORIEËN
+       ══════════════════════════════════════════════════════ -->
+  <div class="admin-panel" id="panel-categories">
+    <div class="admin-card">
+      <div class="admin-card-header">
+        <h2 class="admin-card-title">Categorieën Beheren</h2>
+        <button class="btn btn-primary btn-sm" id="add-category-btn">+ Categorie Toevoegen</button>
+      </div>
+      <p style="font-size:0.8rem;color:var(--text-light);margin-bottom:1rem;">
+        Categorieën worden gebruikt als filtertabs op de menukaart en in het beheerpaneel. De slug moet overeenkomen met de categoriewaarde van de smaken.
+      </p>
+      <div id="categories-status"></div>
+      <div class="admin-table-wrap">
+        <table class="admin-table">
+          <thead>
+            <tr>
+              <th>Naam</th>
+              <th>Slug</th>
+              <th>Volgorde</th>
+              <th>Zichtbaar op menu</th>
+              <th>Acties</th>
+            </tr>
+          </thead>
+          <tbody id="categories-table-body">
+            <tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>
+          </tbody>
+        </table>
+      </div>
     </div>
   </div>
 
@@ -825,6 +854,49 @@
     <div class="admin-modal-footer">
       <button class="btn btn-outline" id="modal-cancel">Annuleren</button>
       <button class="btn btn-primary" id="modal-save" type="button" onclick="document.getElementById('flavor-form').requestSubmit()">Opslaan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ══════════════════════════════════════════════════════════
+     CATEGORY MODAL
+     ══════════════════════════════════════════════════════════ -->
+<div class="admin-modal-backdrop" id="cat-modal-backdrop" role="dialog" aria-modal="true" aria-labelledby="cat-modal-title">
+  <div class="admin-modal">
+    <div class="admin-modal-header">
+      <h3 class="admin-modal-title" id="cat-modal-title">Categorie Toevoegen</h3>
+      <button class="admin-modal-close" id="cat-modal-close" aria-label="Sluiten">&times;</button>
+    </div>
+    <div class="admin-modal-body">
+      <form id="category-form" novalidate>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Naam <span style="color:var(--danger)">*</span></label>
+            <input type="text" name="name" required placeholder="Gelato" />
+          </div>
+          <div class="form-group">
+            <label>Slug <span style="color:var(--danger)">*</span><span style="font-size:0.72rem;color:var(--text-light);"> (kleine letters, geen spaties)</span></label>
+            <input type="text" name="slug" required placeholder="gelato" pattern="[a-z0-9-]+" />
+          </div>
+        </div>
+        <div class="form-row">
+          <div class="form-group">
+            <label>Volgorde</label>
+            <input type="number" name="order" placeholder="1" min="1" style="width:100px;" />
+          </div>
+          <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;padding-top:1.6rem;">
+            <label class="toggle" title="Zichtbaar op de menukaart">
+              <input type="checkbox" name="visible" checked />
+              <span class="toggle-track"></span>
+            </label>
+            <span style="font-size:0.85rem;">Zichtbaar op de menukaart</span>
+          </div>
+        </div>
+      </form>
+    </div>
+    <div class="admin-modal-footer">
+      <button class="btn btn-outline" id="cat-modal-cancel">Annuleren</button>
+      <button class="btn btn-primary" id="cat-modal-save" type="button">Opslaan</button>
     </div>
   </div>
 </div>

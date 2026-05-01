@@ -113,13 +113,9 @@
           <input type="search" class="menu-search-input" placeholder="Zoek op naam of smaak…" aria-label="Zoek smaken" />
         </div>
 
-        <!-- Filter Tabs -->
+        <!-- Filter Tabs — populated dynamically from Firestore categories -->
         <div class="filter-tabs" role="tablist" aria-label="Filter menu op categorie">
-          <button class="filter-tab active" data-filter="gelato"  role="tab" aria-selected="true">Gelato</button>
-          <button class="filter-tab"        data-filter="smaken"  role="tab" aria-selected="false">Smaken</button>
-          <button class="filter-tab"        data-filter="crepe"   role="tab" aria-selected="false">Crêpes</button>
-          <button class="filter-tab"        data-filter="wafel"   role="tab" aria-selected="false">Miniwafels</button>
-          <button class="filter-tab"        data-filter="dranken" role="tab" aria-selected="false">Dranken</button>
+          <!-- loaded dynamically -->
         </div>
 
         <!-- Menu Grid — populated dynamically from Firestore via page-loader.js -->

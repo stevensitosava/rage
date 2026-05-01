@@ -27,6 +27,8 @@ let currentUser        = null;
 let isAdmin            = false; // true only for admin@raffygelato.nl
 let allFlavors         = [];
 let editingFlavor      = null;
+let allCategories      = [];
+let editingCategory    = null;
 const pendingImgs      = {}; // keyed by context: 'about' | 'index-story' | 'index-seasonal-N'
 let activeFlavorCat    = 'gelato'; // default category tab
 const CATEGORY_LABELS = {
@@ -80,10 +82,12 @@ document.getElementById('logout-btn').addEventListener('click', () => {
 function init() {
   setupTabs();
   loadFlavors();
+  loadCategories();
   loadAboutContent();
   loadContactContent();
   loadIndexContent();
   setupFlavorModal();
+  setupCategoryModal();
   if (isAdmin) initStats();
 }
 
@@ -101,6 +105,7 @@ function setupTabs() {
       tab.classList.add('active');
       document.getElementById('panel-' + tab.dataset.tab).classList.add('active');
       if (tab.dataset.tab === 'stats' && isAdmin) loadStats();
+      if (tab.dataset.tab === 'categories') loadCategories();
     });
   });
 }
@@ -395,6 +400,185 @@ async function saveFlavorFromModal(e) {
 
   } catch (err) {
     showStatus('flavors-status', 'Fout: ' + err.message, 'error');
+  } finally {
+    saveBtn.disabled    = false;
+    saveBtn.textContent = 'Opslaan';
+  }
+}
+
+/* ============================================================
+   CATEGORIES
+   ============================================================ */
+async function loadCategories() {
+  const body = document.getElementById('categories-table-body');
+  if (body) body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>';
+
+  try {
+    const snap = await db.collection('categories').orderBy('order', 'asc').get();
+    allCategories = snap.docs.map(d => ({ id: d.id, ...d.data() }));
+    renderCategoriesTable(allCategories);
+    renderFlavorTabsFromCategories(allCategories);
+    updateFlavorModalCategorySelect(allCategories);
+  } catch (err) {
+    if (body) body.innerHTML = `<tr><td colspan="5" style="text-align:center;padding:1.5rem;color:var(--danger);">Fout: ${err.message}</td></tr>`;
+  }
+}
+
+function renderCategoriesTable(cats) {
+  const body = document.getElementById('categories-table-body');
+  if (!body) return;
+  if (!cats.length) {
+    body.innerHTML = '<tr><td colspan="5" style="text-align:center;padding:2rem;color:var(--text-light);">Geen categorieën.</td></tr>';
+    return;
+  }
+  body.innerHTML = cats.map(c => `
+    <tr data-id="${c.id}">
+      <td><strong>${escAdmin(c.name || '')}</strong></td>
+      <td><code style="font-size:0.82rem;background:var(--bg);padding:0.1rem 0.35rem;border-radius:4px;">${escAdmin(c.slug || '')}</code></td>
+      <td>${c.order ?? '—'}</td>
+      <td>
+        <label class="toggle">
+          <input type="checkbox" ${c.visible ? 'checked' : ''}
+                 onchange="toggleCategoryVisible('${c.id}', this.checked)" />
+          <span class="toggle-track"></span>
+        </label>
+      </td>
+      <td>
+        <div class="actions">
+          <button class="btn btn-outline btn-sm" onclick="openCategoryModal('${c.id}')">Bewerken</button>
+          <button class="btn btn-danger  btn-sm" onclick="confirmDeleteCategory('${c.id}', '${escAdmin(c.name || '')}')">Verwijder</button>
+        </div>
+      </td>
+    </tr>`).join('');
+}
+
+function renderFlavorTabsFromCategories(cats) {
+  const container = document.getElementById('flavor-tabs-container');
+  if (!container) return;
+
+  const sorted = [...cats].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  if (!sorted.length) { container.innerHTML = '<span style="font-size:0.8rem;color:var(--text-light);">Geen categorieën.</span>'; return; }
+
+  container.innerHTML = sorted.map((c, i) => `
+    <button class="flavor-tab${i === 0 ? ' active' : ''}"
+            data-cat="${escAdmin(c.slug || '')}"
+            role="tab"
+            aria-selected="${i === 0 ? 'true' : 'false'}">
+      ${escAdmin(c.name || '')}
+    </button>`).join('');
+
+  if (sorted.length > 0) activeFlavorCat = sorted[0].slug || '';
+  _flavorTabsBound = false; // reset so tabs get re-bound
+  setupFlavorTabs();
+  applyFlavorFilters();
+}
+
+function updateFlavorModalCategorySelect(cats) {
+  const sel = document.querySelector('#flavor-form select[name="category"]');
+  if (!sel) return;
+  const sorted = [...cats].sort((a, b) => (a.order ?? 99) - (b.order ?? 99));
+  sel.innerHTML = sorted.map(c =>
+    `<option value="${escAdmin(c.slug || '')}">${escAdmin(c.name || '')}</option>`
+  ).join('');
+}
+
+async function toggleCategoryVisible(id, visible) {
+  try {
+    await db.collection('categories').doc(id).update({ visible });
+    const c = allCategories.find(x => x.id === id);
+    if (c) c.visible = visible;
+  } catch (err) {
+    showStatus('categories-status', 'Fout: ' + err.message, 'error');
+    loadCategories();
+  }
+}
+
+function confirmDeleteCategory(id, name) {
+  if (!confirm(`Categorie "${name}" verwijderen? Smaken met deze categorie worden niet verwijderd.`)) return;
+  db.collection('categories').doc(id).delete()
+    .then(() => { loadCategories(); showStatus('categories-status', 'Categorie verwijderd.'); })
+    .catch(err => showStatus('categories-status', 'Fout: ' + err.message, 'error'));
+}
+
+/* ─── Category Modal ──────────────────────────────────────── */
+function setupCategoryModal() {
+  document.getElementById('add-category-btn')?.addEventListener('click', () => openCategoryModal(null));
+  document.getElementById('cat-modal-close')?.addEventListener('click', closeCategoryModal);
+  document.getElementById('cat-modal-cancel')?.addEventListener('click', closeCategoryModal);
+  document.getElementById('cat-modal-save')?.addEventListener('click', saveCategoryFromModal);
+  document.getElementById('cat-modal-backdrop')?.addEventListener('click', e => {
+    if (e.target === document.getElementById('cat-modal-backdrop')) closeCategoryModal();
+  });
+
+  // Auto-generate slug from name
+  const nameInput = document.querySelector('#category-form input[name="name"]');
+  const slugInput = document.querySelector('#category-form input[name="slug"]');
+  if (nameInput && slugInput) {
+    nameInput.addEventListener('input', () => {
+      if (!editingCategory) {
+        slugInput.value = nameInput.value.toLowerCase()
+          .replace(/[^a-z0-9\s-]/g, '')
+          .trim().replace(/\s+/g, '-');
+      }
+    });
+  }
+}
+
+function openCategoryModal(id) {
+  const form = document.getElementById('category-form');
+  form.reset();
+  if (id) {
+    editingCategory = allCategories.find(c => c.id === id) || null;
+    document.getElementById('cat-modal-title').textContent = 'Categorie Bewerken';
+    if (editingCategory) {
+      form.elements['name'].value      = editingCategory.name    || '';
+      form.elements['slug'].value      = editingCategory.slug    || '';
+      form.elements['order'].value     = editingCategory.order   ?? '';
+      form.elements['visible'].checked = editingCategory.visible !== false;
+    }
+  } else {
+    editingCategory = null;
+    document.getElementById('cat-modal-title').textContent = 'Categorie Toevoegen';
+    form.elements['visible'].checked = true;
+    const maxOrder = allCategories.reduce((m, c) => Math.max(m, c.order || 0), 0);
+    form.elements['order'].value = maxOrder + 1;
+  }
+  document.getElementById('cat-modal-backdrop').classList.add('open');
+  form.elements['name'].focus();
+}
+
+function closeCategoryModal() {
+  document.getElementById('cat-modal-backdrop').classList.remove('open');
+  editingCategory = null;
+}
+
+async function saveCategoryFromModal() {
+  const form    = document.getElementById('category-form');
+  const saveBtn = document.getElementById('cat-modal-save');
+  saveBtn.disabled    = true;
+  saveBtn.textContent = 'Opslaan…';
+
+  try {
+    const data = {
+      name:    form.elements['name'].value.trim(),
+      slug:    form.elements['slug'].value.trim().toLowerCase().replace(/[^a-z0-9-]/g, ''),
+      order:   parseInt(form.elements['order'].value) || 99,
+      visible: form.elements['visible'].checked,
+    };
+    if (!data.name || !data.slug) {
+      showStatus('categories-status', 'Naam en slug zijn verplicht.', 'error');
+      return;
+    }
+    if (editingCategory) {
+      await db.collection('categories').doc(editingCategory.id).update(data);
+    } else {
+      await db.collection('categories').doc().set(data);
+    }
+    closeCategoryModal();
+    await loadCategories();
+    showStatus('categories-status', editingCategory ? 'Categorie bijgewerkt.' : 'Categorie toegevoegd.');
+  } catch (err) {
+    showStatus('categories-status', 'Fout: ' + err.message, 'error');
   } finally {
     saveBtn.disabled    = false;
     saveBtn.textContent = 'Opslaan';
@@ -840,16 +1024,19 @@ function escAdmin(str) {
 }
 
 // Expose functions called from inline HTML
-window.toggleVisibility    = toggleVisibility;
-window.openFlavorModal     = openFlavorModal;
-window.confirmDeleteFlavor = confirmDeleteFlavor;
-window.filterFlavors       = filterFlavors;
-window.applyFlavorFilters  = applyFlavorFilters;
-window.dragStart           = dragStart;
-window.dragOver            = dragOver;
-window.dragLeave           = dragLeave;
-window.dragDrop            = dragDrop;
-window.dragEnd             = dragEnd;
+window.toggleVisibility       = toggleVisibility;
+window.openFlavorModal        = openFlavorModal;
+window.confirmDeleteFlavor    = confirmDeleteFlavor;
+window.filterFlavors          = filterFlavors;
+window.applyFlavorFilters     = applyFlavorFilters;
+window.dragStart              = dragStart;
+window.dragOver               = dragOver;
+window.dragLeave              = dragLeave;
+window.dragDrop               = dragDrop;
+window.dragEnd                = dragEnd;
+window.toggleCategoryVisible  = toggleCategoryVisible;
+window.openCategoryModal      = openCategoryModal;
+window.confirmDeleteCategory  = confirmDeleteCategory;
 
 /* ============================================================
    STATS (admin only)

@@ -94,6 +94,14 @@ function tick() {
    SEED DATA
    ══════════════════════════════════════════════════════════ */
 
+const CATEGORIES = [
+  { name: 'Gelato',     slug: 'gelato',  order: 1, visible: true },
+  { name: 'Smaken',    slug: 'smaken',  order: 2, visible: true },
+  { name: 'Crêpes',    slug: 'crepe',   order: 3, visible: true },
+  { name: 'Miniwafels', slug: 'wafel',  order: 4, visible: true },
+  { name: 'Dranken',   slug: 'dranken', order: 5, visible: true },
+];
+
 const FLAVORS = [
   /* ── GELATO (sizes — top of the menu) ─────────────────── */
   { order:1,  category:'gelato',  name:'1 bol',                price:'€ 1,00', description:'Eén bolletje gelato', visible:true },
@@ -304,8 +312,8 @@ async function runSeed() {
   btn.textContent = 'Bezig…';
   bar.style.width = '0%';
 
-  // total operations: 18 flavors + about + contact + index
-  total = FLAVORS.length + 3;
+  // total operations: flavors + categories + about + contact + index
+  total = FLAVORS.length + 4;
   done  = 0;
 
   try {
@@ -322,19 +330,27 @@ async function runSeed() {
       tick();
     });
 
-    /* ── 2. About ─────────────────────────────────────── */
+    /* ── 2. Categories ───────────────────────────────── */
+    log('Categorieën schrijven…', 'inf');
+    const catBatch = db.batch();
+    CATEGORIES.forEach(c => { catBatch.set(db.collection('categories').doc(), c); });
+    await catBatch.commit();
+    log('✓ categories', 'ok');
+    tick();
+
+    /* ── 3. About ─────────────────────────────────────── */
     log('Over-Ons pagina schrijven…', 'inf');
     await db.collection('about').doc('main').set(ABOUT);
     log('✓ about/main', 'ok');
     tick();
 
-    /* ── 3. Contact ───────────────────────────────────── */
+    /* ── 4. Contact ───────────────────────────────────── */
     log('Contact-info schrijven…', 'inf');
     await db.collection('contact').doc('main').set(CONTACT);
     log('✓ contact/main', 'ok');
     tick();
 
-    /* ── 4. Index page ────────────────────────────────── */
+    /* ── 5. Index page ────────────────────────────────── */
     log('Index-pagina schrijven…', 'inf');
     await db.collection('pages').doc('index').set(INDEX_PAGE);
     log('✓ pages/index', 'ok');
@@ -363,7 +379,7 @@ async function resetMenuOnly() {
   btn.disabled = true;
   btn.textContent = 'Bezig…';
   bar.style.width = '0%';
-  total = FLAVORS.length + 1;
+  total = FLAVORS.length + 2;
   done  = 0;
 
   try {
@@ -389,6 +405,19 @@ async function resetMenuOnly() {
       log(`✓ ${f.name}`, 'ok');
       tick();
     });
+
+    // Delete existing categories and re-seed defaults
+    const existingCats = await db.collection('categories').get();
+    if (!existingCats.empty) {
+      const catDelBatch = db.batch();
+      existingCats.forEach(doc => catDelBatch.delete(doc.ref));
+      await catDelBatch.commit();
+    }
+    const catBatch = db.batch();
+    CATEGORIES.forEach(c => { catBatch.set(db.collection('categories').doc(), c); });
+    await catBatch.commit();
+    log('✓ Categorieën gereset', 'ok');
+    tick();
 
     log('', 'inf');
     log('✅ Menu opnieuw geladen!', 'ok');
