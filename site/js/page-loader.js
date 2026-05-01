@@ -231,11 +231,9 @@ function _buildMenuItemHTML(flavor) {
 }
 
 function _applySmakenChrome() {
-  const top    = document.getElementById('smaken-info-top');
   const bottom = document.getElementById('smaken-info-bottom');
   const grid   = document.querySelector('.menu-grid');
   const isSmaken = _activeFilter === 'smaken';
-  if (top)    top.hidden    = !isSmaken;
   if (bottom) bottom.hidden = !isSmaken;
   if (grid)   grid.classList.toggle('menu-grid--smaken', isSmaken);
 }

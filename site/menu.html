@@ -122,14 +122,6 @@
           <button class="filter-tab"        data-filter="dranken" role="tab" aria-selected="false">Dranken</button>
         </div>
 
-        <!-- Smaken intro — shown only when Smaken filter is active -->
-        <div class="smaken-info" id="smaken-info-top" hidden>
-          <p class="smaken-info-title">Verkrijgbaar in ijs en milkshake!</p>
-          <p class="smaken-info-legend">
-            <span class="smaken-vegan-mark">*</span> = op waterbasis (vegan)
-          </p>
-        </div>
-
         <!-- Menu Grid — populated dynamically from Firestore via page-loader.js -->
         <div class="menu-grid" role="list">
           <div style="grid-column:1/-1;text-align:center;padding:3rem;color:var(--color-text-light);">Laden…</div>
@@ -145,9 +137,9 @@
 
         <!-- Allergeneninformatie -->
         <div class="allergen-note" role="note">
-          <strong>Allergeneninformatie:</strong> Ons gelato wordt bereid in een omgeving waar melk, eieren, noten (pistache, hazelnoot), tarwe en soja aanwezig zijn. Kruisbesmetting is mogelijk. Spreek met ons team als u ernstige allergieën heeft. Veganistische en glutenvrije opties zijn hierboven aangegeven.
-          <br />
-          <button type="button" class="smaken-allergen-link" id="open-allergen-modal" style="margin-top:0.6rem;display:inline-block;">
+          <strong>Allergeneninformatie:</strong> Ons gelato wordt bereid in een omgeving waar melk, eieren, noten (pistache, hazelnoot), tarwe en soja aanwezig zijn. Kruisbesmetting is mogelijk. Spreek met ons team als u ernstige allergieën heeft.
+          <span style="display:block;margin-top:0.4rem;"><span class="smaken-vegan-mark">*</span> = op waterbasis (vegan)</span>
+          <button type="button" class="smaken-allergen-link" id="open-allergen-modal" style="margin-top:0.5rem;display:inline-block;">
             Klik hier voor de allergenenwijzer
           </button>
         </div>
