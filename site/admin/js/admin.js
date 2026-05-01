@@ -347,7 +347,7 @@ function openFlavorModal(id) {
     if (editingFlavor) {
       form.elements['name'].value        = editingFlavor.name        || '';
       form.elements['description'].value = editingFlavor.description || '';
-      form.elements['price'].value       = editingFlavor.price       || '';
+      form.elements['price'].value       = _priceToInput(editingFlavor.price);
       form.elements['category'].value    = editingFlavor.category    || 'gelato';
       form.elements['visible'].checked   = editingFlavor.visible     !== false;
     }
@@ -356,10 +356,11 @@ function openFlavorModal(id) {
     title.textContent = 'Smaak Toevoegen';
     form.elements['visible'].checked = true;
     form.elements['category'].value = 'gelato';
-    // Set order to max + 1
     const maxOrder = allFlavors.reduce((m, f) => Math.max(m, f.order || 0), 0);
     form.dataset.nextOrder = String(maxOrder + 1);
   }
+
+  _updatePriceFieldState(form);
 
   backdrop.classList.add('open');
   form.elements['name'].focus();
@@ -378,11 +379,26 @@ async function saveFlavorFromModal(e) {
   saveBtn.textContent = 'Opslaan…';
 
   try {
+    const category  = form.elements['category'].value;
+    const rawPrice  = form.elements['price'].value.trim();
+    const isSmaken  = category === 'smaken';
+
+    // Validate price: required for non-smaken, must be numeric
+    if (!isSmaken && !rawPrice) {
+      _markPriceInvalid(form, 'Prijs is verplicht.');
+      return;
+    }
+    if (rawPrice && !/^[0-9]+([,\.][0-9]{1,2})?$/.test(rawPrice)) {
+      _markPriceInvalid(form, 'Gebruik alleen cijfers, bijv. 3,50');
+      return;
+    }
+    _markPriceInvalid(form, null); // clear error
+
     const data = {
       name:        form.elements['name'].value.trim(),
       description: form.elements['description'].value.trim(),
-      price:       form.elements['price'].value.trim(),
-      category:    form.elements['category'].value,
+      price:       rawPrice ? _inputToPrice(rawPrice) : '',
+      category,
       visible:     form.elements['visible'].checked,
     };
 
@@ -1014,6 +1030,77 @@ document.addEventListener('DOMContentLoaded', () => {
 /* ============================================================
    UTILITY
    ============================================================ */
+/* ── Price helpers ─────────────────────────────────────────── */
+// "€ 3,50"  →  "3,50"  (for displaying in the input)
+function _priceToInput(stored) {
+  return (stored || '').replace(/[€\s]/g, '').trim();
+}
+
+// "3,50"  →  "€ 3,50"  (for storing in Firestore)
+function _inputToPrice(raw) {
+  const normalised = raw.replace('.', ','); // accept dot as decimal too
+  return '€ ' + normalised;
+}
+
+// Enforce numeric-only input (digits + comma + dot, one separator max)
+function _sanitizePriceInput(val) {
+  let out = val.replace(/[^0-9,.]/g, '');
+  // Keep only the first decimal separator
+  const firstComma = out.search(/[,.]/);
+  if (firstComma !== -1) {
+    out = out.slice(0, firstComma + 1) + out.slice(firstComma + 1).replace(/[,.]/g, '');
+  }
+  return out;
+}
+
+// Show/hide error on price input
+function _markPriceInvalid(form, message) {
+  const input  = form.elements['price'];
+  const hint   = document.querySelector('#price-form-group .form-hint');
+  if (!input) return;
+  if (message) {
+    input.classList.add('is-invalid');
+    if (hint) { hint.textContent = message; hint.style.color = 'var(--danger)'; }
+  } else {
+    input.classList.remove('is-invalid');
+    if (hint) { hint.textContent = 'Alleen cijfers — bijv. 3,50'; hint.style.color = ''; }
+  }
+}
+
+// Toggle price required state based on category
+function _updatePriceFieldState(form) {
+  const cat     = form.elements['category']?.value || '';
+  const isSmaken = cat === 'smaken';
+  const mark    = document.getElementById('price-required-mark');
+  const input   = form.elements['price'];
+  if (mark)  mark.style.display  = isSmaken ? 'none' : '';
+  if (input) input.placeholder   = isSmaken ? '(optioneel)' : '3,50';
+  _markPriceInvalid(form, null); // clear any error when switching
+}
+
+document.addEventListener('DOMContentLoaded', () => {
+  const priceInput  = document.querySelector('#flavor-form input[name="price"]');
+  const categorySelect = document.querySelector('#flavor-form select[name="category"]');
+
+  if (priceInput) {
+    priceInput.addEventListener('input', e => {
+      const cursor = e.target.selectionStart;
+      const clean  = _sanitizePriceInput(e.target.value);
+      e.target.value = clean;
+      // Restore caret position after value replacement
+      try { e.target.setSelectionRange(cursor, cursor); } catch (_) {}
+      _markPriceInvalid(e.target.closest('form'), null);
+    });
+  }
+
+  if (categorySelect) {
+    categorySelect.addEventListener('change', () => {
+      const form = document.getElementById('flavor-form');
+      if (form) _updatePriceFieldState(form);
+    });
+  }
+});
+
 function escAdmin(str) {
   return String(str)
     .replace(/&/g, '&amp;')
