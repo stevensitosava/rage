@@ -28,7 +28,15 @@ let isAdmin            = false; // true only for admin@raffygelato.nl
 let allFlavors         = [];
 let editingFlavor      = null;
 const pendingImgs      = {}; // keyed by context: 'flavor' | 'about' | 'index-story' | 'index-seasonal-N'
-const FLAVORS_PER_PAGE = 10;
+const FLAVORS_PER_PAGE = 25;
+const CATEGORY_LABELS = {
+  gelato:  'Gelato',
+  smaken:  'Smaken',
+  crepe:   'Crêpes',
+  wafel:   'Miniwafels',
+  dranken: 'Dranken',
+};
+const CATEGORY_ORDER = ['gelato', 'smaken', 'crepe', 'wafel', 'dranken'];
 let flavorPage         = 1;
 let lastFlavorsRendered = [];
 
@@ -119,7 +127,7 @@ function showStatus(_containerId, msg, type = 'success') {
    ============================================================ */
 async function loadFlavors() {
   const body = document.getElementById('flavors-table-body');
-  body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>';
+  body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>';
 
   try {
     const snap = await db.collection('flavors').orderBy('order', 'asc').get();
@@ -127,7 +135,7 @@ async function loadFlavors() {
     flavorPage  = 1;
     renderFlavorsTable(allFlavors);
   } catch (err) {
-    body.innerHTML = `<tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--danger);">Fout bij laden: ${err.message}</td></tr>`;
+    body.innerHTML = `<tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--danger);">Fout bij laden: ${err.message}</td></tr>`;
   }
 }
 
@@ -137,7 +145,7 @@ function renderFlavorsTable(flavors) {
   const total = flavors.length;
 
   if (!total) {
-    body.innerHTML = '<tr><td colspan="7" style="text-align:center;padding:2rem;color:var(--text-light);">Nog geen smaken toegevoegd.</td></tr>';
+    body.innerHTML = '<tr><td colspan="6" style="text-align:center;padding:2rem;color:var(--text-light);">Nog geen smaken toegevoegd.</td></tr>';
     renderFlavorPagination(0);
     return;
   }
@@ -145,36 +153,58 @@ function renderFlavorsTable(flavors) {
   const start = (flavorPage - 1) * FLAVORS_PER_PAGE;
   const page  = flavors.slice(start, start + FLAVORS_PER_PAGE);
 
-  body.innerHTML = page.map(f => {
-    const badge = `<span class="badge badge-${f.category || 'gelato'}">${f.category || 'gelato'}</span>`;
-    return `
-    <tr data-id="${f.id}" draggable="true"
-        ondragstart="dragStart(event,'${f.id}')"
-        ondragover="dragOver(event,'${f.id}')"
-        ondragleave="dragLeave(event)"
-        ondrop="dragDrop(event,'${f.id}')"
-        ondragend="dragEnd(event)">
-      <td><span class="drag-handle" title="Slepen om te herordenen">⠿</span></td>
-      <td style="font-size:1.4rem;text-align:center;">${f.emoji || '🍦'}</td>
-      <td><strong>${escAdmin(f.name || '')}</strong></td>
-      <td>${badge}</td>
-      <td>${escAdmin(f.price || '')}</td>
-      <td>
-        <label class="toggle" title="${f.visible ? 'Zichtbaar' : 'Verborgen'}">
-          <input type="checkbox" ${f.visible ? 'checked' : ''}
-                 onchange="toggleVisibility('${f.id}', this.checked)" />
-          <span class="toggle-track"></span>
-        </label>
-      </td>
-      <td>
-        <div class="actions">
-          <button class="btn btn-outline btn-sm" onclick="openFlavorModal('${f.id}')">Bewerken</button>
-          <button class="btn btn-danger  btn-sm" onclick="confirmDeleteFlavor('${f.id}', '${escAdmin(f.name || '')}')">Verwijder</button>
-        </div>
-      </td>
-    </tr>`;
-  }).join('');
+  // Show category section headers only when "All categories" is selected
+  // (so groups stay legible). When a single category is filtered, skip them.
+  const catFilter = document.getElementById('filter-category')?.value || '';
+  const showHeaders = !catFilter;
 
+  const labelFor = c => CATEGORY_LABELS[c] || c;
+
+  let html = '';
+  let lastCategory = null;
+  for (const f of page) {
+    const cat = f.category || 'gelato';
+
+    if (showHeaders && cat !== lastCategory) {
+      const count = allFlavors.filter(x => (x.category || 'gelato') === cat).length;
+      html += `
+        <tr class="cat-header">
+          <td colspan="6" style="background:var(--cat-header-bg, #f6e9ec);padding:0.55rem 0.85rem;font-weight:700;font-size:0.8rem;letter-spacing:0.08em;text-transform:uppercase;color:var(--primary);border-top:2px solid var(--primary);">
+            ${escAdmin(labelFor(cat))} <span style="color:var(--text-light);font-weight:400;letter-spacing:0;text-transform:none;">— ${count} item${count === 1 ? '' : 's'}</span>
+          </td>
+        </tr>`;
+      lastCategory = cat;
+    }
+
+    const badge = `<span class="badge badge-${cat}">${escAdmin(labelFor(cat))}</span>`;
+    html += `
+      <tr data-id="${f.id}" draggable="true"
+          ondragstart="dragStart(event,'${f.id}')"
+          ondragover="dragOver(event,'${f.id}')"
+          ondragleave="dragLeave(event)"
+          ondrop="dragDrop(event,'${f.id}')"
+          ondragend="dragEnd(event)">
+        <td><span class="drag-handle" title="Slepen om te herordenen">⠿</span></td>
+        <td><strong>${escAdmin(f.name || '')}</strong></td>
+        <td>${badge}</td>
+        <td>${escAdmin(f.price || '')}</td>
+        <td>
+          <label class="toggle" title="${f.visible ? 'Zichtbaar' : 'Verborgen'}">
+            <input type="checkbox" ${f.visible ? 'checked' : ''}
+                   onchange="toggleVisibility('${f.id}', this.checked)" />
+            <span class="toggle-track"></span>
+          </label>
+        </td>
+        <td>
+          <div class="actions">
+            <button class="btn btn-outline btn-sm" onclick="openFlavorModal('${f.id}')">Bewerken</button>
+            <button class="btn btn-danger  btn-sm" onclick="confirmDeleteFlavor('${f.id}', '${escAdmin(f.name || '')}')">Verwijder</button>
+          </div>
+        </td>
+      </tr>`;
+  }
+
+  body.innerHTML = html;
   renderFlavorPagination(total);
 }
 
@@ -327,8 +357,6 @@ function openFlavorModal(id) {
   const form     = document.getElementById('flavor-form');
 
   form.reset();
-  delete pendingImgs['flavor'];
-  document.getElementById('modal-img-preview').style.display = 'none';
 
   if (id) {
     editingFlavor = allFlavors.find(f => f.id === id) || null;
@@ -337,20 +365,13 @@ function openFlavorModal(id) {
       form.elements['name'].value        = editingFlavor.name        || '';
       form.elements['description'].value = editingFlavor.description || '';
       form.elements['price'].value       = editingFlavor.price       || '';
-      form.elements['emoji'].value       = editingFlavor.emoji       || '';
       form.elements['category'].value    = editingFlavor.category    || 'gelato';
       form.elements['visible'].checked   = editingFlavor.visible     !== false;
-      if (editingFlavor.imageUrl) {
-        const prev = document.getElementById('modal-img-preview');
-        prev.src = editingFlavor.imageUrl;
-        prev.style.display = 'block';
-      }
     }
   } else {
     editingFlavor = null;
     title.textContent = 'Smaak Toevoegen';
     form.elements['visible'].checked = true;
-    form.elements['emoji'].value = '🍦';
     form.elements['category'].value = 'gelato';
     // Set order to max + 1
     const maxOrder = allFlavors.reduce((m, f) => Math.max(m, f.order || 0), 0);
@@ -364,7 +385,6 @@ function openFlavorModal(id) {
 function closeFlavorModal() {
   document.getElementById('modal-backdrop').classList.remove('open');
   editingFlavor = null;
-  delete pendingImgs['flavor'];
 }
 
 async function saveFlavorFromModal(e) {
@@ -375,20 +395,12 @@ async function saveFlavorFromModal(e) {
   saveBtn.textContent = 'Opslaan…';
 
   try {
-    let imageUrl = editingFlavor?.imageUrl || '';
-
-    if (pendingImgs['flavor']) {
-      imageUrl = await uploadToCloudinary(pendingImgs['flavor']);
-    }
-
     const data = {
       name:        form.elements['name'].value.trim(),
       description: form.elements['description'].value.trim(),
       price:       form.elements['price'].value.trim(),
-      emoji:       form.elements['emoji'].value.trim() || '🍦',
       category:    form.elements['category'].value,
       visible:     form.elements['visible'].checked,
-      imageUrl,
     };
 
     if (editingFlavor) {
@@ -410,18 +422,6 @@ async function saveFlavorFromModal(e) {
     saveBtn.textContent = 'Opslaan';
   }
 }
-
-// Image preview in modal
-document.addEventListener('DOMContentLoaded', () => {
-  document.getElementById('modal-img-input').addEventListener('change', e => {
-    const file = e.target.files[0];
-    if (!file) return;
-    pendingImgs['flavor'] = file;
-    const prev = document.getElementById('modal-img-preview');
-    prev.src   = URL.createObjectURL(file);
-    prev.style.display = 'block';
-  });
-});
 
 /* ============================================================
    ABOUT TAB

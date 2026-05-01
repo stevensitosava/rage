@@ -56,9 +56,10 @@
                 style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
           <option value="">Alle categorieën</option>
           <option value="gelato">Gelato</option>
-          <option value="sorbet">Sorbet</option>
-          <option value="wafel">Wafels</option>
+          <option value="smaken">Smaken</option>
           <option value="crepe">Crêpes</option>
+          <option value="wafel">Miniwafels</option>
+          <option value="dranken">Dranken</option>
         </select>
         <select id="filter-price" onchange="applyFlavorFilters()"
                 style="padding:0.55rem 0.6rem;border:1px solid var(--border);border-radius:var(--radius);font-size:0.875rem;font-family:var(--font);color:var(--text);background:var(--surface);">
@@ -79,7 +80,6 @@
           <thead>
             <tr>
               <th style="width:36px;"></th>
-              <th style="width:50px;">Emoji</th>
               <th>Naam</th>
               <th>Categorie</th>
               <th>Prijs</th>
@@ -88,7 +88,7 @@
             </tr>
           </thead>
           <tbody id="flavors-table-body">
-            <tr><td colspan="7" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>
+            <tr><td colspan="6" style="text-align:center;padding:1.5rem;color:var(--text-light);">Laden…</td></tr>
           </tbody>
         </table>
       </div>
@@ -798,32 +798,19 @@
             <input type="text" name="price" required placeholder="€ 3,50" />
           </div>
         </div>
-        <div class="form-row">
-          <div class="form-group">
-            <label>Emoji</label>
-            <input type="text" name="emoji" placeholder="🍫" style="width:80px;" />
-          </div>
-          <div class="form-group">
-            <label>Categorie</label>
-            <select name="category">
-              <option value="gelato">Gelato</option>
-              <option value="sorbet">Sorbet</option>
-              <option value="wafel">Wafels</option>
-              <option value="crepe">Crêpes</option>
-            </select>
-          </div>
+        <div class="form-group">
+          <label>Categorie</label>
+          <select name="category">
+            <option value="gelato">Gelato</option>
+            <option value="smaken">Smaken</option>
+            <option value="crepe">Crêpes</option>
+            <option value="wafel">Miniwafels</option>
+            <option value="dranken">Dranken</option>
+          </select>
         </div>
         <div class="form-group">
           <label>Beschrijving</label>
           <textarea name="description" rows="3" placeholder="Belgische pure chocolade met Siciliaans zeezout…"></textarea>
-        </div>
-        <div class="form-group">
-          <label>Afbeelding (optioneel)</label>
-          <div class="img-upload-area">
-            <input type="file" id="modal-img-input" accept="image/*" />
-            <img id="modal-img-preview" class="img-preview" style="display:none;" alt="" />
-            <p style="color:var(--text-light);font-size:0.82rem;">Klik om een afbeelding te kiezen</p>
-          </div>
         </div>
         <div class="form-group" style="display:flex;align-items:center;gap:0.75rem;">
           <label class="toggle" title="Zichtbaar op de website">
