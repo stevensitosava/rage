@@ -26,6 +26,12 @@ service cloud.firestore {
       allow write: if request.auth != null;
     }
 
+    // Menu categories — public read (needed for menu tabs), authenticated write
+    match /categories/{docId} {
+      allow read:  if true;
+      allow write: if request.auth != null;
+    }
+
     // Admin users allowlist — readable by any authenticated user (for auth check),
     // writable only via Firebase Console (never from client code)
     match /admin_users/{docId} {
