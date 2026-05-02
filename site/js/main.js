@@ -183,11 +183,13 @@ function initVideoScroll() {
         { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.95);
   }
 
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = window.devicePixelRatio || 1;
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled = true;
+  ctx.imageSmoothingQuality = 'high';
   let W = 0, H = 0, currentIndex = 0;
 
-  const FRAME_COUNT = 80;
+  const FRAME_COUNT = 77;
   const images      = new Array(FRAME_COUNT);
   let loaded        = 0;
 
@@ -209,6 +211,8 @@ function initVideoScroll() {
     canvas.width  = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     drawFrame(currentIndex);
   }
 
@@ -267,9 +271,10 @@ function initVideoScroll() {
     }
   }
 
+  const _frameDir = window.innerWidth <= 768 ? 'assets/frames-mobile' : 'assets/frames';
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
-    img.src    = `assets/frames/frame_${String(i + 1).padStart(4, '0')}.webp`;
+    img.src    = `${_frameDir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
     img.onload = img.onerror = onLoaded;
     images[i]  = img;
   }
