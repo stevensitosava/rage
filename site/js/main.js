@@ -267,9 +267,12 @@ function initVideoScroll() {
     }
   }
 
+  // Use portrait mobile frames on small screens, landscape desktop frames otherwise
+  const _frameDir = window.innerWidth <= 768 ? 'assets/frames-mobile' : 'assets/frames';
+
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
-    img.src    = `assets/frames/frame_${String(i + 1).padStart(4, '0')}.webp`;
+    img.src    = `${_frameDir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
     img.onload = img.onerror = onLoaded;
     images[i]  = img;
   }
