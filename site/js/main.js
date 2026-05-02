@@ -220,8 +220,30 @@ function initVideoScroll() {
   window.addEventListener('resize', resizeCanvas, { passive: true, signal: _pageSignal() });
 
   // Track active mode so we can switch cleanly on resize
-  let _activeMode = null;
-  let _setupAC    = new AbortController();
+  let _activeMode    = null;
+  let _activeFrameDir = null;
+  let _setupAC       = new AbortController();
+
+  // Silently swap all frame images when the breakpoint crosses 768 px.
+  // No loading bar — just replace in the background and redraw.
+  function _reloadFrames(dir) {
+    if (dir === _activeFrameDir) return;
+    _activeFrameDir = dir;
+    let done = 0;
+    const next = new Array(FRAME_COUNT);
+    for (let i = 0; i < FRAME_COUNT; i++) {
+      const img = new Image();
+      const idx = i;
+      img.onload = img.onerror = () => {
+        next[idx] = img;
+        if (++done === FRAME_COUNT) {
+          for (let j = 0; j < FRAME_COUNT; j++) images[j] = next[j];
+          drawFrame(currentIndex);
+        }
+      };
+      img.src = `${dir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
+    }
+  }
 
   function applySetup() {
     const wantMobile = window.innerWidth <= 768;
@@ -234,6 +256,10 @@ function initVideoScroll() {
     ScrollTrigger.getAll().filter(st => st.trigger === section).forEach(st => st.kill());
 
     _activeMode = mode;
+
+    // Swap frame set for the new breakpoint
+    _reloadFrames(wantMobile ? 'assets/frames-mobile' : 'assets/frames');
+
     if (wantMobile) {
       // Clear any GSAP inline styles left by desktop setup so hero
       // elements are always visible when entering mobile mode
@@ -272,6 +298,7 @@ function initVideoScroll() {
   }
 
   const _frameDir = window.innerWidth <= 768 ? 'assets/frames-mobile' : 'assets/frames';
+  _activeFrameDir = _frameDir; // mark initial set so _reloadFrames skips it
   for (let i = 0; i < FRAME_COUNT; i++) {
     const img = new Image();
     img.src    = `${_frameDir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
