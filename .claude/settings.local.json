@@ -1,0 +1,11 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(rm site/assets/frames/*.webp)",
+      "Bash(cp site/assets/frames-original/*.webp site/assets/frames/)",
+      "Bash(rm -rf site/assets/frames-original site/assets/frames-new site/assets/frames-mobile)",
+      "Bash(rm -f site/assets/test-hero-animation.mp4 site/assets/test-hero-animation-mobile.mp4)",
+      "Bash(rm -f scripts/swap-hero-frames.js)"
+    ]
+  }
+}
