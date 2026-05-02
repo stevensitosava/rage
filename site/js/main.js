@@ -183,8 +183,10 @@ function initVideoScroll() {
         { opacity: 0, y: 12 }, { opacity: 1, y: 0, duration: 0.7, ease: 'power3.out' }, 0.95);
   }
 
-  const dpr = Math.min(window.devicePixelRatio || 1, 2);
+  const dpr = window.devicePixelRatio || 1; // no cap — full Retina/3× support
   const ctx = canvas.getContext('2d');
+  ctx.imageSmoothingEnabled  = true;
+  ctx.imageSmoothingQuality  = 'high';
   let W = 0, H = 0, currentIndex = 0;
 
   const FRAME_COUNT = 80;
@@ -209,6 +211,9 @@ function initVideoScroll() {
     canvas.width  = Math.round(W * dpr);
     canvas.height = Math.round(H * dpr);
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    // Re-apply after canvas resize — assigning width/height resets context state
+    ctx.imageSmoothingEnabled = true;
+    ctx.imageSmoothingQuality = 'high';
     drawFrame(currentIndex);
   }
 
