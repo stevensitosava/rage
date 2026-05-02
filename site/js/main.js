@@ -47,8 +47,26 @@ document.addEventListener('DOMContentLoaded', () => {
   initContactForm();
   initRouter();
   if (typeof initFirebasePage === 'function') initFirebasePage();
+  initVisitTracker();
 
 });
+
+/* ============================================
+   VISIT TRACKER
+   ============================================ */
+function initVisitTracker() {
+  const SESSION_KEY = 'raffy_visit_tracked';
+  if (sessionStorage.getItem(SESSION_KEY)) return;
+  if (typeof db === 'undefined' || !db) return;
+  try {
+    const today = new Date().toISOString().slice(0, 10);
+    const inc   = firebase.firestore.FieldValue.increment(1);
+    const opts  = { merge: true };
+    db.collection('site_visits').doc('total').set({ count: inc }, opts).catch(() => {});
+    db.collection('site_visits').doc(today).set({ count: inc }, opts).catch(() => {});
+    sessionStorage.setItem(SESSION_KEY, '1');
+  } catch (_) {}
+}
 
 /* ============================================
    NAVIGATION
