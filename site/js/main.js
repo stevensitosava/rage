@@ -187,22 +187,53 @@ function initVideoScroll() {
   const ctx = canvas.getContext('2d');
   ctx.imageSmoothingEnabled = true;
   ctx.imageSmoothingQuality = 'high';
-  let W = 0, H = 0, currentIndex = 0;
+  let W = 0, H = 0;
 
-  const FRAME_COUNT = 77;
-  const images      = new Array(FRAME_COUNT);
-  let loaded        = 0;
+  // ── Hidden video element — single file instead of 77 frame images ──
+  const video = document.createElement('video');
+  video.muted       = true;
+  video.playsInline = true;
+  video.preload     = 'auto';
+  video.style.cssText = 'position:absolute;width:0;height:0;opacity:0;pointer-events:none;';
+  section.appendChild(video);
 
-  function drawFrame(index, zoomProgress) {
-    currentIndex = Math.max(0, Math.min(Math.round(index), FRAME_COUNT - 1));
-    const img = images[currentIndex];
-    if (!img || !img.complete || !img.naturalWidth) return;
-    const iw = img.naturalWidth, ih = img.naturalHeight;
-    const zoom  = 1 + (zoomProgress || 0) * 0.28;
-    const scale = Math.max(W / iw, H / ih) * zoom;
+  // Seek queue — video.currentTime is async; queue the latest request
+  let _lastZoom    = 0;
+  let _pendingSeek = null;
+  let _isSeeking   = false;
+
+  function drawVideoFrame(zoom) {
+    if (!video.videoWidth) return;
+    const iw = video.videoWidth, ih = video.videoHeight;
+    const z     = 1 + (zoom || 0) * 0.28;
+    const scale = Math.max(W / iw, H / ih) * z;
     const sw = iw * scale, sh = ih * scale;
     ctx.clearRect(0, 0, W, H);
-    ctx.drawImage(img, (W - sw) / 2, (H - sh) / 2, sw, sh);
+    ctx.drawImage(video, (W - sw) / 2, (H - sh) / 2, sw, sh);
+  }
+
+  function seekTo(time, zoom) {
+    _lastZoom = zoom || 0;
+    if (_isSeeking) { _pendingSeek = { time, zoom: _lastZoom }; return; }
+    _isSeeking = true;
+    video.currentTime = time;
+  }
+
+  video.addEventListener('seeked', () => {
+    drawVideoFrame(_lastZoom);
+    _isSeeking = false;
+    if (_pendingSeek) {
+      const { time, zoom } = _pendingSeek;
+      _pendingSeek = null;
+      seekTo(time, zoom);
+    }
+  });
+
+  // Map scroll progress (0–1) to video time
+  function scrubTo(progress, zoom) {
+    const dur = video.duration;
+    if (!dur || isNaN(dur)) return;
+    seekTo(Math.max(0, Math.min(progress * dur, dur - 0.001)), zoom || 0);
   }
 
   function resizeCanvas() {
@@ -213,56 +244,52 @@ function initVideoScroll() {
     ctx.setTransform(dpr, 0, 0, dpr, 0, 0);
     ctx.imageSmoothingEnabled = true;
     ctx.imageSmoothingQuality = 'high';
-    drawFrame(currentIndex);
+    drawVideoFrame(_lastZoom);
   }
 
   resizeCanvas();
   window.addEventListener('resize', resizeCanvas, { passive: true, signal: _pageSignal() });
 
-  // Track active mode so we can switch cleanly on resize
-  let _activeMode    = null;
-  let _activeFrameDir = null;
-  let _setupAC       = new AbortController();
+  // ── Video source loader — swaps src silently on breakpoint change ──
+  let _activeVideoSrc = null;
 
-  // Silently swap all frame images when the breakpoint crosses 768 px.
-  // No loading bar — just replace in the background and redraw.
-  function _reloadFrames(dir) {
-    if (dir === _activeFrameDir) return;
-    _activeFrameDir = dir;
-    let done = 0;
-    const next = new Array(FRAME_COUNT);
-    for (let i = 0; i < FRAME_COUNT; i++) {
-      const img = new Image();
-      const idx = i;
-      img.onload = img.onerror = () => {
-        next[idx] = img;
-        if (++done === FRAME_COUNT) {
-          for (let j = 0; j < FRAME_COUNT; j++) images[j] = next[j];
-          drawFrame(currentIndex);
-        }
-      };
-      img.src = `${dir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
-    }
+  function _loadVideo(src, onReady) {
+    if (src === _activeVideoSrc) { onReady?.(); return; }
+    _activeVideoSrc = src;
+    _pendingSeek = null;
+    _isSeeking   = false;
+    video.src = src;
+    video.load();
+    if (onReady) video.addEventListener('loadeddata', onReady, { once: true });
   }
+
+  // Update loading bar as video buffers
+  video.addEventListener('progress', () => {
+    if (!video.duration || !video.buffered.length || !loadingFill) return;
+    const pct = Math.round((video.buffered.end(video.buffered.length - 1) / video.duration) * 100);
+    loadingFill.style.width = Math.min(pct, 99) + '%';
+  });
+
+  // Track active mode so we can switch cleanly on resize
+  let _activeMode = null;
+  let _setupAC    = new AbortController();
 
   function applySetup() {
     const wantMobile = window.innerWidth <= 768;
     const mode = wantMobile ? 'mobile' : 'desktop';
     if (mode === _activeMode) return;
 
-    // Teardown previous mode
     _setupAC.abort();
     _setupAC = new AbortController();
     ScrollTrigger.getAll().filter(st => st.trigger === section).forEach(st => st.kill());
 
     _activeMode = mode;
 
-    // Swap frame set for the new breakpoint
-    _reloadFrames(wantMobile ? 'assets/frames-mobile' : 'assets/frames');
+    // Swap video source for the new breakpoint (tiny re-download, smooth swap)
+    const newSrc = wantMobile ? 'assets/video-hero-mobile.mp4' : 'assets/video-hero.mp4';
+    _loadVideo(newSrc, () => { drawVideoFrame(0); scrubTo(0, 0); });
 
     if (wantMobile) {
-      // Clear any GSAP inline styles left by desktop setup so hero
-      // elements are always visible when entering mobile mode
       const heroEls = [
         heroContent,
         section.querySelector('.hero-eyebrow'),
@@ -272,7 +299,6 @@ function initVideoScroll() {
         blackout,
       ].filter(Boolean);
       gsap.set(heroEls, { clearProps: 'all' });
-
       setupMobile(_setupAC.signal);
     } else {
       setupDesktop();
@@ -280,38 +306,26 @@ function initVideoScroll() {
     }
   }
 
-  function onLoaded() {
-    loaded++;
-    if (loadingFill) loadingFill.style.width = (loaded / FRAME_COUNT * 100).toFixed(0) + '%';
-    if (loaded === FRAME_COUNT) {
-      loadingEl && loadingEl.classList.add('hidden');
-      drawFrame(0);
-      applySetup();
+  // ── Option C: start as soon as the first frame is ready ──
+  // loadeddata fires much faster than loading all 77 frame images
+  const initSrc = window.innerWidth <= 768 ? 'assets/video-hero-mobile.mp4' : 'assets/video-hero.mp4';
+  _loadVideo(initSrc, () => {
+    if (loadingFill) loadingFill.style.width = '100%';
+    loadingEl?.classList.add('hidden');
+    drawVideoFrame(0);
+    applySetup();
 
-      // Re-run setup when crossing the mobile/desktop breakpoint
-      let _modeTimer;
-      window.addEventListener('resize', () => {
-        clearTimeout(_modeTimer);
-        _modeTimer = setTimeout(applySetup, 250);
-      }, { passive: true, signal: _pageSignal() });
-    }
-  }
+    let _modeTimer;
+    window.addEventListener('resize', () => {
+      clearTimeout(_modeTimer);
+      _modeTimer = setTimeout(applySetup, 250);
+    }, { passive: true, signal: _pageSignal() });
+  });
 
-  const _frameDir = window.innerWidth <= 768 ? 'assets/frames-mobile' : 'assets/frames';
-  _activeFrameDir = _frameDir; // mark initial set so _reloadFrames skips it
-  for (let i = 0; i < FRAME_COUNT; i++) {
-    const img = new Image();
-    img.src    = `${_frameDir}/frame_${String(i + 1).padStart(4, '0')}.webp`;
-    img.onload = img.onerror = onLoaded;
-    images[i]  = img;
-  }
-
-  // ── Mobile: scroll listener maps canvas exit → frame index ──
+  // ── Mobile: scroll listener scrubs video ──
   function setupMobile(signal) {
-    const LAST = FRAME_COUNT - 1;
     let raf = null;
 
-    // Cache layout values — reflow only on resize, not every scroll tick
     let sectionTop  = section.getBoundingClientRect().top + window.scrollY;
     let scrollRange = section.offsetHeight - window.innerHeight;
 
@@ -324,21 +338,16 @@ function initVideoScroll() {
       raf = null;
       const progress = Math.max(0, Math.min(1, (window.scrollY - sectionTop) / scrollRange));
 
-      drawFrame(progress * LAST);
+      scrubTo(progress, 0);
 
-      // Scroll cue fades out in first 15%
       if (scrollCue) {
         scrollCue.style.opacity = Math.max(0, 1 - progress / 0.15).toString();
       }
-
-      // Hero content lifts + fades from 45% → 72%
       if (heroContent) {
         const t = Math.max(0, Math.min(1, (progress - 0.45) / 0.27));
         heroContent.style.opacity   = (1 - t).toString();
         heroContent.style.transform = t > 0 ? `translateY(${-t * 28}px)` : '';
       }
-
-      // Espresso blackout closes from 70% → 92%
       if (blackout) {
         blackout.style.opacity = Math.max(0, Math.min(1, (progress - 0.70) / 0.22)).toString();
       }
@@ -350,16 +359,13 @@ function initVideoScroll() {
     update();
   }
 
-  // ── Desktop: GSAP scrub — frames + zoom + staggered hero reveal ──
+  // ── Desktop: GSAP scrub — video + zoom + staggered hero reveal ──
   function setupDesktop() {
-    const LAST = FRAME_COUNT - 1;
-
     const eyebrow = heroContent?.querySelector('.hero-eyebrow');
     const lines   = heroContent ? [...heroContent.querySelectorAll('.hero-line')] : [];
     const sub     = heroContent?.querySelector('.hero-sub');
     const ctas    = heroContent?.querySelector('.hero-ctas');
 
-    // ── ON LOAD: eyebrow + title lines animate in immediately ──
     const loadTl = gsap.timeline({ delay: 0.35, defaults: { ease: 'power4.out' } });
     if (eyebrow) loadTl.fromTo(eyebrow,
       { opacity: 0, y: 16 }, { opacity: 1, y: 0, duration: 0.85, ease: 'power3.out' }, 0);
@@ -369,12 +375,12 @@ function initVideoScroll() {
     if (scrollCue) loadTl.fromTo(scrollCue,
       { opacity: 0 }, { opacity: 1, duration: 0.6, ease: 'power2.out' }, 0.9);
 
-    // ── Frame scrub 1:1 with scroll progress; zoom applied in canvas draw ──
+    // Scrub video with scroll progress; zoom driven by same progress
     ScrollTrigger.create({
       trigger: section,
       start: 'top top',
       end: 'bottom bottom',
-      onUpdate(self) { drawFrame(self.progress * LAST, self.progress); },
+      onUpdate(self) { scrubTo(self.progress, self.progress); },
     });
 
     // ── Scroll timeline: sub + ctas reveal, then everything fades ──
