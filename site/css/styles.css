@@ -1673,6 +1673,10 @@ button.smaken-allergen-link {
   align-items: center;
 }
 
+@media (max-width: 767px) {
+  .about-founder-img { display: none; }
+}
+
 @media (min-width: 768px) {
   .about-story-inner { grid-template-columns: 1fr 1.2fr; }
 }
