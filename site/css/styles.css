@@ -1674,7 +1674,7 @@ button.smaken-allergen-link {
 }
 
 @media (max-width: 767px) {
-  .about-founder-img { display: none; }
+  .about-founder-img { display: none !important; }
 }
 
 @media (min-width: 768px) {
