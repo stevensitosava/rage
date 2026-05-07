@@ -6,7 +6,8 @@
   <nav class="nav" role="navigation" aria-label="Hoofdnavigatie">
     <div class="container nav-inner">
       <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
-        <img src="assets/logo.webp" alt="Raffy Gelato" />
+        <span class="nav-logo-word">RAFFY</span>
+        <span class="nav-logo-sub">Gelato Italiano</span>
       </a>
       <ul class="nav-links" role="list">
         <li><a href="menu.html"    class="nav-link">Menu</a></li>
@@ -14,8 +15,9 @@
         <li><a href="contact.html" class="nav-link">Vind ons</a></li>
       </ul>
       <button class="nav-toggle" aria-label="Menu openen" aria-expanded="false" aria-controls="mobile-menu">
-        <img src="assets/helado-empty.webp" alt="" class="nav-toggle-icon nav-toggle-empty" aria-hidden="true" />
-        <img src="assets/helado-full.webp"  alt="" class="nav-toggle-icon nav-toggle-full"  aria-hidden="true" />
+        <span class="hbg-line"></span>
+        <span class="hbg-line"></span>
+        <span class="hbg-line"></span>
       </button>
     </div>
   </nav>
@@ -34,9 +36,10 @@
       <div class="footer-grid">
         <div class="footer-brand">
           <a href="index.html" class="nav-logo" aria-label="Raffy Gelato — naar homepagina">
-            <img src="assets/logo.webp" alt="Raffy Gelato" />
+            <span class="nav-logo-word">RAFFY</span>
+            <span class="nav-logo-sub">Gelato Italiano</span>
           </a>
-          <p class="footer-tagline">Authentiek Italiaans en Grieks gelato, wafels en crêpes — al meer dan 25 jaar op de Oude Markt in Tilburg.</p>
+          <p class="footer-tagline">Authentiek Italiaans gelato, wafels en crêpes — dé verwenplek op de Oude Markt in Tilburg.</p>
           <div class="footer-social" aria-label="Sociale media">
             <a href="https://www.instagram.com/raffytilburg" class="social-link" aria-label="Instagram" target="_blank" rel="noopener noreferrer">
               <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="2" width="20" height="20" rx="5" ry="5"/><path d="M16 11.37A4 4 0 1 1 12.63 8 4 4 0 0 1 16 11.37z"/><line x1="17.5" y1="6.5" x2="17.51" y2="6.5"/></svg>

@@ -1,4 +1,4 @@
 User-agent: *
 Allow: /
 
-Sitemap: https://raffygelato.com/sitemap.xml
+Sitemap: https://raffygelato.nl/sitemap.xml
