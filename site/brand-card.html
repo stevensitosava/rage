@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Brand Card — Raffy Gelato</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Cormorant+Garamond:ital,wght@0,600;0,700;1,400;1,600&family=Nunito:wght@400;600;700&display=swap" rel="stylesheet" />
+  <style>
+    :root {
+      --primary:    #a3215f;
+      --terra:      #E8704A;
+      --cream:      #FDF6EC;
+      --espresso:   #2D1B0E;
+      --gold:       #F5C842;
+      --blush:      #FAD4C0;
+      --peach:      #e7bb97;
+      --wine:       #692730;
+      --muted:      #a05e65;
+      --font-h: 'Cormorant Garamond', Georgia, serif;
+      --font-b: 'Nunito', system-ui, sans-serif;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { -webkit-font-smoothing: antialiased; }
+    body {
+      font-family: var(--font-b);
+      background: #1a0f08;
+      color: var(--espresso);
+      padding: 2rem 1rem;
+      min-height: 100vh;
+      display: flex;
+      align-items: flex-start;
+      justify-content: center;
+    }
+
+    .card {
+      width: 100%;
+      max-width: 920px;
+      border-radius: 24px;
+      overflow: hidden;
+      box-shadow: 0 40px 100px rgba(0,0,0,.5);
+    }
+
+    /* ── HEADER ── */
+    .card__header {
+      position: relative;
+      background: var(--espresso);
+      padding: 0;
+      overflow: hidden;
+      min-height: 220px;
+      display: flex;
+      align-items: flex-end;
+    }
+    .card__header-img {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      object-position: center 40%;
+      opacity: .35;
+    }
+    .card__header-overlay {
+      position: absolute;
+      inset: 0;
+      background: linear-gradient(to right, rgba(45,27,14,.95) 40%, rgba(45,27,14,.5) 100%);
+    }
+    .card__header-content {
+      position: relative;
+      z-index: 2;
+      padding: 2.5rem 3rem;
+      display: flex;
+      align-items: flex-end;
+      justify-content: space-between;
+      width: 100%;
+      gap: 2rem;
+    }
+    .card__logo-wrap {
+      display: flex;
+      align-items: center;
+      gap: 1.25rem;
+    }
+    .card__logo-img {
+      height: 64px;
+      width: auto;
+      object-fit: contain;
+      flex-shrink: 0;
+    }
+    .card__brand-text h1 {
+      font-family: var(--font-h);
+      font-size: 2.4rem;
+      font-weight: 700;
+      color: var(--cream);
+      line-height: 1;
+      margin-bottom: .25rem;
+    }
+    .card__brand-text p {
+      font-size: .72rem;
+      font-weight: 700;
+      letter-spacing: .22em;
+      text-transform: uppercase;
+      color: var(--peach);
+    }
+    .card__founded {
+      text-align: right;
+      flex-shrink: 0;
+    }
+    .card__founded-year {
+      display: block;
+      font-family: var(--font-h);
+      font-size: 3.5rem;
+      font-weight: 700;
+      color: var(--terra);
+      line-height: 1;
+    }
+    .card__founded-label {
+      font-size: .68rem;
+      font-weight: 700;
+      letter-spacing: .15em;
+      text-transform: uppercase;
+      color: rgba(253,246,236,.4);
+    }
+
+    /* ── TAGLINE STRIP ── */
+    .card__tagline-strip {
+      background: var(--primary);
+      padding: .875rem 3rem;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 1.5rem;
+    }
+    .card__tagline-strip span {
+      font-family: var(--font-h);
+      font-style: italic;
+      font-size: 1.2rem;
+      color: var(--cream);
+      letter-spacing: .03em;
+    }
+    .card__tagline-strip::before,
+    .card__tagline-strip::after {
+      content: '✦';
+      color: var(--peach);
+      font-size: .7rem;
+      opacity: .7;
+    }
+
+    /* ── BODY ── */
+    .card__body {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      background: var(--cream);
+    }
+
+    .card__col {
+      padding: 2.25rem 2.75rem;
+    }
+    .card__col:first-child {
+      border-right: 1px solid rgba(163,33,95,.1);
+    }
+
+    .bc-label {
+      font-size: .67rem;
+      font-weight: 700;
+      letter-spacing: .2em;
+      text-transform: uppercase;
+      color: var(--primary);
+      margin-bottom: .875rem;
+      padding-bottom: .5rem;
+      border-bottom: 1px solid rgba(163,33,95,.12);
+    }
+
+    .bc-block { margin-bottom: 1.875rem; }
+    .bc-block:last-child { margin-bottom: 0; }
+
+    /* Identity */
+    .bc-identity p {
+      font-size: .875rem;
+      line-height: 1.8;
+      color: rgba(45,27,14,.65);
+    }
+    .bc-identity strong { font-weight: 700; color: var(--espresso); }
+
+    /* Palette */
+    .palette { display: flex; gap: .5rem; flex-wrap: wrap; margin-top: .25rem; }
+    .swatch { display: flex; flex-direction: column; align-items: center; gap: .3rem; }
+    .swatch__color { width: 40px; height: 40px; border-radius: 8px; border: 1px solid rgba(0,0,0,.08); }
+    .swatch__name { font-size: .6rem; font-weight: 700; letter-spacing: .07em; text-transform: uppercase; color: var(--muted); text-align: center; }
+    .swatch__hex  { font-size: .58rem; color: rgba(45,27,14,.35); font-family: monospace; }
+
+    /* Typography */
+    .type-sample { margin-bottom: .875rem; }
+    .type-sample__label { font-size: .67rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--muted); margin-bottom: .25rem; }
+    .type-heading { font-family: var(--font-h); font-size: 1.5rem; font-weight: 700; color: var(--espresso); line-height: 1.2; }
+    .type-heading em { font-style: italic; color: var(--terra); }
+    .type-body { font-family: var(--font-b); font-size: .875rem; color: rgba(45,27,14,.6); line-height: 1.65; }
+
+    /* Products */
+    .product-list { display: flex; flex-wrap: wrap; gap: .5rem; margin-top: .25rem; }
+    .product-tag {
+      font-size: .75rem;
+      font-weight: 700;
+      padding: .3rem .875rem;
+      border-radius: 50px;
+      background: var(--blush);
+      color: var(--primary);
+      border: 1px solid rgba(163,33,95,.15);
+    }
+
+    /* Services / features */
+    .feature-list { list-style: none; }
+    .feature-list li {
+      display: flex;
+      align-items: flex-start;
+      gap: .625rem;
+      padding: .45rem 0;
+      border-bottom: 1px solid rgba(163,33,95,.07);
+      font-size: .875rem;
+      color: rgba(45,27,14,.65);
+      line-height: 1.5;
+    }
+    .feature-list li:last-child { border-bottom: none; }
+    .feature-list li::before { content: '✦'; color: var(--terra); font-size: .55rem; margin-top: .45rem; flex-shrink: 0; }
+
+    /* Photo strip */
+    .photo-strip {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 3px;
+      height: 110px;
+    }
+    .photo-strip img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    /* ── FOOTER STRIP ── */
+    .card__footer {
+      background: var(--espresso);
+      padding: 1.625rem 3rem;
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 1rem;
+    }
+    .bc-info { display: flex; flex-direction: column; gap: .2rem; }
+    .bc-info__label { font-size: .63rem; font-weight: 700; letter-spacing: .14em; text-transform: uppercase; color: rgba(253,246,236,.35); }
+    .bc-info__value { font-size: .85rem; color: var(--cream); font-weight: 600; line-height: 1.4; }
+    .bc-info__value a { color: var(--cream); text-decoration: none; }
+
+    .card__print-hint { background: var(--espresso); text-align: center; padding: .625rem; font-size: .7rem; color: rgba(253,246,236,.2); border-top: 1px solid rgba(255,255,255,.04); }
+
+    @media (max-width: 700px) {
+      .card__header-content { padding: 2rem 1.5rem; flex-direction: column; align-items: flex-start; }
+      .card__founded { text-align: left; }
+      .card__tagline-strip { padding: .75rem 1.5rem; }
+      .card__body { grid-template-columns: 1fr; }
+      .card__col:first-child { border-right: none; border-bottom: 1px solid rgba(163,33,95,.1); }
+      .card__col { padding: 1.75rem 1.5rem; }
+      .card__footer { grid-template-columns: 1fr 1fr; padding: 1.5rem; }
+      .photo-strip { grid-template-columns: repeat(2, 1fr); height: 160px; }
+    }
+
+    @media print {
+      body { background: white; padding: 0; }
+      .card { box-shadow: none; border-radius: 0; max-width: 100%; }
+      .card__print-hint { display: none; }
+    }
+  </style>
+</head>
+<body>
+
+<div class="card">
+
+  <!-- PHOTO STRIP -->
+  <div class="photo-strip">
+    <img src="assets/icecreams-2.webp" alt="Raffy Gelato" />
+    <img src="assets/icecreams-4.webp" alt="Raffy Gelato" />
+    <img src="assets/icecreams-6.webp" alt="Raffy Gelato" />
+    <img src="assets/icecreams-8.webp" alt="Raffy Gelato" />
+  </div>
+
+  <!-- HEADER -->
+  <div class="card__header">
+    <img src="assets/icecreams-.jpg" alt="" class="card__header-img" />
+    <div class="card__header-overlay"></div>
+    <div class="card__header-content">
+      <div class="card__logo-wrap">
+        <img src="assets/logo.png" alt="Raffy Gelato" class="card__logo-img" />
+        <div class="card__brand-text">
+          <h1>Raffy Gelato</h1>
+          <p>Authentiek Italiaans &amp; Grieks &middot; Tilburg</p>
+        </div>
+      </div>
+      <div class="card__founded">
+        <span class="card__founded-year">1997</span>
+        <span class="card__founded-label">Est. · 25+ jaar</span>
+      </div>
+    </div>
+  </div>
+
+  <!-- TAGLINE STRIP -->
+  <div class="card__tagline-strip">
+    <span>"Made Slow. Eaten Fast."</span>
+    <span style="opacity:.35;font-style:normal;font-size:.85rem;">·</span>
+    <span style="font-size:1rem;">"Every scoop tells a story."</span>
+    <span style="opacity:.35;font-style:normal;font-size:.85rem;">·</span>
+    <span style="font-size:1rem;">"Real ingredients. Real joy."</span>
+  </div>
+
+  <!-- BODY -->
+  <div class="card__body">
+
+    <!-- LEFT -->
+    <div class="card__col">
+
+      <div class="bc-block">
+        <p class="bc-label">Brand Identity</p>
+        <div class="bc-identity">
+          <p><strong>Type:</strong> Artisanal gelato &amp; dessert shop</p>
+          <p><strong>Location:</strong> Oude Markt 1, Tilburg — the main square</p>
+          <p><strong>Heritage:</strong> 25+ years on Tilburg's iconic Oude Markt</p>
+          <p><strong>Tone:</strong> Warm, romantic, artisanal, Italian soul</p>
+          <p style="margin-top:.75rem; font-family:'Cormorant Garamond',serif; font-style:italic; font-size:1rem; color:var(--terra); line-height:1.6;">"Small-batch gelato crafted daily from real ingredients. No shortcuts. Just joy."</p>
+        </div>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Products</p>
+        <div class="product-list">
+          <span class="product-tag">Gelato Italiano</span>
+          <span class="product-tag">Grieks Ijs</span>
+          <span class="product-tag">Miniwafels</span>
+          <span class="product-tag">Crêpes</span>
+          <span class="product-tag">Milkshakes</span>
+          <span class="product-tag">Seizoenssmaken</span>
+          <span class="product-tag">Vegan / Waterbasis</span>
+          <span class="product-tag">Catering</span>
+          <span class="product-tag">65+ Smaken</span>
+        </div>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Kleurpalet</p>
+        <div class="palette">
+          <div class="swatch">
+            <div class="swatch__color" style="background:#a3215f;"></div>
+            <span class="swatch__name">Rose</span>
+            <span class="swatch__hex">#a3215f</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background:#E8704A;"></div>
+            <span class="swatch__name">Terra</span>
+            <span class="swatch__hex">#E8704A</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background:#e7bb97;"></div>
+            <span class="swatch__name">Peach</span>
+            <span class="swatch__hex">#e7bb97</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background:#F5C842;"></div>
+            <span class="swatch__name">Gold</span>
+            <span class="swatch__hex">#F5C842</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background:#FDF6EC; border-color:rgba(0,0,0,.15);"></div>
+            <span class="swatch__name">Cream</span>
+            <span class="swatch__hex">#FDF6EC</span>
+          </div>
+          <div class="swatch">
+            <div class="swatch__color" style="background:#2D1B0E;"></div>
+            <span class="swatch__name">Espresso</span>
+            <span class="swatch__hex">#2D1B0E</span>
+          </div>
+        </div>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Typografie</p>
+        <div class="type-sample">
+          <p class="type-sample__label">Display — Cormorant Garamond</p>
+          <p class="type-heading">Proef de <em>Zoetheid</em><br>van Italië</p>
+        </div>
+        <div class="type-sample">
+          <p class="type-sample__label">Body — Nunito</p>
+          <p class="type-body">Al meer dan 25 jaar dé verwenplek in hartje Tilburg. Van romig gelato tot knapperige wafels.</p>
+        </div>
+      </div>
+
+    </div>
+
+    <!-- RIGHT -->
+    <div class="card__col">
+
+      <div class="bc-block">
+        <p class="bc-label">Website — Kenmerken</p>
+        <ul class="feature-list">
+          <li>5 pagina's: Home, Menu, About, Contact, 404</li>
+          <li>Scroll-driven video animatie in hero (canvas scrubbing — 275 KB desktop / 383 KB mobiel)</li>
+          <li>GSAP ScrollTrigger animaties op alle pagina's</li>
+          <li>Real-time menu beheer via Firebase Firestore + Admin dashboard</li>
+          <li>Dynamische categorieën — toevoegen, verbergen, verwijderen zonder code</li>
+          <li>Smaken sectie met 65+ smaken, allergenenwijzer modal, vegan-markering</li>
+          <li>Bezoekersstatistieken tracker (sessie-gebaseerd, admin only)</li>
+          <li>Schema.org IceCreamShop markup + Open Graph + sitemap.xml</li>
+          <li>Volledig responsive — mobile-first, aparte mobiele hero animatie</li>
+          <li>WebP afbeeldingen — 50–77% kleiner dan origineel</li>
+          <li>Quality audit: ✅ PASS</li>
+        </ul>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Concurrenten Tilburg &amp; regio</p>
+        <ul class="feature-list">
+          <li><strong>Intermezzo</strong> (Heuvelring) — sterkste concurrent lokaal, 40–45 smaken dagelijks, 2 vestigingen</li>
+          <li><strong>Softy's</strong> (Oude Markt) — directe buurman, softijs — ander product</li>
+          <li><strong>Karvansara by Vittorio</strong> (Piushaven) — Perzisch ijs, unieke niche</li>
+          <li><strong>Bon Appetit</strong> (Breda, 30 km) — verkozen "beste van Nederland"</li>
+          <li><strong>IJssalon Bastani</strong> (Eindhoven, 40 km) — genomineerd "IJssalon v/h Jaar"</li>
+          <li><strong>Kans:</strong> Raffy's Italiaans + Grieks combo is uniek in Tilburg centrum</li>
+        </ul>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Marktpositie &amp; Strategie</p>
+        <ul class="feature-list">
+          <li><strong>25+ jaar heritage</strong> — sterkste vertrouwenssignaal in Tilburg</li>
+          <li>Enige winkel op Oude Markt met Italiaans + Grieks gelato</li>
+          <li>Lokale markt: 73% food discovery via mobiel — mobile-first cruciaal</li>
+          <li>Lokale shops scoren gemiddeld 4.2/10 op website design — grote kans</li>
+          <li>Seizoenssmaken als terugkerend marketinginstrument en urgentie-driver</li>
+          <li>Verhaal + oprichtersnaam = emotionele connectie die ketens niet kunnen kopiëren</li>
+        </ul>
+      </div>
+
+      <div class="bc-block">
+        <p class="bc-label">Conversie-strategie</p>
+        <ul class="feature-list">
+          <li><strong>Primair doel:</strong> adres + openingstijden binnen 5 sec zichtbaar</li>
+          <li>Home → "Bekijk het Menu" + "Vind Ons" als primaire CTA's</li>
+          <li>Menu → real-time smaken, dynamische categoriefilters</li>
+          <li>Contact → formulier + kaart + FAQ over catering en allergieën</li>
+          <li>Testimonials op homepage (beheersbaar via admin dashboard)</li>
+        </ul>
+      </div>
+
+    </div>
+  </div>
+
+  <!-- FOOTER -->
+  <div class="card__footer">
+    <div class="bc-info">
+      <span class="bc-info__label">Adres</span>
+      <span class="bc-info__value">Oude Markt 1<br>5038 TJ Tilburg</span>
+    </div>
+    <div class="bc-info">
+      <span class="bc-info__label">Openingstijden</span>
+      <span class="bc-info__value">Ma–Vr 12:00–21:00<br>Za 11:00–22:00 · Zo 11:00–21:00</span>
+    </div>
+    <div class="bc-info">
+      <span class="bc-info__label">Contact</span>
+      <span class="bc-info__value">
+        <a href="tel:+31882050505">088 205 0505</a><br>
+        <a href="mailto:info@raffygelato.nl">info@raffygelato.nl</a>
+      </span>
+    </div>
+    <div class="bc-info">
+      <span class="bc-info__label">Online</span>
+      <span class="bc-info__value">
+        raffygelato.com<br>
+        <a href="https://instagram.com/raffytilburg">@raffytilburg</a>
+      </span>
+    </div>
+  </div>
+
+  <p class="card__print-hint">Brand Card — Raffy Gelato Tilburg — 2026</p>
+</div>
+
+</body>
+</html>
