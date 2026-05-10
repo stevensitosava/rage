@@ -276,9 +276,19 @@ function initVideoScroll() {
     _activeVideoSrc = src;
     _pendingSeek = null;
     _isSeeking   = false;
+
+    // Attach listener BEFORE setting src — on cached videos, loadeddata
+    // can fire synchronously inside load() and would be missed otherwise.
+    if (onReady) video.addEventListener('loadeddata', onReady, { once: true });
     video.src = src;
     video.load();
-    if (onReady) video.addEventListener('loadeddata', onReady, { once: true });
+
+    // Edge case: if readyState already says "current frame is available",
+    // the event won't fire again — call onReady manually.
+    if (onReady && video.readyState >= 2) {
+      video.removeEventListener('loadeddata', onReady);
+      onReady();
+    }
   }
 
   // Update loading bar as video buffers
@@ -291,6 +301,12 @@ function initVideoScroll() {
   // Track active mode so we can switch cleanly on resize
   let _activeMode = null;
   let _setupAC    = new AbortController();
+
+  // Tie setup listeners to page lifecycle — when SPA navigates away,
+  // abort _setupAC so old scroll listeners stop firing on the detached section.
+  const _pageSig = _pageSignal();
+  const _cascadeAbort = () => _setupAC.abort();
+  _pageSig.addEventListener('abort', _cascadeAbort, { once: true });
 
   function applySetup() {
     const wantMobile = window.innerWidth <= 768;
