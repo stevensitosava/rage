@@ -40,7 +40,15 @@
 
 ## Change Log
 
-### May 2026 — Session 3 (latest)
+### May 2026 — Session 4 (latest)
+
+**Deployed:**
+- **About page:** removed hardcoded story paragraphs from `about.html`. Content now fully driven by Firestore (`about/main` doc) via page-loader.js. Kept empty placeholder elements (section-label, h2, 3 paragraphs) so the populate-from-Firestore path still works.
+- **Hero animation fix:** two bugs causing the hero to not re-play on mobile after SPA navigation back to home —
+  - Race condition in `_loadVideo()`: `loadeddata` listener was attached AFTER `video.src`/`video.load()`. On cached videos (second visit), `loadeddata` fires synchronously and the listener missed it → `applySetup()` never ran, loading bar stayed stuck. Fix: attach listener before setting `src`, plus `readyState >= 2` fallback.
+  - Listener leak: `setupMobile` scroll/resize listeners used `_setupAC.signal` which was never aborted on page teardown. Old listeners fired on the detached section. Fix: cascade-abort `_setupAC` when `_pageAC` aborts.
+
+### May 2026 — Session 3
 
 **Deployed:**
 - **Logo redesign:** image logo → text logo "RAFFY" (Cormorant Garamond italic, primary wine color) + "Gelato Italiano" (Nunito uppercase, gold, letter-spacing 0.4em). Gold gradient on footer version. Drop-shadow for contrast.
