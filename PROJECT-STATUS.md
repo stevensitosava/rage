@@ -1,6 +1,7 @@
 # Raffy Gelato — Project Status & Change Log
 
-**Site:** raffygelato.nl
+**Site:** 
+
 **Stack:** Vanilla HTML/CSS/JS · Firebase Firestore · GSAP · GitHub Pages
 **Repo:** github.com/stevensitosava/rage
 
@@ -40,7 +41,18 @@
 
 ## Change Log
 
-### May 2026 — Session 4 (latest)
+### May 2026 — Session 5 (latest)
+
+**Deployed:**
+- **Opening hours simplified** to a single sentence everywhere ("Elke dag open van 12:00 tot 22:00"):
+  - **Admin panel** Contact tab: 3 inputs (weekdays / Saturday / Sunday) → 1 input `hoursMessage`. Legacy fields cleared on save.
+  - **Footer** (components.js): 3-line list → single `<p class="footer-hours-message">`
+  - **Contact page** card: 3 lines → 1 line
+  - **page-loader.js**: new `_resolveHoursMessage()` helper reads `hoursMessage` first, falls back to legacy fields for backwards compatibility (auto-merges if all 3 days are equal)
+  - **brand-card.html**: updated to single message
+  - New CSS class `.footer-hours-message`
+
+### May 2026 — Session 4
 
 **Deployed:**
 - **About page:** removed hardcoded story paragraphs from `about.html`. Content now fully driven by Firestore (`about/main` doc) via page-loader.js. Kept empty placeholder elements (section-label, h2, 3 paragraphs) so the populate-from-Firestore path still works.

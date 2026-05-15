@@ -354,9 +354,10 @@ function loadContactPage() {
         p.innerHTML = `${addr}<br><a href="${link}" target="_blank" rel="noopener noreferrer" style="color:var(--color-primary);font-weight:600;text-decoration:underline;">Routebeschrijving →</a>`;
       }
     }
-    if (data.hoursWeekdays && cards[1]) {
+    const msg = _resolveHoursMessage(data);
+    if (msg && cards[1]) {
       const p = cards[1].querySelector('p');
-      if (p) p.innerHTML = `${_esc(data.hoursWeekdays)}<br>${_esc(data.hoursSaturday || '')}<br>${_esc(data.hoursSunday || '')}`;
+      if (p) p.textContent = msg;
     }
     if (data.phone && cards[2]) {
       const p = cards[2].querySelector('p');
@@ -490,10 +491,9 @@ function loadSharedContent() {
     if (!doc.exists) return;
     const data = doc.data();
 
-    const hourItems = document.querySelectorAll('.footer-hours-item span');
-    if (hourItems[0] && data.hoursWeekdays) hourItems[0].textContent = _extractHoursShort(data.hoursWeekdays);
-    if (hourItems[1] && data.hoursSaturday) hourItems[1].textContent = _extractHoursShort(data.hoursSaturday);
-    if (hourItems[2] && data.hoursSunday)   hourItems[2].textContent = _extractHoursShort(data.hoursSunday);
+    const hoursMessage = _resolveHoursMessage(data);
+    const footerMsg = document.querySelector('.footer-hours-message');
+    if (footerMsg && hoursMessage) footerMsg.textContent = hoursMessage;
 
     document.querySelectorAll('.footer-links').forEach(nav => {
       const tel = nav.querySelector('a[href^="tel:"]');
@@ -539,6 +539,20 @@ function loadSharedContent() {
 function _extractHoursShort(str) {
   const m = (str || '').match(/(\d{1,2}:\d{2})\s*[-–]\s*(\d{1,2}:\d{2})/);
   return m ? `${m[1]}–${m[2]}` : str;
+}
+
+// Resolve hours into a single sentence. Prefers the new `hoursMessage`
+// field; falls back to legacy 3-field shape so old Firestore docs still work.
+function _resolveHoursMessage(data) {
+  if (data.hoursMessage && data.hoursMessage.trim()) return data.hoursMessage.trim();
+  const parts = [data.hoursWeekdays, data.hoursSaturday, data.hoursSunday].filter(Boolean);
+  if (!parts.length) return '';
+  // Try to derive a single message from the legacy fields
+  const ranges = parts.map(_extractHoursShort).filter(Boolean);
+  if (ranges.length && ranges.every(r => r === ranges[0])) {
+    return `Elke dag open van ${ranges[0].replace('–', ' tot ')}`;
+  }
+  return parts.join(' · ');
 }
 
 function _esc(str) {

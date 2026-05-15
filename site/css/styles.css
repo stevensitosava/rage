@@ -2137,6 +2137,12 @@ button.smaken-allergen-link {
 
 .footer-hours-item strong { color: rgba(253,246,236,0.8); }
 
+.footer-hours-message {
+  font-size: 0.9rem;
+  line-height: 1.5;
+  color: rgba(253, 246, 236, 0.7);
+}
+
 .footer-divider {
   border: none;
   border-top: 1px solid rgba(253,246,236,0.08);

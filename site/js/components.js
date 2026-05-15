@@ -57,11 +57,7 @@
         </div>
         <div class="footer-col">
           <h4>Openingstijden</h4>
-          <ul class="footer-hours-list" role="list">
-            <li class="footer-hours-item"><strong>Ma – Vr</strong><span>12:00 – 21:00</span></li>
-            <li class="footer-hours-item"><strong>Zaterdag</strong><span>11:00 – 22:00</span></li>
-            <li class="footer-hours-item"><strong>Zondag</strong><span>11:00 – 21:00</span></li>
-          </ul>
+          <p class="footer-hours-message">Elke dag open van 12:00 tot 22:00</p>
         </div>
         <div class="footer-col">
           <h4>Contact</h4>

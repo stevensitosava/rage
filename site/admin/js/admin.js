@@ -802,9 +802,8 @@ async function loadContactContent() {
     const f    = document.getElementById('contact-form-admin');
     if (!f) return;
 
-    const fields = ['address','addressUrl','hoursWeekdays','hoursSaturday',
-                    'hoursSunday','phone','phoneDisplay','email',
-                    'instagram','instagramUrl','mapEmbedUrl'];
+    const fields = ['address','addressUrl','hoursMessage','phone','phoneDisplay',
+                    'email','instagram','instagramUrl','mapEmbedUrl'];
     fields.forEach(key => {
       if (f.elements[key]) f.elements[key].value = data[key] || '';
     });
@@ -826,11 +825,14 @@ document.addEventListener('DOMContentLoaded', () => {
     try {
       const f = e.target;
       const data = {};
-      ['address','addressUrl','hoursWeekdays','hoursSaturday',
-       'hoursSunday','phone','phoneDisplay','email',
-       'instagram','instagramUrl','mapEmbedUrl'].forEach(key => {
+      ['address','addressUrl','hoursMessage','phone','phoneDisplay',
+       'email','instagram','instagramUrl','mapEmbedUrl'].forEach(key => {
         data[key] = f.elements[key]?.value.trim() || '';
       });
+      // Clear the legacy 3-field shape — superseded by hoursMessage
+      data.hoursWeekdays = '';
+      data.hoursSaturday = '';
+      data.hoursSunday   = '';
       await db.collection('contact').doc('main').set(data, { merge: true });
       showStatus('contact-status', 'Contactgegevens opgeslagen.');
     } catch (err) {
