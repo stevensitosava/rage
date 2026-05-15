@@ -146,10 +146,9 @@
         <a href="contact.html" class="btn btn-outline-light">Bezoek onze winkel</a>
       </div>
     </section>
-  </main>
 
-  <!-- ── Allergenenwijzer Modal ───────────────────────────── -->
-  <div class="allergen-modal" id="allergen-modal" hidden role="dialog" aria-labelledby="allergen-modal-title" aria-modal="true">
+    <!-- ── Allergenenwijzer Modal — must be inside <main> so SPA router swaps it ── -->
+    <div class="allergen-modal" id="allergen-modal" hidden role="dialog" aria-labelledby="allergen-modal-title" aria-modal="true">
     <div class="allergen-modal-backdrop" data-close-allergen></div>
     <div class="allergen-modal-content" role="document">
       <button type="button" class="allergen-modal-close" data-close-allergen aria-label="Sluiten">×</button>
@@ -180,7 +179,8 @@
         </div>
       </div>
     </div>
-  </div>
+    </div>
+  </main>
 
   <div id="footer-root"></div>
 
