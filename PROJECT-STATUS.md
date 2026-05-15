@@ -44,6 +44,7 @@
 ### May 2026 — Session 5 (latest)
 
 **Deployed:**
+- **Contact form subject:** select dropdown (5 predefined options) → free-text `<input>` so users can write their own subject
 - **Phone number removed** from all public-facing places:
   - Contact page: removed phone info card
   - Footer: removed phone link from contact column
