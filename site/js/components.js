@@ -62,7 +62,6 @@
         <div class="footer-col">
           <h4>Contact</h4>
           <nav class="footer-links" aria-label="Contactgegevens">
-            <a href="tel:+31882050505">+31 88 205 0505</a>
             <a href="mailto:info@raffygelato.nl">info@raffygelato.nl</a>
             <a href="contact.html">Oude Markt 1<br />5038 TJ Tilburg</a>
           </nav>

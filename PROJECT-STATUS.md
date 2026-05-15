@@ -44,6 +44,14 @@
 ### May 2026 — Session 5 (latest)
 
 **Deployed:**
+- **Phone number removed** from all public-facing places:
+  - Contact page: removed phone info card
+  - Footer: removed phone link from contact column
+  - Schema.org (index + contact): `telephone` field removed
+  - Contact page meta description: phone reference removed
+  - Brand card: phone removed
+  - Admin Contact panel: phone + phoneDisplay inputs removed
+  - admin.js: phone/phoneDisplay dropped from load/save arrays; cleared on save
 - **Allergen modal fix:** modal HTML was placed after `</main>`, so the SPA router (which only swaps `<main>`) didn't inject it on navigation. Clicking the "Klik hier voor de allergenenwijzer" button silently failed (`getElementById` returned null). Fix: moved modal inside `<main>` — `position: fixed` means DOM location doesn't affect visual rendering.
 - **Opening hours simplified** to a single sentence everywhere ("Elke dag open van 12:00 tot 22:00"):
   - **Admin panel** Contact tab: 3 inputs (weekdays / Saturday / Sunday) → 1 input `hoursMessage`. Legacy fields cleared on save.
